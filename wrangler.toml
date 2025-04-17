@@ -1,0 +1,19 @@
+name = "party-stats"
+main = "./dist/server/index.js"
+compatibility_date = "2024-12-30"
+compatibility_flags = [ "nodejs_compat" ]
+
+[assets]
+directory = "./dist/client/"
+html_handling = "drop-trailing-slash"
+not_found_handling = "none"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "party-stats-db"
+database_id = "9babb0a9-18a1-4d13-a04f-a30d0cac76b1"
+migrations_dir = "drizzle"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "bf85cad338854e7993b9ea1b7820edb9"

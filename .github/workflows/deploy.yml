@@ -1,0 +1,100 @@
+name: 🚀 Deploy
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  lint:
+    name: ⬣ ESLint
+    runs-on: ubuntu-22.04
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: 💰 Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key:
+            ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: 📥 Download deps
+        run: npm ci
+
+      - name: 🖼 Build icons
+        run: npm run build:icons
+
+      - name: 🔬 Lint
+        run: npm run lint
+
+  typecheck:
+    name: ʦ TypeScript
+    runs-on: ubuntu-22.04
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: 💰 Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key:
+            ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: 📥 Download deps
+        run: npm ci
+
+      - name: 🖼 Build icons
+        run: npm run build:icons
+
+      - name: 🔎 Type check
+        run: npm run tsc
+
+  vitest:
+    name: ⚡ Vitest
+    runs-on: ubuntu-22.04
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 💰 Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key:
+            ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: 📥 Download deps
+        run: npm ci
+
+      # テスト前にビルドしないとwrangler or @cloudflare/vitest-pool-workersがエラーを出す
+      - name: 🔨 Build app
+        run: npm run build
+
+      - name: ⚡ Run vitest
+        run: npm run test

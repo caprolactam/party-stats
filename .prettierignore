@@ -1,0 +1,5 @@
+scripts/svg-icons/*.svg
+src/styles/tailwindcss-animate.css
+
+drizzle/
+.github/

@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "allowImportingTsExtensions": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    // "esModuleInterop": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "types": [
+      "@cloudflare/workers-types",
+      "vite/client",
+      "@cloudflare/vitest-pool-workers"
+    ],
+    "paths": {
+      "#src/*": ["./src/*"],
+      "#api/*": ["./api/*"],
+      "@/icon-name": [
+        "./src/components/icons/name.d.ts",
+        "./types/icon-name.d.ts"
+      ]
+    },
+    "jsxImportSource": "react",
+    "resolveJsonModule": false
+  }
+}

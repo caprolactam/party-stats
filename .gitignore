@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Local env files
+.dev.vars
+
+# Testing
+coverage
+
+# Build Outputs
+dist
+src/components/icons
+public/sprite.svg
+
+# Debug
+npm-debug.log*
+
+# Cloudflare
+.wrangler
+worker-configuration.d.ts
+
+# App
+routeTree.gen.ts
+
+# Misc
+.DS_Store

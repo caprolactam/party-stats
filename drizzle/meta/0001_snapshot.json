@@ -1,0 +1,885 @@
+{
+  "id": "85aa9d4f-0e62-4f78-8343-dd2186ec1466",
+  "prevId": "f06014b1-a746-4d90-9637-174798c548cb",
+  "version": "6",
+  "dialect": "sqlite",
+  "tables": {
+    "cities": {
+      "name": "cities",
+      "columns": {
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prefecture_code": {
+          "name": "prefecture_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "archived": {
+          "name": "archived",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "cities_prefecture_code_prefectures_code_fk": {
+          "name": "cities_prefecture_code_prefectures_code_fk",
+          "tableFrom": "cities",
+          "columnsFrom": [
+            "prefecture_code"
+          ],
+          "tableTo": "prefectures",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "cities_histories": {
+      "name": "cities_histories",
+      "columns": {
+        "ancestor": {
+          "name": "ancestor",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "descendant": {
+          "name": "descendant",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "ch_desc_anc_idx": {
+          "name": "ch_desc_anc_idx",
+          "columns": [
+            "descendant",
+            "ancestor"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "cities_histories_ancestor_cities_code_fk": {
+          "name": "cities_histories_ancestor_cities_code_fk",
+          "tableFrom": "cities_histories",
+          "columnsFrom": [
+            "ancestor"
+          ],
+          "tableTo": "cities",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "cities_histories_descendant_cities_code_fk": {
+          "name": "cities_histories_descendant_cities_code_fk",
+          "tableFrom": "cities_histories",
+          "columnsFrom": [
+            "descendant"
+          ],
+          "tableTo": "cities",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "cities_histories_ancestor_descendant_pk": {
+          "columns": [
+            "ancestor",
+            "descendant"
+          ],
+          "name": "cities_histories_ancestor_descendant_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "elections": {
+      "name": "elections",
+      "columns": {
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "date": {
+          "name": "date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "election_type": {
+          "name": "election_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "parties": {
+      "name": "parties",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "parties_code_unique": {
+          "name": "parties_code_unique",
+          "columns": [
+            "code"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "prefectures": {
+      "name": "prefectures",
+      "columns": {
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "region_code": {
+          "name": "region_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "prefectures_region_code_regions_code_fk": {
+          "name": "prefectures_region_code_regions_code_fk",
+          "tableFrom": "prefectures",
+          "columnsFrom": [
+            "region_code"
+          ],
+          "tableTo": "regions",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "regions": {
+      "name": "regions",
+      "columns": {
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "total_counts_on_all": {
+      "name": "total_counts_on_all",
+      "columns": {
+        "election_code": {
+          "name": "election_code",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "total_counts_on_all_election_code_elections_code_fk": {
+          "name": "total_counts_on_all_election_code_elections_code_fk",
+          "tableFrom": "total_counts_on_all",
+          "columnsFrom": [
+            "election_code"
+          ],
+          "tableTo": "elections",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "total_counts_on_cities": {
+      "name": "total_counts_on_cities",
+      "columns": {
+        "city_code": {
+          "name": "city_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "election_code": {
+          "name": "election_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "total_counts_on_cities_city_code_cities_code_fk": {
+          "name": "total_counts_on_cities_city_code_cities_code_fk",
+          "tableFrom": "total_counts_on_cities",
+          "columnsFrom": [
+            "city_code"
+          ],
+          "tableTo": "cities",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "total_counts_on_cities_election_code_elections_code_fk": {
+          "name": "total_counts_on_cities_election_code_elections_code_fk",
+          "tableFrom": "total_counts_on_cities",
+          "columnsFrom": [
+            "election_code"
+          ],
+          "tableTo": "elections",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "total_counts_on_cities_city_code_election_code_pk": {
+          "columns": [
+            "city_code",
+            "election_code"
+          ],
+          "name": "total_counts_on_cities_city_code_election_code_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "total_counts_on_prefectures": {
+      "name": "total_counts_on_prefectures",
+      "columns": {
+        "prefecture_code": {
+          "name": "prefecture_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "election_code": {
+          "name": "election_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "total_counts_on_prefectures_prefecture_code_prefectures_code_fk": {
+          "name": "total_counts_on_prefectures_prefecture_code_prefectures_code_fk",
+          "tableFrom": "total_counts_on_prefectures",
+          "columnsFrom": [
+            "prefecture_code"
+          ],
+          "tableTo": "prefectures",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "total_counts_on_prefectures_election_code_elections_code_fk": {
+          "name": "total_counts_on_prefectures_election_code_elections_code_fk",
+          "tableFrom": "total_counts_on_prefectures",
+          "columnsFrom": [
+            "election_code"
+          ],
+          "tableTo": "elections",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "total_counts_on_prefectures_prefecture_code_election_code_pk": {
+          "columns": [
+            "prefecture_code",
+            "election_code"
+          ],
+          "name": "total_counts_on_prefectures_prefecture_code_election_code_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "total_counts_on_regions": {
+      "name": "total_counts_on_regions",
+      "columns": {
+        "region_code": {
+          "name": "region_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "election_code": {
+          "name": "election_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "total_counts_on_regions_region_code_regions_code_fk": {
+          "name": "total_counts_on_regions_region_code_regions_code_fk",
+          "tableFrom": "total_counts_on_regions",
+          "columnsFrom": [
+            "region_code"
+          ],
+          "tableTo": "regions",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "total_counts_on_regions_election_code_elections_code_fk": {
+          "name": "total_counts_on_regions_election_code_elections_code_fk",
+          "tableFrom": "total_counts_on_regions",
+          "columnsFrom": [
+            "election_code"
+          ],
+          "tableTo": "elections",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "total_counts_on_regions_region_code_election_code_pk": {
+          "columns": [
+            "region_code",
+            "election_code"
+          ],
+          "name": "total_counts_on_regions_region_code_election_code_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "votes_on_all": {
+      "name": "votes_on_all",
+      "columns": {
+        "election_code": {
+          "name": "election_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "party_id": {
+          "name": "party_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "votes_on_all_election_code_elections_code_fk": {
+          "name": "votes_on_all_election_code_elections_code_fk",
+          "tableFrom": "votes_on_all",
+          "columnsFrom": [
+            "election_code"
+          ],
+          "tableTo": "elections",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "votes_on_all_party_id_parties_id_fk": {
+          "name": "votes_on_all_party_id_parties_id_fk",
+          "tableFrom": "votes_on_all",
+          "columnsFrom": [
+            "party_id"
+          ],
+          "tableTo": "parties",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "votes_on_all_election_code_party_id_pk": {
+          "columns": [
+            "election_code",
+            "party_id"
+          ],
+          "name": "votes_on_all_election_code_party_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "votes_on_cities": {
+      "name": "votes_on_cities",
+      "columns": {
+        "city_code": {
+          "name": "city_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "election_code": {
+          "name": "election_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "party_id": {
+          "name": "party_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "voc_election_idx": {
+          "name": "voc_election_idx",
+          "columns": [
+            "election_code"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "votes_on_cities_city_code_cities_code_fk": {
+          "name": "votes_on_cities_city_code_cities_code_fk",
+          "tableFrom": "votes_on_cities",
+          "columnsFrom": [
+            "city_code"
+          ],
+          "tableTo": "cities",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "votes_on_cities_election_code_elections_code_fk": {
+          "name": "votes_on_cities_election_code_elections_code_fk",
+          "tableFrom": "votes_on_cities",
+          "columnsFrom": [
+            "election_code"
+          ],
+          "tableTo": "elections",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "votes_on_cities_party_id_parties_id_fk": {
+          "name": "votes_on_cities_party_id_parties_id_fk",
+          "tableFrom": "votes_on_cities",
+          "columnsFrom": [
+            "party_id"
+          ],
+          "tableTo": "parties",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "votes_on_cities_city_code_election_code_party_id_pk": {
+          "columns": [
+            "city_code",
+            "election_code",
+            "party_id"
+          ],
+          "name": "votes_on_cities_city_code_election_code_party_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "votes_on_prefectures": {
+      "name": "votes_on_prefectures",
+      "columns": {
+        "prefecture_code": {
+          "name": "prefecture_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "election_code": {
+          "name": "election_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "party_id": {
+          "name": "party_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "vop_election_idx": {
+          "name": "vop_election_idx",
+          "columns": [
+            "election_code"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "votes_on_prefectures_prefecture_code_prefectures_code_fk": {
+          "name": "votes_on_prefectures_prefecture_code_prefectures_code_fk",
+          "tableFrom": "votes_on_prefectures",
+          "columnsFrom": [
+            "prefecture_code"
+          ],
+          "tableTo": "prefectures",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "votes_on_prefectures_election_code_elections_code_fk": {
+          "name": "votes_on_prefectures_election_code_elections_code_fk",
+          "tableFrom": "votes_on_prefectures",
+          "columnsFrom": [
+            "election_code"
+          ],
+          "tableTo": "elections",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "votes_on_prefectures_party_id_parties_id_fk": {
+          "name": "votes_on_prefectures_party_id_parties_id_fk",
+          "tableFrom": "votes_on_prefectures",
+          "columnsFrom": [
+            "party_id"
+          ],
+          "tableTo": "parties",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "votes_on_prefectures_prefecture_code_election_code_party_id_pk": {
+          "columns": [
+            "prefecture_code",
+            "election_code",
+            "party_id"
+          ],
+          "name": "votes_on_prefectures_prefecture_code_election_code_party_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "votes_on_regions": {
+      "name": "votes_on_regions",
+      "columns": {
+        "region_code": {
+          "name": "region_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "election_code": {
+          "name": "election_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "party_id": {
+          "name": "party_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "vor_election_idx": {
+          "name": "vor_election_idx",
+          "columns": [
+            "election_code"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "votes_on_regions_region_code_regions_code_fk": {
+          "name": "votes_on_regions_region_code_regions_code_fk",
+          "tableFrom": "votes_on_regions",
+          "columnsFrom": [
+            "region_code"
+          ],
+          "tableTo": "regions",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "votes_on_regions_election_code_elections_code_fk": {
+          "name": "votes_on_regions_election_code_elections_code_fk",
+          "tableFrom": "votes_on_regions",
+          "columnsFrom": [
+            "election_code"
+          ],
+          "tableTo": "elections",
+          "columnsTo": [
+            "code"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "votes_on_regions_party_id_parties_id_fk": {
+          "name": "votes_on_regions_party_id_parties_id_fk",
+          "tableFrom": "votes_on_regions",
+          "columnsFrom": [
+            "party_id"
+          ],
+          "tableTo": "parties",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "votes_on_regions_region_code_election_code_party_id_pk": {
+          "columns": [
+            "region_code",
+            "election_code",
+            "party_id"
+          ],
+          "name": "votes_on_regions_region_code_election_code_party_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}
