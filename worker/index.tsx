@@ -294,7 +294,7 @@ app.get(
 
     const { data, ...pageInfo } = await getNationalRanking({
       electionCode: election.code,
-      partyCode: party.code,
+      partyId: party.id,
       sort,
       unit,
       page,
@@ -361,7 +361,7 @@ app.get(
 
     const { data, ...pageInfo } = await getRegionRanking({
       electionCode: election.code,
-      partyCode: party.code,
+      partyId: party.id,
       regionCode: region.code,
       sort,
       unit,
@@ -415,7 +415,7 @@ app.get(
 
     const { data, ...pageInfo } = await getPrefectureRanking({
       electionCode: election.code,
-      partyCode: party.code,
+      partyId: party.id,
       prefectureCode: prefecture.code,
       sort,
       page,
@@ -468,7 +468,7 @@ app.get(
 
     const { data, ...pageInfo } = await getPrefectureRanking({
       electionCode: election.code,
-      partyCode: party.code,
+      partyId: party.id,
       prefectureCode: city.prefectureCode,
       sort,
       page,

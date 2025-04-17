@@ -95,7 +95,7 @@ export async function checkParty(partyCode: string) {
     partyCode = partyCode.toLowerCase()
 
     const data = await db
-      .select({ code: parties.code, name: parties.name })
+      .select()
       .from(parties)
       .where(eq(parties.code, partyCode))
       .then(getFirstItem)

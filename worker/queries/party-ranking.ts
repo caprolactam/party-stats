@@ -5,7 +5,6 @@ import * as v from 'valibot'
 import { connectCache } from '../cache.ts'
 import { connectDb, getCtx } from '../databases.ts'
 import {
-  parties,
   regions,
   prefectures,
   cities,
@@ -42,21 +41,18 @@ type RegionRankingUnit = v.InferOutput<typeof regionRankingUnitSchema>
 
 export async function getNationalRanking({
   electionCode,
-  partyCode,
+  partyId,
   sort,
   unit,
   page,
 }: {
   electionCode: string
-  partyCode: string
+  partyId: string
   sort: RankingSort
   unit: NationalRankingUnit
   page: number
 }) {
   try {
-    electionCode = electionCode.toLowerCase()
-    partyCode = partyCode.toLowerCase()
-
     const offset = PAGE_LIMIT * (page - 1)
 
     switch (unit) {
@@ -71,7 +67,6 @@ export async function getNationalRanking({
               .as('rate'),
           })
           .from(votesOnRegions)
-          .innerJoin(parties, eq(parties.id, votesOnRegions.partyId))
           .innerJoin(
             totalCountsOnRegions,
             and(
@@ -86,7 +81,7 @@ export async function getNationalRanking({
           .where(
             and(
               eq(votesOnRegions.electionCode, electionCode),
-              eq(parties.code, partyCode),
+              eq(votesOnRegions.partyId, partyId),
             ),
           )
           .orderBy(sort === 'desc-popularity' ? sql`rate DESC` : sql`rate ASC`)
@@ -106,7 +101,7 @@ export async function getNationalRanking({
       case 'prefecture': {
         const allKeys = await listRankingPrefectureKeys({
           electionCode,
-          partyCode,
+          partyId,
           sort,
         })
 
@@ -126,7 +121,7 @@ export async function getNationalRanking({
 
         const data = await fetchRankingByPrefectureKeys({
           electionCode,
-          partyCode,
+          partyId,
           prefectureKeys: keys,
           sort,
         })
@@ -142,7 +137,7 @@ export async function getNationalRanking({
       case 'city': {
         const allKeys = await listRankingCityKeys({
           electionCode,
-          partyCode,
+          partyId,
           sort,
         })
         const totalItems = allKeys.length
@@ -161,7 +156,7 @@ export async function getNationalRanking({
 
         const data = await fetchRankingByCityKeys({
           electionCode,
-          partyCode,
+          partyId,
           cityKeys: keys,
           sort,
         })
@@ -187,14 +182,14 @@ export async function getNationalRanking({
 
 export async function getRegionRanking({
   electionCode,
-  partyCode,
+  partyId,
   regionCode,
   sort,
   unit,
   page,
 }: {
   electionCode: string
-  partyCode: string
+  partyId: string
   regionCode: string
   sort: RankingSort
   unit: RegionRankingUnit
@@ -207,7 +202,7 @@ export async function getRegionRanking({
       case 'prefecture': {
         const allKeys = await listRankingPrefectureKeys({
           electionCode,
-          partyCode,
+          partyId,
           sort,
           regionCode,
         })
@@ -228,7 +223,7 @@ export async function getRegionRanking({
 
         const data = await fetchRankingByPrefectureKeys({
           electionCode,
-          partyCode,
+          partyId,
           prefectureKeys: keys,
           sort,
         })
@@ -244,7 +239,7 @@ export async function getRegionRanking({
       case 'city': {
         const allKeys = await listRankingCityKeys({
           electionCode,
-          partyCode,
+          partyId,
           regionCode,
           sort,
         })
@@ -264,7 +259,7 @@ export async function getRegionRanking({
 
         const data = await fetchRankingByCityKeys({
           electionCode,
-          partyCode,
+          partyId,
           cityKeys: keys,
           sort,
         })
@@ -290,13 +285,13 @@ export async function getRegionRanking({
 
 export async function getPrefectureRanking({
   electionCode,
-  partyCode,
+  partyId,
   prefectureCode,
   sort,
   page,
 }: {
   electionCode: string
-  partyCode: string
+  partyId: string
   prefectureCode: string
   sort: RankingSort
   page: number
@@ -306,7 +301,7 @@ export async function getPrefectureRanking({
 
     const allKeys = await listRankingCityKeys({
       electionCode,
-      partyCode,
+      partyId,
       prefectureCode,
       sort,
     })
@@ -326,7 +321,7 @@ export async function getPrefectureRanking({
 
     const data = await fetchRankingByCityKeys({
       electionCode,
-      partyCode,
+      partyId,
       cityKeys: keys,
       sort,
     })
@@ -347,16 +342,14 @@ export async function getPrefectureRanking({
 async function listRankingPrefectureKeys({
   regionCode,
   electionCode,
-  partyCode,
+  partyId,
   sort,
 }: {
   regionCode?: string
   electionCode: string
-  partyCode: string
+  partyId: string
   sort: RankingSort
 }) {
-  electionCode = electionCode.toLowerCase()
-  partyCode = partyCode.toLowerCase()
   const sortType =
     sort === 'desc-popularity' || sort === 'asc-popularity'
       ? 'popularity'
@@ -380,7 +373,7 @@ async function listRankingPrefectureKeys({
     : undefined
 
   const rankingPromise = cachified({
-    key: `ranking-prefectures:${electionCode}:${partyCode}:${sortType}`,
+    key: `ranking-prefectures:${electionCode}:${partyId}:${sortType}`,
     cache,
     checkValue: array(string()),
     async getFreshValue() {
@@ -392,7 +385,6 @@ async function listRankingPrefectureKeys({
           ),
         })
         .from(votesOnPrefectures)
-        .innerJoin(parties, eq(parties.id, votesOnPrefectures.partyId))
         .innerJoin(
           totalCountsOnPrefectures,
           and(
@@ -409,7 +401,7 @@ async function listRankingPrefectureKeys({
         .where(
           and(
             eq(votesOnPrefectures.electionCode, electionCode),
-            eq(parties.code, partyCode),
+            eq(votesOnPrefectures.partyId, partyId),
           ),
         )
         .orderBy(sql`rate DESC`)
@@ -439,19 +431,16 @@ async function listRankingPrefectureKeys({
 
 async function fetchRankingByPrefectureKeys({
   electionCode,
-  partyCode,
+  partyId,
   prefectureKeys,
   sort,
 }: {
   electionCode: string
-  partyCode: string
+  partyId: string
   prefectureKeys: Array<string>
   sort: RankingSort
 }) {
   const db = connectDb()
-
-  electionCode = electionCode.toLowerCase()
-  partyCode = partyCode.toLowerCase()
 
   return db
     .select({
@@ -462,7 +451,6 @@ async function fetchRankingByPrefectureKeys({
         .as('rate'),
     })
     .from(votesOnPrefectures)
-    .innerJoin(parties, eq(parties.id, votesOnPrefectures.partyId))
     .innerJoin(
       totalCountsOnPrefectures,
       and(
@@ -484,7 +472,7 @@ async function fetchRankingByPrefectureKeys({
       and(
         eq(votesOnPrefectures.electionCode, electionCode),
         inArray(votesOnPrefectures.prefectureCode, prefectureKeys),
-        eq(parties.code, partyCode),
+        eq(votesOnPrefectures.partyId, partyId),
       ),
     )
     .orderBy(sort === 'desc-popularity' ? sql`rate DESC` : sql`rate ASC`)
@@ -494,11 +482,11 @@ async function listRankingCityKeys({
   regionCode,
   prefectureCode,
   electionCode,
-  partyCode,
+  partyId,
   sort,
 }: {
   electionCode: string
-  partyCode: string
+  partyId: string
   sort: RankingSort
 } & (
   | {
@@ -514,8 +502,6 @@ async function listRankingCityKeys({
       prefectureCode?: never
     }
 )) {
-  electionCode = electionCode.toLowerCase()
-  partyCode = partyCode.toLowerCase()
   const sortType =
     sort === 'desc-popularity' || sort === 'asc-popularity'
       ? 'popularity'
@@ -541,7 +527,7 @@ async function listRankingCityKeys({
       : undefined
 
   const rankingPromise = cachified({
-    key: `ranking-cities:${electionCode}:${partyCode}:${sortType}`,
+    key: `ranking-cities:${electionCode}:${partyId}:${sortType}`,
     cache,
     checkValue: array(string()),
     async getFreshValue() {
@@ -565,12 +551,11 @@ async function listRankingCityKeys({
             eq(totalCountsOnCities.electionCode, votesOnCities.electionCode),
           ),
         )
-        .innerJoin(parties, eq(parties.id, votesOnCities.partyId))
         .where(
           and(
             eq(cities.archived, false),
             eq(votesOnCities.electionCode, electionCode),
-            eq(parties.code, partyCode),
+            eq(votesOnCities.partyId, partyId),
           ),
         )
         .groupBy(cities.code)
@@ -604,51 +589,71 @@ async function listRankingCityKeys({
 
 async function fetchRankingByCityKeys({
   electionCode,
-  partyCode,
+  partyId,
   cityKeys,
   sort,
 }: {
   electionCode: string
-  partyCode: string
+  partyId: string
   cityKeys: Array<string>
   sort: RankingSort
 }) {
   const db = connectDb()
 
-  electionCode = electionCode.toLowerCase()
-  partyCode = partyCode.toLowerCase()
+  // CTE 1: ancestor ごとの票数合計
+  const votesAgg = db.$with('votesAgg').as(
+    db
+      .select({
+        cityCode: citiesHistories.ancestor,
+        sumCount: sql<number>`SUM(${votesOnCities.count})`.as('sumCount'),
+      })
+      .from(citiesHistories)
+      .innerJoin(
+        votesOnCities,
+        and(
+          eq(votesOnCities.cityCode, citiesHistories.descendant),
+          eq(votesOnCities.electionCode, electionCode),
+          eq(votesOnCities.partyId, partyId),
+        ),
+      )
+      .where(inArray(citiesHistories.ancestor, cityKeys))
+      .groupBy(citiesHistories.ancestor),
+  )
+
+  // CTE 2: ancestor ごとの総投票数
+  const totalAgg = db.$with('totalAgg').as(
+    db
+      .select({
+        cityCode: citiesHistories.ancestor,
+        totalCount: sql<number>`SUM(${totalCountsOnCities.count})`.as(
+          'totalCount',
+        ),
+      })
+      .from(citiesHistories)
+      .innerJoin(
+        totalCountsOnCities,
+        and(
+          eq(totalCountsOnCities.cityCode, citiesHistories.descendant),
+          eq(totalCountsOnCities.electionCode, electionCode),
+        ),
+      )
+      .where(inArray(citiesHistories.ancestor, cityKeys))
+      .groupBy(citiesHistories.ancestor),
+  )
 
   return db
+    .with(votesAgg, totalAgg)
     .select({
       code: cities.code,
-      name: sql<string>`MIN(cities.name)`,
-      supportText: sql<string>`MIN(${prefectures.name})`,
-      rate: sql<number>`SUM(${votesOnCities.count}) / SUM(${totalCountsOnCities.count})`
+      name: cities.name,
+      supportText: prefectures.name,
+      rate: sql<number>`votesAgg.sumCount / totalAgg.totalCount`
         .mapWith(mapDicimal)
         .as('rate'),
     })
-    .from(cities)
-    .innerJoin(citiesHistories, eq(citiesHistories.ancestor, cities.code))
-    .innerJoin(
-      votesOnCities,
-      eq(votesOnCities.cityCode, citiesHistories.descendant),
-    )
-    .innerJoin(
-      totalCountsOnCities,
-      and(
-        eq(totalCountsOnCities.cityCode, votesOnCities.cityCode),
-        eq(totalCountsOnCities.electionCode, votesOnCities.electionCode),
-      ),
-    )
+    .from(votesAgg)
+    .innerJoin(totalAgg, eq(votesAgg.cityCode, totalAgg.cityCode))
+    .innerJoin(cities, eq(cities.code, votesAgg.cityCode))
     .innerJoin(prefectures, eq(prefectures.code, cities.prefectureCode))
-    .innerJoin(parties, eq(parties.id, votesOnCities.partyId))
-    .where(
-      and(
-        eq(votesOnCities.electionCode, electionCode),
-        inArray(cities.code, cityKeys),
-        eq(parties.code, partyCode),
-      ),
-    )
-    .groupBy(cities.code)
     .orderBy(sort === 'desc-popularity' ? sql`rate DESC` : sql`rate ASC`)
 }
