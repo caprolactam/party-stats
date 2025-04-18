@@ -21,7 +21,7 @@
       "#src/*": ["./src/*"],
       "#api/*": ["./api/*"],
       "@/icon-name": [
-        "./src/components/icons/name.d.ts",
+        "./src/components/icons/types.ts",
         "./types/icon-name.d.ts"
       ]
     },
