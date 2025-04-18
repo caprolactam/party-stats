@@ -16,10 +16,10 @@ import {
   totalCountsOnPrefectures,
   totalCountsOnRegions,
 } from '../schema.ts'
-import { floorDicimal, DB_ERROR, DEFAULT_PAGE_LIMIT } from './utils.ts'
+import { floorDecimal, DB_ERROR, DEFAULT_PAGE_LIMIT } from './utils.ts'
 
 const PAGE_LIMIT = DEFAULT_PAGE_LIMIT
-const mapDicimal = (value: number) => floorDicimal(value, 4)
+const mapDecimal = (value: number) => floorDecimal(value, 4)
 
 export const rankingSortSchema = v.optional(
   v.picklist(['desc-popularity', 'asc-popularity']),
@@ -63,7 +63,7 @@ export async function getNationalRanking({
             code: regions.code,
             name: regions.name,
             rate: sql<number>`(${votesOnRegions.count} / ${totalCountsOnRegions.count})`
-              .mapWith(mapDicimal)
+              .mapWith(mapDecimal)
               .as('rate'),
           })
           .from(votesOnRegions)
@@ -447,7 +447,7 @@ async function fetchRankingByPrefectureKeys({
       code: prefectures.code,
       name: prefectures.name,
       rate: sql<number>`(${votesOnPrefectures.count} / ${totalCountsOnPrefectures.count})`
-        .mapWith(mapDicimal)
+        .mapWith(mapDecimal)
         .as('rate'),
     })
     .from(votesOnPrefectures)
@@ -648,7 +648,7 @@ async function fetchRankingByCityKeys({
       name: cities.name,
       supportText: prefectures.name,
       rate: sql<number>`votesAgg.sumCount / totalAgg.totalCount`
-        .mapWith(mapDicimal)
+        .mapWith(mapDecimal)
         .as('rate'),
     })
     .from(votesAgg)

@@ -13,9 +13,9 @@ import {
   totalCountsOnAll,
   citiesHistories,
 } from '../schema.ts'
-import { floorDicimal, DB_ERROR } from './utils.ts'
+import { floorDecimal, DB_ERROR } from './utils.ts'
 
-const mapDicimal = (value: number) => floorDicimal(value, 4)
+const mapDecimal = (value: number) => floorDecimal(value, 4)
 
 export async function getNationalPartyHistory({
   partyCode,
@@ -32,7 +32,7 @@ export async function getNationalPartyHistory({
         date: elections.date,
         count: votesOnAll.count,
         rate: sql`(${votesOnAll.count} / ${totalCountsOnAll.count})`
-          .mapWith(mapDicimal)
+          .mapWith(mapDecimal)
           .as('rate'),
       })
       .from(votesOnAll)
@@ -69,7 +69,7 @@ export async function getRegionPartyHistory({
         date: elections.date,
         count: votesOnRegions.count,
         rate: sql`(${votesOnRegions.count} / ${totalCountsOnRegions.count})`
-          .mapWith(mapDicimal)
+          .mapWith(mapDecimal)
           .as('rate'),
       })
       .from(votesOnRegions)
@@ -114,7 +114,7 @@ export async function getPrefecturePartyHistory({
         date: elections.date,
         count: votesOnPrefectures.count,
         rate: sql`(${votesOnPrefectures.count} / ${totalCountsOnPrefectures.count})`
-          .mapWith(mapDicimal)
+          .mapWith(mapDecimal)
           .as('rate'),
       })
       .from(votesOnPrefectures)
@@ -167,7 +167,7 @@ export async function getCityPartyHistory({
           .as('date'),
         count: sql`SUM(${votesOnCities.count})`,
         rate: sql`SUM(${votesOnCities.count}) / SUM(${totalCountsOnCities.count})`
-          .mapWith(mapDicimal)
+          .mapWith(mapDecimal)
           .as('rate'),
       })
       .from(citiesHistories)

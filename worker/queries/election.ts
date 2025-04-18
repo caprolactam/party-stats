@@ -16,7 +16,7 @@ import {
 import {
   DB_ERROR,
   getFirstItem,
-  floorDicimal,
+  floorDecimal,
   findElectionAndPrevious,
 } from './utils.ts'
 
@@ -333,8 +333,8 @@ function convertOverviewList(
       )
 
       const prevCount = prevResult?.count ?? null
-      const rate = floorDicimal(props.rate, 4)
-      const prevRate = prevResult ? floorDicimal(prevResult.rate, 4) : null
+      const rate = floorDecimal(props.rate, 4)
+      const prevRate = prevResult ? floorDecimal(prevResult.rate, 4) : null
       return {
         ...props,
         prevCount,
