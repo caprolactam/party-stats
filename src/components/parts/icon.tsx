@@ -1,5 +1,5 @@
 import { type SVGProps } from 'react'
-import { cn } from '#src/utils/misc'
+import { cn } from '#src/utils/misc.ts'
 import { type IconName } from '@/icon-name'
 
 export { IconName }
@@ -11,9 +11,8 @@ export function Icon({
   width,
   height,
   'aria-hidden': ariaHidden = true,
-  children: _,
   ...props
-}: SVGProps<SVGSVGElement> & {
+}: Omit<SVGProps<SVGSVGElement>, 'children'> & {
   name: IconName
   size?: number | string
 }) {

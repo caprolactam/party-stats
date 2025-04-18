@@ -1,4 +1,4 @@
-import { cn } from '#src/utils/misc'
+import { cn } from '#src/utils/misc.ts'
 
 export function selectStyles(className?: string) {
   return cn(

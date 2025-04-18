@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-@import './tailwindcss-animate.css';
+@import 'tw-animate-css';
 
 @theme {
   --font-sans: sans-serif;
@@ -78,7 +78,11 @@
 }
 
 @layer components {
-  * {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
     @apply border-brand-6;
   }
 
