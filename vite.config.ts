@@ -8,6 +8,18 @@ import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig, type Plugin, type UserConfig } from 'vite'
 import { iconsSpritesheet } from 'vite-plugin-icons-spritesheet'
 
+const basePlugins = [
+  tailwindcss(),
+  iconsSpritesheet({
+    withTypes: true,
+    inputDir: './scripts/svg-icons',
+    outputDir: './public',
+    typesOutputFile: './src/components/icons/types.ts',
+    fileName: 'sprite.svg',
+    iconNameTransformer: (name) => name,
+  }),
+] satisfies Plugin[]
+
 export default defineConfig(({ mode }) => {
   if (mode === 'client' || mode === 'client-analysis') {
     return {
@@ -65,15 +77,3 @@ export default defineConfig(({ mode }) => {
     ].filter(Boolean),
   } satisfies UserConfig
 })
-
-const basePlugins = [
-  tailwindcss(),
-  iconsSpritesheet({
-    withTypes: true,
-    inputDir: './scripts/svg-icons',
-    outputDir: './public',
-    typesOutputFile: './src/components/icons/types.ts',
-    fileName: 'sprite.svg',
-    iconNameTransformer: (name) => name,
-  }),
-] satisfies Plugin[]
