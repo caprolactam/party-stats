@@ -23,7 +23,7 @@
     "lint:fix": "eslint . --fix",
     "types": "tsr generate && wrangler types",
     "tsc": "npm run types && tsc --noEmit",
-    "setup:seed": "tsx ./scripts/seed-db.ts",
+    "setup:seed": "wrangler d1 migrations apply party-stats-db --local",
     "prepare": "husky"
   },
   "lint-staged": {
