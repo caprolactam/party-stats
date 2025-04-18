@@ -41,7 +41,7 @@ export function checkHokkaido(code: string) {
   } as const
 }
 
-export function floorDicimal(value: number, point = 2) {
+export function floorDecimal(value: number, point = 2) {
   const digits = Math.pow(10, point)
   return Math.floor(value * digits) / digits
 }
