@@ -28,31 +28,56 @@ function RouteComponent() {
         <h2 className='text-2xl font-semibold'>サイトの概要</h2>
         <p className='mt-(--space-base)'>
           このサイトは、総務省の選挙関連資料をもとに国政選挙における各市町村ごとの政党の投票データをまとめたものです。衆議院選挙については、比例代表の各市町村別得票数を用いています。参議院選挙については、比例代表の候補者別市区町村別得票数のうち得票総数（政党等の得票総数と名簿登載者の得票総数の和）を用いています。
-          出典は各ページの下部に記載しています。
+          出典は各ページに記載しています。
         </p>
       </div>
       <div>
         <h2 className='text-2xl font-semibold'>質問</h2>
         <ul className='mt-(--space-base) grid list-disc gap-12 pl-6'>
           <li>
-            <h3 className='text-xl font-semibold'>コンテンツの利用について</h3>
-            <p className='mt-(--space-base)'>
-              当サイトのコンテンツ利用につき条件はありません。ただし
-              <a
-                className='text-blue-600 underline-offset-2 hover:underline'
-                href='https://www.soumu.go.jp/menu_kyotsuu/policy/tyosaku.html#tyosakuken'
-              >
-                総務省の利用規約
-              </a>
-              に従ってください。
-              またソースコードはMITライセンスの下で利用可能です。
-            </p>
+            <div className='grid gap-(--space-base)'>
+              <h3 className='text-xl font-semibold'>
+                コンテンツの利用について
+              </h3>
+              <p>
+                当サイトのコンテンツ利用につき条件はありません。ただし
+                <a
+                  className='text-blue-600 underline-offset-2 hover:underline'
+                  href='https://www.soumu.go.jp/menu_kyotsuu/policy/tyosaku.html#tyosakuken'
+                >
+                  総務省の利用規約
+                </a>
+                に従ってください。
+              </p>
+              <p>
+                <a
+                  className='text-blue-600 underline-offset-2 hover:underline'
+                  href='https://github.com/caprolactam/party-stats'
+                >
+                  ソースコード
+                </a>
+                は
+                <a
+                  className='text-blue-600 underline-offset-2 hover:underline'
+                  href='https://github.com/caprolactam/party-stats/blob/main/LICENSE'
+                >
+                  MITライセンス
+                </a>
+                の下で利用可能です。また
+                <a
+                  className='text-blue-600 underline-offset-2 hover:underline'
+                  href='https://github.com/caprolactam/party-stats-json'
+                >
+                  JSONとしてデータを利用
+                </a>
+                することも可能です。
+              </p>
+            </div>
           </li>
           <li>
             <h3 className='text-xl font-semibold'>データの取り扱いについて</h3>
             <p className='mt-(--space-base)'>
-              データには誤りがある可能性があります。もしデータの誤りを見つけた場合は、お気軽にIssueまたはPull
-              Requestを送ってください。ただし、以下の理由により実際のデータとは一致しない場合があります。
+              データには誤りがある可能性があります。もしデータの誤りを見つけた場合は、お気軽にIssueを送ってください。ただし、以下の理由により実際のデータとは一致しない場合があります。
             </p>
             <ul className='mt-(--space-base) grid list-disc gap-(--space-base) pl-6'>
               <li>
