@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer'
-import { defineConfig, type UserConfig } from 'vite'
+import { defineConfig, type Plugin, type UserConfig } from 'vite'
 import { iconsSpritesheet } from 'vite-plugin-icons-spritesheet'
 
 export default defineConfig(({ mode }) => {
@@ -31,7 +31,7 @@ export default defineConfig(({ mode }) => {
         sourcemap: mode === 'client-analysis',
       },
       plugins: [
-        tailwindcss(),
+        ...basePlugins,
         TanStackRouterVite({
           autoCodeSplitting: true,
         }),
@@ -49,20 +49,12 @@ export default defineConfig(({ mode }) => {
     },
     publicDir: mode === 'development' ? 'public' : false,
     plugins: [
+      ...basePlugins,
       build({
         entry: './worker/index.tsx',
         outputDir: './dist/server',
         output: 'index.js',
         minify: false,
-      }),
-      tailwindcss(),
-      iconsSpritesheet({
-        withTypes: true,
-        inputDir: './scripts/svg-icons',
-        outputDir: './public',
-        typesOutputFile: './src/components/icons/types.ts',
-        fileName: 'sprite.svg',
-        iconNameTransformer: (name) => name,
       }),
       mode === 'server-analysis' ? visualizer({ emitFile: true }) : null,
       devServer({
@@ -73,3 +65,15 @@ export default defineConfig(({ mode }) => {
     ].filter(Boolean),
   } satisfies UserConfig
 })
+
+const basePlugins = [
+  tailwindcss(),
+  iconsSpritesheet({
+    withTypes: true,
+    inputDir: './scripts/svg-icons',
+    outputDir: './public',
+    typesOutputFile: './src/components/icons/types.ts',
+    fileName: 'sprite.svg',
+    iconNameTransformer: (name) => name,
+  }),
+] satisfies Plugin[]
