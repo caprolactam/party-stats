@@ -209,16 +209,16 @@ export const Route = createFileRoute('/elections/$electionId/$unitId/ranking')({
 
       const parties = await listParties(electionId)
       const searchParams = new URLSearchParams()
-      const leader = parties[0]
+      const party = parties[0]
       // if throwing error, then handled by `/elections/$electionId`
-      invariant(leader, 'Leader not found')
-      searchParams.set('party', leader.code)
+      invariant(party, 'Leader not found')
+      searchParams.set('party', party.code)
 
       throw redirect({
         to: '/elections/$electionId/$unitId/ranking',
         params,
         search: {
-          party: leader.code,
+          party: party.code,
         },
       })
     }
