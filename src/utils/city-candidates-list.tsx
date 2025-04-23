@@ -5,9 +5,7 @@ import {
 } from '@tanstack/react-query'
 import {
   useLoaderData,
-  useParams,
   Link,
-  useChildMatches,
   type NavigateOptions,
   type ActiveOptions,
 } from '@tanstack/react-router'
@@ -29,7 +27,8 @@ import {
 import { Icon } from '#src/components/parts/icon.tsx'
 import { Skeleton } from '#src/components/parts/skelton.tsx'
 import { cn } from '#src/utils/misc.ts'
-import { createPageNumber } from './pagination'
+import { createPageNumber } from './pagination.tsx'
+import { useCurrentLink } from './use-current-link.ts'
 
 const QUERY_KEY = 'city-candidates'
 
@@ -180,30 +179,18 @@ function CandidateHigherUnit() {
   const { unit, region } = useLoaderData({
     from: '/elections/$electionId/$unitId',
   })
-  const params = useParams({ from: '/elections/$electionId/$unitId' })
-  const rankingSearch = useChildMatches({
-    select: (matches) =>
-      matches.find(
-        (match) => match.routeId === '/elections/$electionId/$unitId/ranking',
-      )?.search,
-    structuralSharing: true,
-  })
-  const isRanking = !!rankingSearch
+  const linkProps = useCurrentLink()
 
   switch (unit) {
     case 'region': {
       return (
         <CandidatesListItem
-          to={
-            isRanking
-              ? '/elections/$electionId/$unitId/ranking'
-              : '/elections/$electionId/$unitId/overview'
-          }
-          params={{ ...params, unitId: 'national' }}
-          search={{
-            ...rankingSearch,
-            page: undefined,
+          {...linkProps}
+          params={{
+            ...linkProps.params,
+            unitId: 'national',
           }}
+          resetScroll={false}
         >
           <div className='flex items-center gap-2'>
             <Icon
@@ -220,16 +207,12 @@ function CandidateHigherUnit() {
     case 'city': {
       return region.code === '1' ? (
         <CandidatesListItem
-          to={
-            isRanking
-              ? '/elections/$electionId/$unitId/ranking'
-              : '/elections/$electionId/$unitId/overview'
-          }
-          params={{ ...params, unitId: 'national' }}
-          search={{
-            ...rankingSearch,
-            page: undefined,
+          {...linkProps}
+          params={{
+            ...linkProps.params,
+            unitId: 'national',
           }}
+          resetScroll={false}
         >
           <div className='flex items-center gap-2'>
             <Icon
@@ -242,16 +225,12 @@ function CandidateHigherUnit() {
         </CandidatesListItem>
       ) : (
         <CandidatesListItem
-          to={
-            isRanking
-              ? '/elections/$electionId/$unitId/ranking'
-              : '/elections/$electionId/$unitId/overview'
-          }
-          params={{ ...params, unitId: region.code }}
-          search={{
-            ...rankingSearch,
-            page: undefined,
+          {...linkProps}
+          params={{
+            ...linkProps.params,
+            unitId: region.code,
           }}
+          resetScroll={false}
         >
           <div className='flex items-center gap-2'>
             <Icon
@@ -309,15 +288,7 @@ function CandidatesListImpl({
   const { region, prefecture, city } = useLoaderData({
     from: '/elections/$electionId/$unitId',
   })
-  const params = useParams({ from: '/elections/$electionId/$unitId' })
-  const rankingSearch = useChildMatches({
-    select: (matches) =>
-      matches.find(
-        (match) => match.routeId === '/elections/$electionId/$unitId/ranking',
-      )?.search,
-    structuralSharing: true,
-  })
-  const isRanking = !!rankingSearch
+  const linkProps = useCurrentLink()
 
   const { candidates, totalItems, currentPage, totalPages } = React.use(
     candidatesQuery.promise,
@@ -340,20 +311,13 @@ function CandidatesListImpl({
         {candidates.map((candidate) => (
           <CandidatesListItem
             key={candidate.code}
-            to={
-              isRanking
-                ? '/elections/$electionId/$unitId/ranking'
-                : '/elections/$electionId/$unitId/overview'
-            }
+            {...linkProps}
             params={{
-              ...params,
+              ...linkProps.params,
               // Exposing implementaion details...😅
               unitId: candidate.code === '1' ? '010006' : candidate.code,
             }}
-            search={{
-              ...rankingSearch,
-              page: undefined,
-            }}
+            resetScroll={false}
           >
             {city?.code === candidate.code ? (
               <div className='flex items-center gap-2'>

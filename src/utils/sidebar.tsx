@@ -19,21 +19,23 @@ const items = {
 export function LayoutWithSidebar({ children }: { children: React.ReactNode }) {
   const params = useParams({ from: '/elections/$electionId/$unitId' })
   const {
-    date: electionDate,
-    name: electionName,
-    source,
+    currentElection: {
+      date: electionDate,
+      name: electionName,
+      source,
+      electionType,
+    },
+    elections,
     parties,
-    electionType,
   } = useLoaderData({
     from: '/elections/$electionId',
   })
   const { datetime, formattedDate } = convertElectionInfo({
     electionDate,
   })
-  const leadingParty = parties[0]
 
   return (
-    <div className='flex flex-wrap gap-(--space-base)'>
+    <div className='flex flex-wrap gap-x-(--space-base) gap-y-(--space-xl)'>
       <div className='min-w-[55%] grow-999 basis-0'>
         <div className='flex flex-wrap items-start justify-end gap-4'>
           <div className='shrink-0 grow'>
@@ -58,7 +60,7 @@ export function LayoutWithSidebar({ children }: { children: React.ReactNode }) {
                 size={16}
               />
             </a>
-            <ElectionsMenu>
+            <ElectionsMenu elections={elections}>
               <Button
                 variant='default'
                 size='md'
@@ -102,9 +104,7 @@ export function LayoutWithSidebar({ children }: { children: React.ReactNode }) {
                     <TabLink
                       to='/elections/$electionId/$unitId/ranking'
                       params={params}
-                      search={{
-                        party: leadingParty?.code,
-                      }}
+                      search={{ party: parties[0]?.code }}
                     >
                       {label}
                     </TabLink>

@@ -13,6 +13,8 @@ export const strictEntries = <T extends Record<string, any>>(
   return Object.entries(object)
 }
 
+export const rankFormatter = new Intl.NumberFormat('ja-JP')
+
 export const countFormatter = new Intl.NumberFormat('ja-JP', {
   style: 'decimal',
   signDisplay: 'never',

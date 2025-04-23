@@ -46,25 +46,19 @@ export async function getElection(electionCode: string) {
     const db = connectDb()
     electionCode = electionCode.toLowerCase()
 
-    const partyList = await db
+    const election = await db
       .select({
-        election: elections,
-        party: parties,
+        code: elections.code,
+        name: elections.name,
+        date: elections.date,
+        source: elections.source,
+        electionType: elections.electionType,
       })
-      .from(parties)
-      .innerJoin(votesOnAll, eq(votesOnAll.partyId, parties.id))
-      .innerJoin(elections, eq(elections.code, votesOnAll.electionCode))
+      .from(elections)
       .where(eq(elections.code, electionCode))
-      .orderBy(desc(votesOnAll.count))
+      .then(getFirstItem)
 
-    const { election } = getFirstItem(partyList) ?? {}
-
-    if (!partyList.length || !election) return null
-
-    return {
-      ...election,
-      parties: partyList.map(({ party: { id, ...p } }) => p),
-    }
+    return election
   } catch (error) {
     console.error(error)
     throw new Error(DB_ERROR)
@@ -98,10 +92,33 @@ export async function checkParty(partyCode: string) {
       .select({
         id: parties.id,
         code: parties.code,
+        name: parties.name,
+        color: parties.color,
       })
       .from(parties)
       .where(eq(parties.code, partyCode))
       .then(getFirstItem)
+
+    return data
+  } catch (error) {
+    console.error(error)
+    throw new Error(DB_ERROR)
+  }
+}
+
+export async function listParties(electionCode: string) {
+  try {
+    const db = connectDb()
+
+    const data = await db
+      .select({
+        code: parties.code,
+        name: parties.name,
+      })
+      .from(votesOnAll)
+      .innerJoin(parties, eq(votesOnAll.partyId, parties.id))
+      .where(eq(votesOnAll.electionCode, electionCode))
+      .orderBy(desc(votesOnAll.count))
 
     return data
   } catch (error) {
@@ -144,6 +161,7 @@ export async function getNationalOverview(electionCode: string) {
         electionCode: votesOnAll.electionCode,
         code: parties.code,
         name: parties.name,
+        color: parties.color,
         count: votesOnAll.count,
         rate: sql<number>`${votesOnAll.count} / ${totalCountsOnAll.count}`,
         totalCount: totalCountsOnAll.count,
@@ -181,6 +199,7 @@ export async function getRegionOverview({
         electionCode: votesOnRegions.electionCode,
         code: parties.code,
         name: parties.name,
+        color: parties.color,
         count: votesOnRegions.count,
         rate: sql<number>`${votesOnRegions.count} / ${totalCountsOnRegions.count}`,
         totalCount: totalCountsOnRegions.count,
@@ -227,6 +246,7 @@ export async function getPrefectureOverview({
         electionCode: votesOnPrefectures.electionCode,
         code: parties.code,
         name: parties.name,
+        color: parties.color,
         count: votesOnPrefectures.count,
         rate: sql<number>`${votesOnPrefectures.count} / ${totalCountsOnPrefectures.count}`,
         totalCount: totalCountsOnPrefectures.count,
@@ -278,6 +298,7 @@ export async function getCityOverview({
       .select({
         electionCode: votesOnCities.electionCode,
         code: parties.code,
+        color: sql<string>`MIN(${parties.color})`,
         name: sql<string>`MIN(${parties.name})`,
         count: sql<number>`SUM(${votesOnCities.count})`,
         rate: sql<number>`SUM(${votesOnCities.count}) / SUM(${totalCountsOnCities.count})`,

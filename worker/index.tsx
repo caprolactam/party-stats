@@ -12,18 +12,21 @@ import {
   listCitiesInPrefecture,
   getCity,
   checkCity,
+  checkUnit,
 } from './queries/area.ts'
 import {
   listElections,
   getElection,
   checkElection,
   checkParty,
+  listParties,
   getLeadingParty,
   getNationalOverview,
   getRegionOverview,
   getPrefectureOverview,
   getCityOverview,
 } from './queries/election.ts'
+import { getPartyDetails } from './queries/party-details.ts'
 import {
   getNationalPartyHistory,
   getRegionPartyHistory,
@@ -141,7 +144,9 @@ app.get('/api/cities/:cityCode', async (c) => {
 app.get('/api/elections', async (c) => {
   const elections = await listElections()
 
-  return c.json(elections)
+  return c.json(elections, 200, {
+    'Cache-Control': 'private, max-age=3600, must-revalidate',
+  })
 })
 
 app.get('/api/elections/:electionCode', async (c) => {
@@ -153,6 +158,57 @@ app.get('/api/elections/:electionCode', async (c) => {
   }
 
   return c.json(election)
+})
+
+app.get(
+  '/api/elections/:electionCode/details/:partyCode/unit/:unitCode',
+  async (c) => {
+    const { electionCode, partyCode, unitCode } = c.req.param()
+
+    const [election, party, unitInfo] = await Promise.all([
+      checkElection(electionCode),
+      checkParty(partyCode),
+      checkUnit(unitCode),
+    ])
+
+    if (!unitInfo) {
+      return c.json({ message: 'Invalid unit' }, { status: 400 })
+    }
+    if (!election) {
+      return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
+    }
+    if (!party) {
+      return c.json({ message: NOT_FOUND_PARTY }, { status: 404 })
+    }
+
+    const details = await getPartyDetails({
+      partyId: party.id,
+      electionCode: election.code,
+      unitInfo,
+    })
+
+    const { id, ...rest } = party
+
+    return c.json({
+      party: rest,
+      ...details,
+    })
+  },
+)
+
+app.get('/api/elections/:electionCode/parties', async (c) => {
+  const { electionCode } = c.req.param()
+  const election = await checkElection(electionCode)
+
+  if (!election) {
+    return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
+  }
+
+  const parties = await listParties(election.code)
+
+  return c.json(parties, 200, {
+    'Cache-Control': 'private, max-age=3600, must-revalidate',
+  })
 })
 
 app.get('/api/elections/:electionCode/leader', async (c) => {

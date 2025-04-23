@@ -1,9 +1,55 @@
 import { and, eq, not, asc } from 'drizzle-orm'
 import { connectDb } from '../databases.ts'
 import { regions, prefectures, cities, citiesHistories } from '../schema.ts'
-import { DB_ERROR, DEFAULT_PAGE_LIMIT, getFirstItem } from './utils.ts'
-
+import {
+  DB_ERROR,
+  DEFAULT_PAGE_LIMIT,
+  getFirstItem,
+  type UnitInfo,
+  estimateUnit,
+} from './utils.ts'
 const PAGE_LIMIT = DEFAULT_PAGE_LIMIT
+
+export async function checkUnit(
+  unitCodeParam: string,
+): Promise<UnitInfo | null> {
+  const unitInfo = estimateUnit(unitCodeParam)
+  if (!unitInfo) return null
+
+  try {
+    switch (unitInfo.unit) {
+      case 'national':
+        break
+      case 'region': {
+        const region = await checkRegion(unitInfo.regionCode)
+        if (!region) return null
+
+        break
+      }
+      case 'prefecture': {
+        const prefecture = await checkPrefecture(unitInfo.prefectureCode)
+        if (!prefecture) null
+
+        break
+      }
+      case 'city': {
+        const city = await checkCity(unitInfo.cityCode)
+        if (!city) return null
+
+        break
+      }
+      default: {
+        const _: never = unitInfo
+        throw new Error(`Invalid unit: ${_}`)
+      }
+    }
+
+    return unitInfo
+  } catch (error) {
+    console.error(error)
+    throw new Error(DB_ERROR)
+  }
+}
 
 export async function listRegions() {
   try {

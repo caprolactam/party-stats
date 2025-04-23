@@ -1,9 +1,12 @@
+import { Link } from '@tanstack/react-router'
 import React from 'react'
+import { buttonVariants } from '#src/components/parts/button.tsx'
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
+  CardFooter,
 } from '#src/components/parts/card.tsx'
 import {
   cn,
@@ -13,26 +16,42 @@ import {
   rateIncreaseFormatter,
 } from '#src/utils/misc.ts'
 
-export type UnitInfo = {
-  unit: 'national' | 'region' | 'prefecture' | 'city'
-  unitCode: string
-  label: string
-}
-type VoteResultRootProps = React.ComponentPropsWithRef<'div'>
+const VoteResultContext = React.createContext<{
+  electionId: string
+  unitId: string
+} | null>(null)
 
-function VoteResultRoot({ ref, children, ...props }: VoteResultRootProps) {
+function useVoteResultContext() {
+  const context = React.useContext(VoteResultContext)
+  if (!context) {
+    throw new Error(
+      'useVoteResultContext must be used within a VoteResultProvider',
+    )
+  }
+  return context
+}
+
+interface VoteResultRootProps extends React.ComponentPropsWithRef<'div'> {
+  electionId: string
+  unitId: string
+}
+function VoteResultRoot({
+  children,
+  electionId,
+  unitId,
+  ...props
+}: VoteResultRootProps) {
   return (
-    <div
-      ref={ref}
-      {...props}
-    >
-      {children}
+    <div {...props}>
+      <VoteResultContext.Provider value={{ electionId, unitId }}>
+        {children}
+      </VoteResultContext.Provider>
     </div>
   )
 }
 
 function VoteResultItem({
-  partyCode: _,
+  partyCode,
   partyName,
   partyColor,
   count,
@@ -50,19 +69,15 @@ function VoteResultItem({
   increaseRate: number | null
   className?: string
 }) {
+  const { electionId, unitId } = useVoteResultContext()
+
   return (
     <Card
       variant='outline'
       className={className}
     >
       <CardHeader>
-        <div className='flex items-center gap-2'>
-          <div
-            className='border-brand-11 bg-brand-9 size-4 rounded-sm border'
-            style={{ backgroundColor: partyColor }}
-          />
-          <CardTitle className='text-base'>{partyName}</CardTitle>
-        </div>
+        <CardTitle className='text-base'>{partyName}</CardTitle>
       </CardHeader>
       <CardContent className='grid gap-4'>
         <div className='bg-brand-7 h-4 w-full'>
@@ -92,11 +107,27 @@ function VoteResultItem({
           </RateIncrease>
         </div>
       </CardContent>
+      <CardFooter className='flex justify-end'>
+        <Link
+          to='/elections/$electionId/$unitId/overview/$partyCode'
+          params={{
+            electionId,
+            unitId,
+            partyCode,
+          }}
+          className={buttonVariants({
+            size: 'md',
+            variant: 'outline',
+          })}
+        >
+          詳しく見る
+        </Link>
+      </CardFooter>
     </Card>
   )
 }
 
-function RateIncrease({
+export function RateIncrease({
   value,
   children,
   className,
@@ -122,15 +153,15 @@ function RateIncrease({
   const isNegative = increase < 0
 
   return (
-    <div className={className}>
+    <div className={cn('flex flex-col gap-2', className)}>
       <div className='text-sm'>{children}</div>
-      <div className='text-2xl font-bold'>{value}</div>
+      <div className='text-2xl leading-none font-bold'>{value}</div>
       <div
         className={cn(
-          'mt-1 inline-block rounded-sm px-1 py-0.5 text-sm font-medium',
+          'self-start rounded-sm px-1 py-px text-sm font-medium',
           isNeutral && 'text-brand-11',
-          isPositive && 'bg-green-100 text-green-900',
-          isNegative && 'bg-red-100 text-red-900',
+          isPositive && 'border border-green-200 bg-green-100 text-green-950',
+          isNegative && 'border border-red-200 bg-red-100 text-red-950',
         )}
       >
         {count != null

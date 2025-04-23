@@ -60,24 +60,26 @@ async function getElectionOverview({
   }
 }
 
-export const Route = createFileRoute('/elections/$electionId/$unitId/overview')(
-  {
-    component: RouteComponent,
-    loader: ({ params, context }) =>
-      getElectionOverview({
-        electionId: params.electionId,
-        estimatedUnit: context.estimatedUnit,
-        unitId: params.unitId,
-      }),
-    notFoundComponent: ({ data }) => <NotFoundComponent data={data} />,
-    errorComponent: ErrorBoundary,
-    gcTime: 0,
-  },
-)
+export const Route = createFileRoute(
+  '/elections/$electionId/$unitId/overview/',
+)({
+  component: RouteComponent,
+  loader: ({ params, context }) =>
+    getElectionOverview({
+      electionId: params.electionId,
+      estimatedUnit: context.estimatedUnit,
+      unitId: params.unitId,
+    }),
+  notFoundComponent: ({ data }) => <NotFoundComponent data={data} />,
+  errorComponent: ErrorBoundary,
+  gcTime: 0,
+})
 
 function RouteComponent() {
   const { parties, totalCount } = Route.useLoaderData()
-  const { name: electionName, parties: partyInfos } = useLoaderData({
+  const {
+    currentElection: { name: electionName },
+  } = useLoaderData({
     from: '/elections/$electionId',
   })
   const unitInfo = useUnitInfo()
@@ -99,7 +101,11 @@ function RouteComponent() {
             <div>{`総得票数 : ${countFormatter.format(totalCount)}`}</div>
             <div>【単位 : 票】</div>
           </div>
-          <VoteResult className='grid grid-cols-[repeat(auto-fit,_minmax(18rem,_1fr))] items-start gap-4'>
+          <VoteResult
+            unitId={unitInfo.unitCode}
+            electionId={electionId}
+            className='grid grid-cols-[repeat(auto-fit,_minmax(18rem,_1fr))] items-start gap-4'
+          >
             {parties.map((party) => {
               const increaseCount = party.prevCount
                 ? party.count - party.prevCount
@@ -107,16 +113,13 @@ function RouteComponent() {
               const increaseRate = party.prevRate
                 ? party.rate - party.prevRate
                 : null
-              const partyColor = partyInfos.find(
-                (p) => p.code === party.code,
-              )?.color
 
               return (
                 <VoteResult.Item
                   key={`${party.code}-${unitInfo.unitCode ?? 'national'}-${electionId}`}
                   partyName={party.name}
                   partyCode={party.code}
-                  partyColor={partyColor}
+                  partyColor={party.color}
                   count={party.count}
                   rate={party.rate}
                   increaseCount={increaseCount}
