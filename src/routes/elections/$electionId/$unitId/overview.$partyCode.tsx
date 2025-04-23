@@ -161,93 +161,67 @@ function RouteComponent() {
   )
 
   const isVisibleCompareParty =
-    comparePartyCode && parties.some((party) => party.code === comparePartyCode)
-  const countChangesData = elections
-    .toSorted((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .map((election) => {
-      const change = partyDetails.changes.find(
-        (change) => change.election.code === election.code,
-      )
-      const electionDate = new Date(election.date)
-      const electionLabel = `${election.name.slice(0, 4)}${election.electionType === 'shugiin' ? '衆院選' : '参院選'}(${electionDate.getFullYear()})`
-      const compactLabel = `${election.electionType === 'shugiin' ? '衆' : '参'}${electionDate.getFullYear()}`
+    comparePartyCode &&
+    // 基準年に記録が存在する場合のみ表示
+    comparePartyDetails?.changes.some(
+      (change) => change.election.code === electionId,
+    )
 
-      let changesData = {
-        election: electionLabel,
-        compactLabel,
-      }
-
-      if (change) {
-        changesData = {
-          ...changesData,
-          [partyDetails.party.code]: change.count,
-        }
-      }
-      if (comparePartyDetails && isVisibleCompareParty) {
-        const compareChange = comparePartyDetails.changes.find(
-          (change) => change.election.code === election.code,
-        )
-        if (compareChange) {
-          changesData = {
-            ...changesData,
-            [comparePartyDetails.party.code]: compareChange.count,
-          }
-        }
-      }
-
-      return changesData
-    })
-    .filter(Boolean) satisfies Array<
+  const generateChangesData = (
+    valueKey: 'count' | 'rate',
+  ): Array<
     {
-      election: string
+      electionName: string
       compactLabel: string
     } & {
       [key: string]: number
     }
-  >
-  const rateChangesData = elections
-    .toSorted((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .map((election) => {
-      const change = partyDetails.changes.find(
-        (change) => change.election.code === election.code,
+  > =>
+    elections
+      .toSorted(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
       )
-      const electionDate = new Date(election.date)
-      const electionLabel = `${election.electionType === 'shugiin' ? '衆' : '参'}${electionDate.getFullYear()}`
-      const compactLabel = `${election.name.slice(0, 4)}${election.electionType === 'shugiin' ? '衆' : '参'}`
-
-      let changesData = {
-        election: electionLabel,
-        compactLabel,
-      }
-
-      if (change) {
-        changesData = {
-          ...changesData,
-          [partyDetails.party.code]: change.rate,
-        }
-      }
-      if (comparePartyDetails && isVisibleCompareParty) {
-        const compareChange = comparePartyDetails.changes.find(
+      .map((election) => {
+        const change = partyDetails.changes.find(
           (change) => change.election.code === election.code,
         )
-        if (compareChange) {
+        const electionDate = new Date(election.date)
+        const electionName = `${election.name.slice(0, 4)}${
+          election.electionType === 'shugiin' ? '衆院選' : '参院選'
+        }(${electionDate.getFullYear()})`
+        const compactLabel = `${
+          election.electionType === 'shugiin' ? '衆' : '参'
+        }${electionDate.getFullYear()}`
+
+        let changesData = {
+          electionName,
+          compactLabel,
+        }
+
+        if (change) {
           changesData = {
             ...changesData,
-            [comparePartyDetails.party.code]: compareChange.rate,
+            [partyDetails.party.code]: change[valueKey],
           }
         }
-      }
+        if (comparePartyDetails && isVisibleCompareParty) {
+          const compareChange = comparePartyDetails.changes.find(
+            (change) => change.election.code === election.code,
+          )
+          if (compareChange) {
+            changesData = {
+              ...changesData,
+              [comparePartyDetails.party.code]: compareChange[valueKey],
+            }
+          }
+        }
 
-      return changesData
-    })
-    .filter(Boolean) satisfies Array<
-    {
-      election: string
-      compactLabel: string
-    } & {
-      [key: string]: number
-    }
-  >
+        return changesData
+      })
+      .filter(Boolean)
+
+  const countChangesData = generateChangesData('count')
+  const rateChangesData = generateChangesData('rate')
 
   const changesConfig = {
     [partyDetails.party.code]: {
@@ -350,26 +324,20 @@ function RouteComponent() {
               得票率
             </RateIncrease>
             {partyDetails.rankInNational && (
-              <div className='flex flex-col gap-2'>
-                <div className='text-sm'>得票率の全国順位</div>
-                <div className='text-2xl leading-none font-bold'>
-                  {rankFormatter.format(partyDetails.rankInNational.rank)}
-                </div>
-                <div className='text-brand-11 inline-block text-sm font-medium'>
-                  {`全${rankFormatter.format(partyDetails.rankInNational.totalRank)}位`}
-                </div>
-              </div>
+              <Rank
+                rank={partyDetails.rankInNational.rank}
+                totalRank={partyDetails.rankInNational.totalRank}
+              >
+                得票率の全国順位
+              </Rank>
             )}
             {partyDetails.rankInPrefecture && (
-              <div className='flex flex-col gap-2'>
-                <div className='text-sm'>{`得票率の${prefecture?.name.slice(-1) ?? '県'}内順位`}</div>
-                <div className='text-2xl leading-none font-bold'>
-                  {partyDetails.rankInPrefecture.rank}
-                </div>
-                <div className='text-brand-11 inline-block text-sm font-medium'>
-                  {`全${partyDetails.rankInPrefecture.totalRank}位`}
-                </div>
-              </div>
+              <Rank
+                rank={partyDetails.rankInPrefecture.rank}
+                totalRank={partyDetails.rankInPrefecture.totalRank}
+              >
+                {`得票率の${prefecture?.name.slice(-1) ?? '県'}内順位`}
+              </Rank>
             )}
           </Card>
         </div>
@@ -404,7 +372,7 @@ function RouteComponent() {
           >
             <SelectCompareParty
               parties={comparePartyList}
-              comparePartyCode={comparePartyCode}
+              comparePartyCode={isVisibleCompareParty ? comparePartyCode : ''}
               handleChange={handleCompareParty}
             />
             <CountChanges
@@ -418,7 +386,7 @@ function RouteComponent() {
           >
             <SelectCompareParty
               parties={comparePartyList}
-              comparePartyCode={comparePartyCode}
+              comparePartyCode={isVisibleCompareParty ? comparePartyCode : ''}
               handleChange={handleCompareParty}
             />
             <RateChanges
@@ -473,6 +441,28 @@ function SelectCompareParty({
           </option>
         ))}
       </select>
+    </div>
+  )
+}
+
+function Rank({
+  children,
+  rank,
+  totalRank,
+}: {
+  children: React.ReactNode
+  rank: number
+  totalRank: number
+}) {
+  return (
+    <div className='flex flex-col gap-2'>
+      <div className='text-sm'>{children}</div>
+      <div className='text-2xl leading-none font-bold'>
+        {rankFormatter.format(rank)}
+      </div>
+      <div className='text-brand-11 inline-block text-sm font-medium'>
+        {`全${rankFormatter.format(totalRank)}位`}
+      </div>
     </div>
   )
 }

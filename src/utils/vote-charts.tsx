@@ -14,7 +14,8 @@ type CountChangesProps<
   config: T
   data: Array<
     {
-      election: string
+      electionName: string
+      compactLabel: string
     } & {
       [K in keyof T]?: number
     }
@@ -44,7 +45,7 @@ export function CountChanges<
         <CartesianGrid vertical={false} />
         <YAxis
           tickFormatter={(value) => {
-            return axisCountFormatter.format(Number(value))
+            return axisCountFormatter.format(value)
           }}
         />
         <XAxis dataKey='compactLabel' />
@@ -52,7 +53,7 @@ export function CountChanges<
           cursor={false}
           content={
             <ChartTooltipContent
-              labelFormatter={(_, [payload]) => payload?.payload.election}
+              labelFormatter={(_, [payload]) => payload?.payload.electionName}
               valueFormatter={(value) => countFormatter.format(value)}
             />
           }
@@ -88,7 +89,7 @@ type RateChangesProps<
   config: T
   data: Array<
     {
-      election: string
+      electionName: string
     } & {
       [K in keyof T]?: number
     }
@@ -121,11 +122,12 @@ export function RateChanges<
             return axisRateFormatter.format(Number(value))
           }}
         />
-        <XAxis dataKey='election' />
+        <XAxis dataKey='compactLabel' />
         <ChartTooltip
           cursor={false}
           content={
             <ChartTooltipContent
+              labelFormatter={(_, [payload]) => payload?.payload.electionName}
               valueFormatter={(value) => {
                 return rateFormatter.format(Number(value))
               }}

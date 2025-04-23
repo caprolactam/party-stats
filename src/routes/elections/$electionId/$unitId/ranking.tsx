@@ -376,6 +376,7 @@ function RouteComponent() {
                   supportText={city.supportText}
                   rank={pageSize * (currentPage - 1) + i + 1}
                   rate={city.rate}
+                  partyCode={partyCode}
                 />
               ))}
             </ol>
@@ -469,12 +470,14 @@ function RouteComponent() {
 function RankingItem({
   cityCode,
   cityName,
+  partyCode,
   supportText,
   rank,
   rate,
 }: {
   cityCode: string
   cityName: string
+  partyCode: string
   supportText?: string
   rank: number
   rate: number
@@ -484,11 +487,12 @@ function RankingItem({
   return (
     <li className='card-container'>
       <Link
-        to='/elections/$electionId/$unitId/overview'
+        to='/elections/$electionId/$unitId/overview/$partyCode'
         className='group flex h-14 items-center gap-4'
         params={{
           electionId,
           unitId: cityCode,
+          partyCode,
         }}
       >
         <div className='w-6 text-end text-sm'>{rank}</div>
