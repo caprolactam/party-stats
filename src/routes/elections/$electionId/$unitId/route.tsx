@@ -1,10 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query'
 import {
   createFileRoute,
   Outlet,
   redirect,
   Link,
   type NavigateOptions,
-  useChildMatches,
 } from '@tanstack/react-router'
 import React from 'react'
 import {
@@ -20,6 +20,7 @@ import {
 } from '#src/utils/city-candidates-list.tsx'
 import { type Unit } from '#src/utils/misc.ts'
 import { LayoutWithSidebar } from '#src/utils/sidebar.tsx'
+import { useCurrentLink } from '#src/utils/use-current-link.ts'
 
 type UnitInfo = {
   estimatedUnit: Unit
@@ -175,6 +176,27 @@ export const Route = createFileRoute('/elections/$electionId/$unitId')({
 })
 
 function LayoutComponent() {
+  const queryClient = useQueryClient()
+  const { electionId, unitId } = Route.useParams()
+
+  React.useEffect(() => {
+    return () => {
+      queryClient.removeQueries({
+        queryKey: ['partyDetails', electionId],
+        exact: false,
+      })
+    }
+  }, [queryClient, electionId])
+
+  React.useEffect(() => {
+    return () => {
+      queryClient.removeQueries({
+        queryKey: ['partyDetails', electionId, unitId],
+        exact: false,
+      })
+    }
+  }, [queryClient, electionId, unitId])
+
   return (
     <>
       <BreadCrumbs className='flex h-12 items-center' />
@@ -187,51 +209,27 @@ function LayoutComponent() {
 
 function BreadCrumbs({ className }: { className?: string }) {
   const { region, prefecture, city } = Route.useLoaderData()
-  const params = Route.useParams()
-  const rankingSearch = useChildMatches({
-    select: (matches) =>
-      matches.find(
-        (match) => match.routeId === '/elections/$electionId/$unitId/ranking',
-      )?.search,
-    structuralSharing: true,
-  })
-  const isRanking = !!rankingSearch
+  const linkProps = useCurrentLink()
 
   return (
     <nav className={className}>
       <span className='sr-only'>得票データの対象地域</span>
       <ol className='flex min-w-0 list-none flex-wrap items-center'>
         <BreadCrumbItem
-          to={
-            isRanking
-              ? '/elections/$electionId/$unitId/ranking'
-              : '/elections/$electionId/$unitId/overview'
-          }
+          {...linkProps}
           params={{
-            ...params,
+            ...linkProps.params,
             unitId: 'national',
-          }}
-          search={{
-            ...rankingSearch,
-            page: undefined,
           }}
         >
           全国
         </BreadCrumbItem>
         {region && region.code !== '1' && (
           <BreadCrumbItem
-            to={
-              isRanking
-                ? '/elections/$electionId/$unitId/ranking'
-                : '/elections/$electionId/$unitId/overview'
-            }
+            {...linkProps}
             params={{
-              ...params,
+              ...linkProps.params,
               unitId: region.code,
-            }}
-            search={{
-              ...rankingSearch,
-              page: undefined,
             }}
           >
             {region.name}
@@ -239,18 +237,10 @@ function BreadCrumbs({ className }: { className?: string }) {
         )}
         {prefecture && (
           <BreadCrumbItem
-            to={
-              isRanking
-                ? '/elections/$electionId/$unitId/ranking'
-                : '/elections/$electionId/$unitId/overview'
-            }
+            {...linkProps}
             params={{
-              ...params,
+              ...linkProps.params,
               unitId: prefecture.code,
-            }}
-            search={{
-              ...rankingSearch,
-              page: undefined,
             }}
           >
             {prefecture.name}
@@ -258,18 +248,10 @@ function BreadCrumbs({ className }: { className?: string }) {
         )}
         {city && (
           <BreadCrumbItem
-            to={
-              isRanking
-                ? '/elections/$electionId/$unitId/ranking'
-                : '/elections/$electionId/$unitId/overview'
-            }
+            {...linkProps}
             params={{
-              ...params,
+              ...linkProps.params,
               unitId: city.code,
-            }}
-            search={{
-              ...rankingSearch,
-              page: undefined,
             }}
           >
             {city.name}

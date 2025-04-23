@@ -45,11 +45,12 @@
   --color-gray-indicator: #8d8d8d;
   --color-gray-track: #8d8d8d;
 
+  --space-xl: calc(var(--space-lg) * 1.6);
+  --space-lg: calc(var(--space-base) * 1.6);
   --space-base: 1rem;
-  --space-sm: calc(var(--space-base) / 2);
+  --space-sm: calc(var(--space-base) / 1.6);
   @media (width >= 48rem /* 768px */) {
     --space-base: 1.5rem;
-    --space-sm: 1rem;
   }
 }
 

@@ -5,7 +5,7 @@ import {
   NotFoundComponent,
   ErrorBoundary,
 } from '#src/components/templates/misc.tsx'
-import { listElectionsQueryOptions } from '#src/utils/queries.ts'
+import { listElections, listParties } from '#src/utils/queries.ts'
 
 async function getElection(electionId: string) {
   try {
@@ -26,16 +26,29 @@ async function getElection(electionId: string) {
 }
 
 export const Route = createFileRoute('/elections/$electionId')({
-  loader: async ({ params, context: { queryClient } }) => {
-    const [election] = await Promise.all([
+  loader: async ({ params }) => {
+    const [currentElection, elections, parties] = await Promise.all([
       getElection(params.electionId),
-      queryClient.ensureQueryData(listElectionsQueryOptions),
+      listElections(),
+      listParties(params.electionId),
     ])
-    return election
+
+    const currentElectionDate = new Date(currentElection.date)
+    const prevElection = elections.find(
+      (election) => currentElectionDate > new Date(election.date),
+    )
+
+    return {
+      currentElection,
+      prevElectionCode: prevElection?.code ?? null,
+      elections,
+      parties,
+    }
   },
   component: RouteComponent,
   notFoundComponent: ({ data }) => <NotFoundComponent data={data} />,
   errorComponent: ErrorBoundary,
+  gcTime: 0,
   shouldReload: false,
 })
 

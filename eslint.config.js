@@ -2,6 +2,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { default as defaultConfig } from '@epic-web/config/eslint'
 import { includeIgnoreFile } from '@eslint/compat'
+import pluginQuery from '@tanstack/eslint-plugin-query'
 import prettierPlugin from 'eslint-config-prettier'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
 
@@ -13,6 +14,7 @@ const gitignorePath = path.resolve(__dirname, '.gitignore')
 export default [
   ...defaultConfig,
   jsxA11y.flatConfigs.recommended,
+  ...pluginQuery.configs['flat/recommended'],
   prettierPlugin,
   includeIgnoreFile(gitignorePath),
 ]

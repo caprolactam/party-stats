@@ -339,7 +339,7 @@ export async function getPrefectureRanking({
   }
 }
 
-async function listRankingPrefectureKeys({
+export async function listRankingPrefectureKeys({
   regionCode,
   electionCode,
   partyId,
@@ -478,7 +478,7 @@ async function fetchRankingByPrefectureKeys({
     .orderBy(sort === 'desc-popularity' ? sql`rate DESC` : sql`rate ASC`)
 }
 
-async function listRankingCityKeys({
+export async function listRankingCityKeys({
   regionCode,
   prefectureCode,
   electionCode,

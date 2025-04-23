@@ -7,9 +7,9 @@ import {
 } from '@tanstack/react-router'
 import { RadioGroup } from 'radix-ui'
 import React from 'react'
+import invariant from 'tiny-invariant'
 import * as v from 'valibot'
 import {
-  type GetLeaderParty,
   type GetJapanRanking,
   type GetRegionRanking,
   type GetPrefectureRanking,
@@ -23,6 +23,7 @@ import {
 } from '#src/components/templates/misc.tsx'
 import { strictEntries, rateFormatter } from '#src/utils/misc.ts'
 import { createPageNumber } from '#src/utils/pagination.tsx'
+import { listParties } from '#src/utils/queries.ts'
 
 const partySchema = v.pipe(v.unknown(), v.transform(String))
 const sortSchema = v.picklist(['desc-popularity', 'asc-popularity'])
@@ -60,26 +61,6 @@ interface BaseRankingProps {
   partyCode: string
   page?: number
   sort?: SortType
-}
-
-async function getLeaderParty(electionId: string) {
-  try {
-    const response = await fetch(`/api/elections/${electionId}/leader`)
-
-    if (response.status === 404) {
-      throw notFound()
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        `Error fetching leader party data: ${response.statusText}`,
-      )
-    }
-    const data = (await response.json()) as GetLeaderParty
-    return data
-  } catch (error) {
-    throw error
-  }
 }
 
 async function getNationalRanking({
@@ -226,8 +207,11 @@ export const Route = createFileRoute('/elections/$electionId/$unitId/ranking')({
     if (!partyCode) {
       const { electionId } = params
 
-      const leader = await getLeaderParty(electionId)
+      const parties = await listParties(electionId)
       const searchParams = new URLSearchParams()
+      const leader = parties[0]
+      // if throwing error, then handled by `/elections/$electionId`
+      invariant(leader, 'Leader not found')
       searchParams.set('party', leader.code)
 
       throw redirect({
@@ -248,6 +232,7 @@ export const Route = createFileRoute('/elections/$electionId/$unitId/ranking')({
           sort,
           rankingUnit: unit ?? 'region',
         })
+
         return { ...ranking, partyCode }
       }
       case 'region': {
@@ -260,6 +245,7 @@ export const Route = createFileRoute('/elections/$electionId/$unitId/ranking')({
           regionCode: unitId,
           rankingUnit,
         })
+
         return { ...ranking, partyCode }
       }
       case 'prefecture': {
@@ -270,6 +256,7 @@ export const Route = createFileRoute('/elections/$electionId/$unitId/ranking')({
           sort,
           prefectureCode: unitId,
         })
+
         return { ...ranking, partyCode }
       }
       case 'city': {
@@ -280,6 +267,7 @@ export const Route = createFileRoute('/elections/$electionId/$unitId/ranking')({
           sort,
           cityCode: unitId,
         })
+
         return { ...ranking, partyCode }
       }
       default:
@@ -301,7 +289,10 @@ function RouteComponent() {
     data: ranking,
     partyCode,
   } = Route.useLoaderData()
-  const { parties, name: electionName } = useLoaderData({
+  const {
+    currentElection: { name: electionName },
+    parties,
+  } = useLoaderData({
     from: '/elections/$electionId',
   })
   const { unit, region, prefecture } = useLoaderData({
@@ -550,7 +541,7 @@ function SelectParties({
           }
         }}
       >
-        <option value=''>政党を選択してください</option>
+        <option value=''>政党を選択</option>
         <hr />
         {parties.map((party) => (
           <option

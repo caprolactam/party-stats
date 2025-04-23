@@ -1,34 +1,34 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
-import {
-  useLoaderData,
-  useNavigate,
-  useParams,
-  useChildMatches,
-} from '@tanstack/react-router'
+import { useLoaderData, useNavigate } from '@tanstack/react-router'
 import { DropdownMenu } from 'radix-ui'
 import React from 'react'
 import { useMediaQuery } from 'usehooks-ts'
 import { Drawer } from 'vaul'
 import { Icon } from '#src/components/parts/icon.tsx'
 import { cn } from '#src/utils/misc.ts'
-import { listElectionsQueryOptions } from '#src/utils/queries.ts'
+import { useCurrentLink } from './use-current-link.ts'
 
-export function ElectionsMenu({ children }: { children: React.ReactNode }) {
+export function ElectionsMenu({
+  children,
+  elections,
+}: {
+  children: React.ReactNode
+  elections: Array<{
+    code: string
+    name: string
+    date: string
+    electionType: 'shugiin' | 'sangiin'
+  }>
+}) {
   const [isOpen, setIsOpen] = React.useState(false)
-  const { data: elections } = useSuspenseQuery(listElectionsQueryOptions)
-  const { code: electionCode } = useLoaderData({
+  const {
+    currentElection: { code: electionCode },
+  } = useLoaderData({
     from: '/elections/$electionId',
   })
-  const params = useParams({ from: '/elections/$electionId/$unitId' })
+
+  const linkProps = useCurrentLink()
+
   const navigate = useNavigate()
-  const rankingSearch = useChildMatches({
-    select: (matches) =>
-      matches.find(
-        (match) => match.routeId === '/elections/$electionId/$unitId/ranking',
-      )?.search,
-    structuralSharing: true,
-  })
-  const isRanking = !!rankingSearch
 
   const isMobile = useMediaQuery('(max-width: 768px)')
   const Component = isMobile ? ElectionMenuDrawer : ElectionMenuDropDown
@@ -41,16 +41,10 @@ export function ElectionsMenu({ children }: { children: React.ReactNode }) {
       selectedElectionCode={electionCode}
       handleSelect={(electionCode) => {
         void navigate({
-          to: isRanking
-            ? '/elections/$electionId/$unitId/ranking'
-            : '/elections/$electionId/$unitId/overview',
+          ...linkProps,
           params: {
-            ...params,
+            ...linkProps.params,
             electionId: electionCode,
-          },
-          search: {
-            ...rankingSearch,
-            page: undefined,
           },
           resetScroll: false,
         })

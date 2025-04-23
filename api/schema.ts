@@ -99,15 +99,16 @@ export const GetElectionSchema = v.strictObject({
   date: v.string(),
   source: v.string(),
   electionType: v.picklist(['shugiin', 'sangiin']),
-  parties: v.array(
-    v.strictObject({
-      code: v.string(),
-      name: v.string(),
-      color: v.string(),
-    }),
-  ),
 })
 export type GetElection = v.InferOutput<typeof GetElectionSchema>
+
+export const ListPartiesSchema = v.array(
+  v.strictObject({
+    code: v.string(),
+    name: v.string(),
+  }),
+)
+export type ListParties = v.InferOutput<typeof ListPartiesSchema>
 
 export const GetLeaderPartySchema = v.strictObject({
   code: v.string(),
@@ -121,6 +122,7 @@ export const GetElectionOverviewSchema = v.strictObject({
     v.strictObject({
       code: v.string(),
       name: v.string(),
+      color: v.string(),
       count: v.number(),
       prevCount: v.nullable(v.number()),
       rate: v.number(),
@@ -176,6 +178,40 @@ export const GetPrefectureRankingSchema = v.strictObject({
 export type GetPrefectureRanking = v.InferOutput<
   typeof GetPrefectureRankingSchema
 >
+
+export const getPartyDetailsSchema = v.strictObject({
+  party: v.strictObject({
+    code: v.string(),
+    name: v.string(),
+    color: v.string(),
+  }),
+  rankInNational: v.optional(
+    v.strictObject({
+      rank: v.number(),
+      totalRank: v.number(),
+    }),
+  ),
+  rankInPrefecture: v.optional(
+    v.strictObject({
+      rank: v.number(),
+      totalRank: v.number(),
+    }),
+  ),
+  changes: v.array(
+    v.strictObject({
+      election: v.strictObject({
+        code: v.string(),
+        name: v.string(),
+        date: v.string(),
+        electionType: v.picklist(['shugiin', 'sangiin']),
+      }),
+      count: v.number(),
+      totalCount: v.number(),
+      rate: v.number(),
+    }),
+  ),
+})
+export type GetPartyDetails = v.InferOutput<typeof getPartyDetailsSchema>
 
 export const GetElectionPartyHistorySchema = v.array(
   v.strictObject({

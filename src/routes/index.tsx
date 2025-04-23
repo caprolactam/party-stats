@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Card } from '#src/components/parts/card.tsx'
 import { Icon } from '#src/components/parts/icon.tsx'
@@ -7,12 +6,10 @@ import {
   ErrorBoundary,
 } from '#src/components/templates/misc.tsx'
 import { convertElectionInfo } from '#src/utils/misc.ts'
-import { listElectionsQueryOptions } from '#src/utils/queries.ts'
+import { listElections } from '#src/utils/queries.ts'
 
 export const Route = createFileRoute('/')({
-  loader: async ({ context: { queryClient } }) => {
-    await queryClient.ensureQueryData(listElectionsQueryOptions)
-  },
+  loader: () => listElections(),
   head: () => ({
     meta: [
       {
@@ -31,7 +28,7 @@ export const Route = createFileRoute('/')({
 })
 
 function RouteComponent() {
-  const { data: elections } = useSuspenseQuery(listElectionsQueryOptions)
+  const elections = Route.useLoaderData()
 
   return (
     <div className='mt-12 grid gap-(--space-base)'>
