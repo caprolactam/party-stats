@@ -110,12 +110,6 @@ export const ListPartiesSchema = v.array(
 )
 export type ListParties = v.InferOutput<typeof ListPartiesSchema>
 
-export const GetLeaderPartySchema = v.strictObject({
-  code: v.string(),
-  name: v.string(),
-})
-export type GetLeaderParty = v.InferOutput<typeof GetLeaderPartySchema>
-
 export const GetElectionOverviewSchema = v.strictObject({
   totalCount: v.number(),
   parties: v.array(
