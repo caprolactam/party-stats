@@ -212,15 +212,3 @@ export const getPartyDetailsSchema = v.strictObject({
   ),
 })
 export type GetPartyDetails = v.InferOutput<typeof getPartyDetailsSchema>
-
-export const GetElectionPartyHistorySchema = v.array(
-  v.strictObject({
-    electionType: v.picklist(['shugiin', 'sangiin']),
-    date: v.string(),
-    count: v.number(),
-    rate: v.number(),
-  }),
-)
-export type GetElectionPartyHistory = v.InferOutput<
-  typeof GetElectionPartyHistorySchema
->
