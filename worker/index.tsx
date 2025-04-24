@@ -28,12 +28,6 @@ import {
 } from './queries/election.ts'
 import { getPartyDetails } from './queries/party-details.ts'
 import {
-  getNationalPartyHistory,
-  getRegionPartyHistory,
-  getPrefecturePartyHistory,
-  getCityPartyHistory,
-} from './queries/party-history.ts'
-import {
   rankingSortSchema,
   nationalRankingUnitSchema,
   regionRankingUnitSchema,
@@ -540,98 +534,6 @@ app.get(
     })
   },
 )
-app.get('/api/parties/:partyCode/history/national', async (c) => {
-  const { partyCode } = c.req.param()
-
-  const party = await checkParty(partyCode)
-  if (!party) {
-    return c.json({ message: NOT_FOUND_PARTY }, { status: 404 })
-  }
-
-  const history = await getNationalPartyHistory({ partyCode: party.code })
-
-  return c.json(history)
-})
-
-app.get('/api/parties/:partyCode/history/regions/:regionCode', async (c) => {
-  const { regionCode, partyCode } = c.req.param()
-
-  const regionSubmission = checkHokkaido(regionCode)
-
-  if (regionSubmission.isHokkaido) {
-    const originalUrl = new URL(c.req.url)
-
-    return c.redirect(
-      `/api/parties/${partyCode}/history/prefectures/${regionSubmission.prefectureCode}${originalUrl.search}`,
-      301,
-    )
-  }
-
-  const [party, region] = await Promise.all([
-    checkParty(partyCode),
-    checkRegion(regionCode),
-  ])
-  if (!party) {
-    return c.json({ message: NOT_FOUND_PARTY }, { status: 404 })
-  }
-  if (!region) {
-    return c.json({ message: 'Not found region' }, { status: 404 })
-  }
-
-  const history = await getRegionPartyHistory({
-    partyCode: party.code,
-    regionCode,
-  })
-
-  return c.json(history)
-})
-
-app.get(
-  '/api/parties/:partyCode/history/prefectures/:prefectureCode',
-  async (c) => {
-    const { prefectureCode, partyCode } = c.req.param()
-
-    const [prefecture, party] = await Promise.all([
-      checkPrefecture(prefectureCode),
-      checkParty(partyCode),
-    ])
-    if (!party) {
-      return c.json({ message: NOT_FOUND_PARTY }, { status: 404 })
-    }
-    if (!prefecture) {
-      return c.json({ message: 'Not found prefecture' }, { status: 404 })
-    }
-
-    const history = await getPrefecturePartyHistory({
-      partyCode: party.code,
-      prefectureCode,
-    })
-
-    return c.json(history)
-  },
-)
-
-app.get('/api/parties/:partyCode/history/cities/:cityCode', async (c) => {
-  const { cityCode, partyCode } = c.req.param()
-
-  const [city, party] = await Promise.all([
-    checkCity(cityCode),
-    checkParty(partyCode),
-  ])
-  if (!party) {
-    return c.json({ message: NOT_FOUND_PARTY }, { status: 404 })
-  }
-  if (!city) {
-    return c.json({ message: 'Not found city' }, { status: 404 })
-  }
-
-  const history = await getCityPartyHistory({
-    partyCode: party.code,
-    cityCode,
-  })
-
-  return c.json(history)
-})
 
 app.get('/api/*', (c) => {
   return c.notFound()
