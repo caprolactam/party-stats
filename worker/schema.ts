@@ -37,14 +37,20 @@ export const prefectures = sqliteTable('prefectures', {
     .notNull(),
 })
 
-export const cities = sqliteTable('cities', {
-  code: text().primaryKey(),
-  name: text().notNull(),
-  prefectureCode: text('prefecture_code')
-    .references(() => prefectures.code)
-    .notNull(),
-  archived: integer({ mode: 'boolean' }).notNull(),
-})
+export const cities = sqliteTable(
+  'cities',
+  {
+    code: text().primaryKey(),
+    name: text().notNull(),
+    prefectureCode: text('prefecture_code')
+      .references(() => prefectures.code)
+      .notNull(),
+    archived: integer({ mode: 'boolean' }).notNull(),
+  },
+  (table) => [
+    index('cities_pref_city_idx').on(table.prefectureCode, table.code),
+  ],
+)
 
 // Closure table
 // e.g. city1とcity2がありcity2がcity1に合併される場合、1-1, 1-2, 2-2の3つのレコードが必要
