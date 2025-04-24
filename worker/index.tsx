@@ -20,7 +20,6 @@ import {
   checkElection,
   checkParty,
   listParties,
-  getLeadingParty,
   getNationalOverview,
   getRegionOverview,
   getPrefectureOverview,
@@ -203,19 +202,6 @@ app.get('/api/elections/:electionCode/parties', async (c) => {
   return c.json(parties, 200, {
     'Cache-Control': 'private, max-age=3600, must-revalidate',
   })
-})
-
-app.get('/api/elections/:electionCode/leader', async (c) => {
-  const { electionCode } = c.req.param()
-  const election = await checkElection(electionCode)
-
-  if (!election) {
-    return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
-  }
-
-  const leader = await getLeadingParty(electionCode)
-
-  return c.json(leader)
 })
 
 app.get('/api/elections/:electionCode/overview/national', async (c) => {

@@ -14,7 +14,6 @@ import {
   GetCitySchema,
   ListElectionsSchema,
   GetElectionSchema,
-  GetLeaderPartySchema,
   GetElectionOverviewSchema,
   GetNationalRankingSchema,
   GetRegionRankingSchema,
@@ -244,40 +243,6 @@ describe('GET /api/elections/:electionCode', () => {
       expect(res.status).toBe(200)
       const sut = await res.json()
       expect(() => v.parse(GetElectionSchema, sut)).not.toThrow()
-    })
-})
-
-describe('GET /api/elections/:electionCode/leader', () => {
-  test('not found election with 404', async () => {
-    const ctx = createExecutionContext()
-    const res = await app.request(
-      '/api/elections/not-found-election/leader',
-      {},
-      env,
-      ctx,
-    )
-
-    await waitOnExecutionContext(ctx)
-
-    expect(res.status).toBe(404)
-    expect(await res.json()).toStrictEqual({
-      message: '指定の選挙が見つかりませんでした',
-    })
-  }),
-    test('get election leader with 200', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/leader`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(200)
-      const sut = await res.json()
-      expect(() => v.parse(GetLeaderPartySchema, sut)).not.toThrow()
     })
 })
 
