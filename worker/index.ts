@@ -524,7 +524,7 @@ app.get('/api/*', (c) => {
 })
 
 app.get('*', (c) => {
-  // we should return response through ASSETS binding, because worker script is invoked when when the requested route has not matched any static assets.
+  // we should return response through ASSETS binding, because worker script is invoked when the requested route has not matched any static assets.
   // source: https://developers.cloudflare.com/workers/static-assets/binding/#runtime-api-reference
   return c.env.ASSETS.fetch(c.req.url)
 })
