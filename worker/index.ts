@@ -1,6 +1,5 @@
 import { Hono, type ExecutionContext } from 'hono'
 import { contextStorage } from 'hono/context-storage'
-import { renderToString } from 'react-dom/server'
 import { safeParse } from 'valibot'
 import {
   listRegions,
@@ -35,7 +34,6 @@ import {
   getPrefectureRanking,
 } from './queries/party-ranking.ts'
 import { pageSchema, checkHokkaido, DB_ERROR } from './queries/utils.ts'
-import { RootRoute } from './root-route.tsx'
 
 const NOT_FOUND_ELECTION = '指定の選挙が見つかりませんでした'
 const NOT_FOUND_PARTY = '指定の政党が見つかりませんでした'
@@ -526,8 +524,9 @@ app.get('/api/*', (c) => {
 })
 
 app.get('*', (c) => {
-  const html = `<!DOCTYPE html>` + renderToString(<RootRoute />)
-  return c.html(html)
+  // we should return response through ASSETS binding, because worker script is invoked when when the requested route has not matched any static assets.
+  // source: https://developers.cloudflare.com/workers/static-assets/binding/#runtime-api-reference
+  return c.env.ASSETS.fetch(c.req.url)
 })
 
 app.onError((error, c) => {
