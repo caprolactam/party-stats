@@ -1,0 +1,30 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "party-stats",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2024-12-30",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "dist/client",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "html_handling": "drop-trailing-slash"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "party-stats",
+      "database_id": "9babb0a9-18a1-4d13-a04f-a30d0cac76b1",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "bf85cad338854e7993b9ea1b7820edb9"
+    }
+  ]
+}

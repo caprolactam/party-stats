@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "jsx": "react-jsx",
+    "resolveJsonModule": false,
+
+    "types": ["vite/client"],
+    "paths": {
+      "#src/*": ["./src/*"],
+      "#api/*": ["./api/*"],
+      "@/icon-name": [
+        "./src/components/icons/types.ts",
+        "./types/icon-name.d.ts"
+      ]
+    }
+  },
+  "include": ["src", "types"]
+}

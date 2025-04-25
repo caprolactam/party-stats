@@ -9,17 +9,17 @@
     "#api/*": "./api/*"
   },
   "scripts": {
-    "analyze": "rimraf ./dist && vite build --mode client-analysis && vite build --mode server-analysis",
+    "analyze": "rimraf ./dist && vite build --mode analysis",
     "dev": "vite",
     "prebuild": "rimraf ./dist",
-    "build": "vite build --mode client && vite build",
-    "start": "wrangler dev",
+    "build": "vite build",
+    "preview": "npm run build && vite preview",
     "test": "vitest",
     "format": "prettier '**/*.{js,jsx,ts,tsx,css,json,yaml,yml}' --write",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "types": "tsr generate && wrangler types",
-    "tsc": "npm run types && tsc --noEmit",
+    "tsc": "npm run types && tsc --build",
     "setup:seed": "wrangler d1 migrations apply party-stats-db --local",
     "prepare": "husky"
   },
@@ -46,6 +46,7 @@
     "vaul": "^1.1.2"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.0.11",
     "@cloudflare/vitest-pool-workers": "0.6.8",
     "@cloudflare/workers-types": "^4.20250424.0",
     "@epic-web/config": "^1.19.0",
