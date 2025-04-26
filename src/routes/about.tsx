@@ -42,7 +42,7 @@ function RouteComponent() {
               <p>
                 当サイトのコンテンツ利用につき条件はありません。ただし
                 <a
-                  className='text-blue-600 underline-offset-2 hover:underline'
+                  className='text-link-base underline-offset-2 hover:underline'
                   href='https://www.soumu.go.jp/menu_kyotsuu/policy/tyosaku.html#tyosakuken'
                 >
                   総務省の利用規約
@@ -51,21 +51,21 @@ function RouteComponent() {
               </p>
               <p>
                 <a
-                  className='text-blue-600 underline-offset-2 hover:underline'
+                  className='text-link-base underline-offset-2 hover:underline'
                   href='https://github.com/caprolactam/party-stats'
                 >
                   ソースコード
                 </a>
                 は
                 <a
-                  className='text-blue-600 underline-offset-2 hover:underline'
+                  className='text-link-base underline-offset-2 hover:underline'
                   href='https://github.com/caprolactam/party-stats/blob/main/LICENSE'
                 >
                   MITライセンス
                 </a>
                 の下で利用可能です。また
                 <a
-                  className='text-blue-600 underline-offset-2 hover:underline'
+                  className='text-link-base underline-offset-2 hover:underline'
                   href='https://github.com/caprolactam/party-stats-json'
                 >
                   JSONとしてデータを利用
@@ -101,14 +101,14 @@ function RouteComponent() {
                   <p>
                     <a
                       href='https://www.soumu.go.jp/senkyo/senkyo_s/data/shugiin48/shikuchouson_15.html'
-                      className='text-blue-600 underline-offset-2 hover:underline'
+                      className='text-link-base underline-offset-2 hover:underline'
                     >
                       第48回
                     </a>
                     および
                     <a
                       href='https://www.soumu.go.jp/senkyo/senkyo_s/data/shugiin49/shikuchouson_15.html'
-                      className='text-blue-600 underline-offset-2 hover:underline'
+                      className='text-link-base underline-offset-2 hover:underline'
                     >
                       第49回衆議院議員総選挙の新潟県
                     </a>
@@ -117,14 +117,14 @@ function RouteComponent() {
                   <p>
                     <a
                       href='https://www.soumu.go.jp/senkyo/senkyo_s/data/shugiin48/shikuchouson_14.html'
-                      className='text-blue-600 underline-offset-2 hover:underline'
+                      className='text-link-base underline-offset-2 hover:underline'
                     >
                       第48回
                     </a>
                     および
                     <a
                       href='https://www.soumu.go.jp/senkyo/senkyo_s/data/shugiin49/shikuchouson_14.html'
-                      className='text-blue-600 underline-offset-2 hover:underline'
+                      className='text-link-base underline-offset-2 hover:underline'
                     >
                       第49回衆議院議員総選挙の神奈川県
                     </a>
@@ -161,7 +161,7 @@ function RouteComponent() {
                     たとえば、
                     <a
                       href='https://www.soumu.go.jp/senkyo/senkyo_s/data/sangiin25/index.html'
-                      className='text-blue-600 underline-offset-2 hover:underline'
+                      className='text-link-base underline-offset-2 hover:underline'
                     >
                       第25回参議院議員総選挙
                     </a>

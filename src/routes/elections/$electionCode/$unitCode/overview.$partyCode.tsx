@@ -287,7 +287,7 @@ function RouteComponent() {
             activeOptions={{
               exact: true,
             }}
-            className='text-blue-600 underline-offset-2 hover:underline'
+            className='text-link-base underline-offset-2 hover:underline'
           >
             {title}
           </Link>
