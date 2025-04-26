@@ -7,9 +7,9 @@ import {
 } from '#src/components/templates/misc.tsx'
 import { listElections, listParties } from '#src/utils/queries.ts'
 
-async function getElection(electionId: string) {
+async function getElection(electionCode: string) {
   try {
-    const response = await fetch(`/api/elections/${electionId}`)
+    const response = await fetch(`/api/elections/${electionCode}`)
     if (response.status === 404) {
       const errorMessage = await response.json()
       throw notFound({ data: errorMessage })
@@ -25,12 +25,12 @@ async function getElection(electionId: string) {
   }
 }
 
-export const Route = createFileRoute('/elections/$electionId')({
+export const Route = createFileRoute('/elections/$electionCode')({
   loader: async ({ params }) => {
     const [currentElection, elections, parties] = await Promise.all([
-      getElection(params.electionId),
+      getElection(params.electionCode),
       listElections(),
-      listParties(params.electionId),
+      listParties(params.electionCode),
     ])
 
     const currentElectionDate = new Date(currentElection.date)

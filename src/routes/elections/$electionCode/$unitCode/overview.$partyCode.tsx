@@ -58,7 +58,7 @@ function getPartyDetails({
 }
 
 export const Route = createFileRoute(
-  '/elections/$electionId/$unitId/overview/$partyCode',
+  '/elections/$electionCode/$unitCode/overview/$partyCode',
 )({
   validateSearch: v.object({
     compare: v.fallback(v.optional(comparePartySchema), undefined),
@@ -84,16 +84,16 @@ export const Route = createFileRoute(
     await Promise.all([
       queryClient.ensureQueryData(
         getPartyDetails({
-          electionCode: params.electionId,
+          electionCode: params.electionCode,
           partyCode: params.partyCode,
-          unitCode: params.unitId,
+          unitCode: params.unitCode,
         }),
       ),
       queryClient.ensureQueryData(
         getPartyDetails({
-          electionCode: params.electionId,
+          electionCode: params.electionCode,
           partyCode: comparePartyCode,
-          unitCode: params.unitId,
+          unitCode: params.unitCode,
           isCompareParty: true,
         }),
       ),
@@ -110,17 +110,17 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const navigate = Route.useNavigate()
   const { comparePartyCode } = Route.useLoaderData()
-  const { electionId, unitId, partyCode } = Route.useParams()
+  const { electionCode, unitCode, partyCode } = Route.useParams()
   const {
     currentElection: { name: electionName },
     prevElectionCode,
     elections,
     parties,
   } = useLoaderData({
-    from: '/elections/$electionId',
+    from: '/elections/$electionCode',
   })
   const { prefecture } = useLoaderData({
-    from: '/elections/$electionId/$unitId',
+    from: '/elections/$electionCode/$unitCode',
   })
   const unitInfo = useUnitInfo()
 
@@ -128,14 +128,14 @@ function RouteComponent() {
     useSuspenseQueries({
       queries: [
         getPartyDetails({
-          electionCode: electionId,
+          electionCode,
           partyCode,
-          unitCode: unitId,
+          unitCode,
         }),
         getPartyDetails({
-          electionCode: electionId,
+          electionCode,
           partyCode: comparePartyCode,
-          unitCode: unitId,
+          unitCode,
         }),
       ],
     })
@@ -144,7 +144,7 @@ function RouteComponent() {
   invariant(partyDetails, 'Party details not found')
 
   const currentPartyDetails = partyDetails.changes.find(
-    (change) => change.election.code === electionId,
+    (change) => change.election.code === electionCode,
   )
 
   if (!currentPartyDetails) {
@@ -164,7 +164,7 @@ function RouteComponent() {
     comparePartyCode &&
     // 基準年に記録が存在する場合のみ表示
     comparePartyDetails?.changes.some(
-      (change) => change.election.code === electionId,
+      (change) => change.election.code === electionCode,
     )
 
   const generateChangesData = (
@@ -279,10 +279,10 @@ function RouteComponent() {
         <h2 className='sr-only'>{`${title}/${partyName}`}</h2>
         <div className='flex flex-wrap gap-x-2 text-xl font-bold'>
           <Link
-            to='/elections/$electionId/$unitId/overview'
+            to='/elections/$electionCode/$unitCode/overview'
             params={{
-              electionId,
-              unitId,
+              electionCode,
+              unitCode,
             }}
             activeOptions={{
               exact: true,

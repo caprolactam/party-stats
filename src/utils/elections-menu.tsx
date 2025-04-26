@@ -23,7 +23,7 @@ export function ElectionsMenu({
   const {
     currentElection: { code: electionCode },
   } = useLoaderData({
-    from: '/elections/$electionId',
+    from: '/elections/$electionCode',
   })
 
   const linkProps = useCurrentLink()
@@ -44,7 +44,7 @@ export function ElectionsMenu({
           ...linkProps,
           params: {
             ...linkProps.params,
-            electionId: electionCode,
+            electionCode,
           },
           resetScroll: false,
         })

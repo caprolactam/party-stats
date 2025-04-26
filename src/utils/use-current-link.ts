@@ -1,12 +1,13 @@
 import { useChildMatches, useParams, linkOptions } from '@tanstack/react-router'
 
 export function useCurrentLink() {
-  const params = useParams({ from: '/elections/$electionId/$unitId' })
+  const params = useParams({ from: '/elections/$electionCode/$unitCode' })
 
   const overviewRoute = useChildMatches({
     select: (matches) =>
       matches.find(
-        (match) => match.routeId === '/elections/$electionId/$unitId/overview/',
+        (match) =>
+          match.routeId === '/elections/$electionCode/$unitCode/overview/',
       ),
   })
   const isOverview = !!overviewRoute
@@ -16,7 +17,7 @@ export function useCurrentLink() {
       matches.find(
         (match) =>
           match.routeId ===
-          '/elections/$electionId/$unitId/overview/$partyCode',
+          '/elections/$electionCode/$unitCode/overview/$partyCode',
       ),
   })
   const isDetails = !!detailsRoute
@@ -24,25 +25,26 @@ export function useCurrentLink() {
   const rankingRoute = useChildMatches({
     select: (matches) =>
       matches.find(
-        (match) => match.routeId === '/elections/$electionId/$unitId/ranking',
+        (match) =>
+          match.routeId === '/elections/$electionCode/$unitCode/ranking',
       ),
   })
   const isRanking = !!rankingRoute
 
   const linkProps = isOverview
     ? linkOptions({
-        to: '/elections/$electionId/$unitId/overview',
+        to: '/elections/$electionCode/$unitCode/overview',
         params: overviewRoute.params,
       })
     : isDetails
       ? linkOptions({
-          to: '/elections/$electionId/$unitId/overview/$partyCode',
+          to: '/elections/$electionCode/$unitCode/overview/$partyCode',
           params: detailsRoute.params,
           search: detailsRoute.search,
         })
       : isRanking
         ? linkOptions({
-            to: '/elections/$electionId/$unitId/ranking',
+            to: '/elections/$electionCode/$unitCode/ranking',
             params: rankingRoute.params,
             search: {
               ...rankingRoute.search,
@@ -50,7 +52,7 @@ export function useCurrentLink() {
             },
           })
         : linkOptions({
-            to: '/elections/$electionId/$unitId/overview',
+            to: '/elections/$electionCode/$unitCode/overview',
             params,
           })
 

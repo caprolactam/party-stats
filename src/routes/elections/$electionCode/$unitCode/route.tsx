@@ -24,23 +24,23 @@ import { useCurrentLink } from '#src/utils/use-current-link.ts'
 
 type UnitInfo = {
   estimatedUnit: Unit
-  unitId: string
+  unitCode: string
 } | null
 
-function estimateUnitId(unitIdParam: string): UnitInfo {
-  const unitId = unitIdParam.toLowerCase()
+function estimateUnitId(unitCodeParam: string): UnitInfo {
+  const unitCode = unitCodeParam.toLowerCase()
   const regionRegex = /^[0-9]$/
   const prefectureRegex = /^[0-9]{6}$/
   const cityRegex = /^[0-9]{5}$/
 
-  if (unitId === 'national') {
-    return { estimatedUnit: 'national', unitId }
-  } else if (regionRegex.test(unitId)) {
-    return { estimatedUnit: 'region', unitId }
-  } else if (prefectureRegex.test(unitId)) {
-    return { estimatedUnit: 'prefecture', unitId }
-  } else if (cityRegex.test(unitId)) {
-    return { estimatedUnit: 'city', unitId }
+  if (unitCode === 'national') {
+    return { estimatedUnit: 'national', unitCode }
+  } else if (regionRegex.test(unitCode)) {
+    return { estimatedUnit: 'region', unitCode }
+  } else if (prefectureRegex.test(unitCode)) {
+    return { estimatedUnit: 'prefecture', unitCode }
+  } else if (cityRegex.test(unitCode)) {
+    return { estimatedUnit: 'city', unitCode }
   }
 
   return null
@@ -48,7 +48,7 @@ function estimateUnitId(unitIdParam: string): UnitInfo {
 
 async function getUnitInfo({
   estimatedUnit,
-  unitId: unitIdParam,
+  unitCode: unitCodeParam,
 }: NonNullable<UnitInfo>) {
   try {
     switch (estimatedUnit) {
@@ -57,7 +57,7 @@ async function getUnitInfo({
           unit: estimatedUnit,
         }
       case 'region': {
-        const response = await fetch(`/api/regions/${unitIdParam}`)
+        const response = await fetch(`/api/regions/${unitCodeParam}`)
         if (!response.ok) {
           throw new Error('Region not found')
         }
@@ -69,7 +69,7 @@ async function getUnitInfo({
         }
       }
       case 'prefecture': {
-        const response = await fetch(`/api/prefectures/${unitIdParam}`)
+        const response = await fetch(`/api/prefectures/${unitCodeParam}`)
         if (!response.ok) {
           throw new Error('Prefecture not found')
         }
@@ -83,7 +83,7 @@ async function getUnitInfo({
         }
       }
       case 'city': {
-        const response = await fetch(`/api/cities/${unitIdParam}`)
+        const response = await fetch(`/api/cities/${unitCodeParam}`)
         if (!response.ok) {
           throw new Error('City not found')
         }
@@ -98,7 +98,7 @@ async function getUnitInfo({
       }
       default: {
         const _: never = estimatedUnit
-        throw new Error(`Invalid unitId: ${_}`)
+        throw new Error(`Invalid unitCode: ${_}`)
       }
     }
   } catch (error) {
@@ -107,21 +107,21 @@ async function getUnitInfo({
   }
 }
 
-export const Route = createFileRoute('/elections/$electionId/$unitId')({
+export const Route = createFileRoute('/elections/$electionCode/$unitCode')({
   beforeLoad: (ctx) => {
-    const unitInfo = estimateUnitId(ctx.params.unitId)
+    const unitInfo = estimateUnitId(ctx.params.unitCode)
     if (!unitInfo) {
       // TODO: handle error
-      throw new Error('Invalid unitId')
+      throw new Error('Invalid unitCode')
     }
 
     // Exposing implementaion details...😅
-    if (unitInfo.estimatedUnit === 'region' && unitInfo.unitId === '1') {
+    if (unitInfo.estimatedUnit === 'region' && unitInfo.unitCode === '1') {
       throw redirect({
-        to: `/elections/$electionId/$unitId/overview`,
+        to: `/elections/$electionCode/$unitCode/overview`,
         params: {
           ...ctx.params,
-          unitId: '010006',
+          unitCode: '010006',
         },
       })
     }
@@ -136,14 +136,14 @@ export const Route = createFileRoute('/elections/$electionId/$unitId')({
       case 'region':
         void context.queryClient.prefetchQuery(
           prefecturesInRegionQueryOptions({
-            regionCode: context.unitId,
+            regionCode: context.unitCode,
           }),
         )
         break
       case 'prefecture':
         void context.queryClient.prefetchQuery(
           citiesInPrefectureQueryOptions({
-            prefectureCode: context.unitId,
+            prefectureCode: context.unitCode,
             page: 1,
           }),
         )
@@ -155,15 +155,15 @@ export const Route = createFileRoute('/elections/$electionId/$unitId')({
 
     const unitInfo = await getUnitInfo({
       estimatedUnit: context.estimatedUnit,
-      unitId: context.unitId,
+      unitCode: context.unitCode,
     })
 
     if (unitInfo.city?.archived) {
       throw redirect({
-        to: `/elections/$electionId/$unitId/overview`,
+        to: `/elections/$electionCode/$unitCode/overview`,
         params: {
           ...params,
-          unitId: unitInfo.city.redirectTo,
+          unitCode: unitInfo.city.redirectTo,
         },
       })
     }
@@ -177,25 +177,25 @@ export const Route = createFileRoute('/elections/$electionId/$unitId')({
 
 function LayoutComponent() {
   const queryClient = useQueryClient()
-  const { electionId, unitId } = Route.useParams()
+  const { electionCode, unitCode } = Route.useParams()
 
   React.useEffect(() => {
     return () => {
       queryClient.removeQueries({
-        queryKey: ['partyDetails', electionId],
+        queryKey: ['partyDetails', electionCode],
         exact: false,
       })
     }
-  }, [queryClient, electionId])
+  }, [queryClient, electionCode])
 
   React.useEffect(() => {
     return () => {
       queryClient.removeQueries({
-        queryKey: ['partyDetails', electionId, unitId],
+        queryKey: ['partyDetails', electionCode, unitCode],
         exact: false,
       })
     }
-  }, [queryClient, electionId, unitId])
+  }, [queryClient, electionCode, unitCode])
 
   return (
     <>
@@ -219,7 +219,7 @@ function BreadCrumbs({ className }: { className?: string }) {
           {...linkProps}
           params={{
             ...linkProps.params,
-            unitId: 'national',
+            unitCode: 'national',
           }}
         >
           全国
@@ -229,7 +229,7 @@ function BreadCrumbs({ className }: { className?: string }) {
             {...linkProps}
             params={{
               ...linkProps.params,
-              unitId: region.code,
+              unitCode: region.code,
             }}
           >
             {region.name}
@@ -240,7 +240,7 @@ function BreadCrumbs({ className }: { className?: string }) {
             {...linkProps}
             params={{
               ...linkProps.params,
-              unitId: prefecture.code,
+              unitCode: prefecture.code,
             }}
           >
             {prefecture.name}
@@ -251,7 +251,7 @@ function BreadCrumbs({ className }: { className?: string }) {
             {...linkProps}
             params={{
               ...linkProps.params,
-              unitId: city.code,
+              unitCode: city.code,
             }}
           >
             {city.name}

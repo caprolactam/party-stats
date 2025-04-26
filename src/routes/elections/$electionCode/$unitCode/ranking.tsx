@@ -191,7 +191,9 @@ async function getPrefectureByCityCodeRanking({
   }
 }
 
-export const Route = createFileRoute('/elections/$electionId/$unitId/ranking')({
+export const Route = createFileRoute(
+  '/elections/$electionCode/$unitCode/ranking',
+)({
   validateSearch: searchParamsSchema,
   loaderDeps: ({ search: { party, sort, page, unit } }) => ({
     party,
@@ -202,20 +204,20 @@ export const Route = createFileRoute('/elections/$electionId/$unitId/ranking')({
   loader: async ({
     params,
     deps: { page, sort, unit, party: partyCode },
-    context: { estimatedUnit, unitId },
+    context: { estimatedUnit, unitCode },
   }) => {
     if (!partyCode) {
-      const { electionId } = params
+      const { electionCode } = params
 
-      const parties = await listParties(electionId)
+      const parties = await listParties(electionCode)
       const searchParams = new URLSearchParams()
       const party = parties[0]
-      // if throwing error, then handled by `/elections/$electionId`
+      // if throwing error, then handled by `/elections/$electionCode`
       invariant(party, 'Leader not found')
       searchParams.set('party', party.code)
 
       throw redirect({
-        to: '/elections/$electionId/$unitId/ranking',
+        to: '/elections/$electionCode/$unitCode/ranking',
         params,
         search: {
           party: party.code,
@@ -226,7 +228,7 @@ export const Route = createFileRoute('/elections/$electionId/$unitId/ranking')({
     switch (estimatedUnit) {
       case 'national': {
         const ranking = await getNationalRanking({
-          electionCode: params.electionId,
+          electionCode: params.electionCode,
           partyCode,
           page,
           sort,
@@ -238,11 +240,11 @@ export const Route = createFileRoute('/elections/$electionId/$unitId/ranking')({
       case 'region': {
         const rankingUnit = !unit || unit === 'region' ? 'prefecture' : unit
         const ranking = await getRegionRanking({
-          electionCode: params.electionId,
+          electionCode: params.electionCode,
           partyCode,
           page,
           sort,
-          regionCode: unitId,
+          regionCode: unitCode,
           rankingUnit,
         })
 
@@ -250,22 +252,22 @@ export const Route = createFileRoute('/elections/$electionId/$unitId/ranking')({
       }
       case 'prefecture': {
         const ranking = await getPrefectureRanking({
-          electionCode: params.electionId,
+          electionCode: params.electionCode,
           partyCode,
           page,
           sort,
-          prefectureCode: unitId,
+          prefectureCode: unitCode,
         })
 
         return { ...ranking, partyCode }
       }
       case 'city': {
         const ranking = await getPrefectureByCityCodeRanking({
-          electionCode: params.electionId,
+          electionCode: params.electionCode,
           partyCode,
           page,
           sort,
-          cityCode: unitId,
+          cityCode: unitCode,
         })
 
         return { ...ranking, partyCode }
@@ -293,10 +295,10 @@ function RouteComponent() {
     currentElection: { name: electionName },
     parties,
   } = useLoaderData({
-    from: '/elections/$electionId',
+    from: '/elections/$electionCode',
   })
   const { unit, region, prefecture } = useLoaderData({
-    from: '/elections/$electionId/$unitId',
+    from: '/elections/$electionCode/$unitCode',
   })
 
   const { pageNumbers, canPageBackwards, canPageForwards } = createPageNumber({
@@ -320,7 +322,7 @@ function RouteComponent() {
           selectedParty={partyCode}
           handleSelect={(party) => {
             void navigate({
-              to: '/elections/$electionId/$unitId/ranking',
+              to: '/elections/$electionCode/$unitCode/ranking',
               params,
               search: (prev) => ({
                 ...prev,
@@ -337,7 +339,7 @@ function RouteComponent() {
           rankingUnit={rankingUnit}
           handleRankingUnit={(unitType) => {
             void navigate({
-              to: '/elections/$electionId/$unitId/ranking',
+              to: '/elections/$electionCode/$unitCode/ranking',
               params,
               search: (prev) => ({
                 ...prev,
@@ -353,7 +355,7 @@ function RouteComponent() {
           sort={sort}
           handleSort={(sortType) => {
             void navigate({
-              to: '/elections/$electionId/$unitId/ranking',
+              to: '/elections/$electionCode/$unitCode/ranking',
               params,
               search: (prev) => ({
                 ...prev,
@@ -388,7 +390,7 @@ function RouteComponent() {
                     size: 'md',
                     className: 'size-9 p-0',
                   })}
-                  to='/elections/$electionId/$unitId/ranking'
+                  to='/elections/$electionCode/$unitCode/ranking'
                   params={params}
                   search={(prev) => ({
                     ...prev,
@@ -417,7 +419,7 @@ function RouteComponent() {
                       size: 'md',
                       className: 'size-9 p-0',
                     })}
-                    to='/elections/$electionId/$unitId/ranking'
+                    to='/elections/$electionCode/$unitCode/ranking'
                     params={params}
                     resetScroll={false}
                     search={(prev) => ({
@@ -436,7 +438,7 @@ function RouteComponent() {
                     size: 'md',
                     className: 'size-9 p-0',
                   })}
-                  to='/elections/$electionId/$unitId/ranking'
+                  to='/elections/$electionCode/$unitCode/ranking'
                   params={params}
                   search={(prev) => ({
                     ...prev,
@@ -482,16 +484,16 @@ function RankingItem({
   rank: number
   rate: number
 }) {
-  const { electionId } = Route.useParams()
+  const { electionCode } = Route.useParams()
 
   return (
     <li className='card-container'>
       <Link
-        to='/elections/$electionId/$unitId/overview/$partyCode'
+        to='/elections/$electionCode/$unitCode/overview/$partyCode'
         className='group flex h-14 items-center gap-4'
         params={{
-          electionId,
-          unitId: cityCode,
+          electionCode,
+          unitCode: cityCode,
           partyCode,
         }}
       >

@@ -107,7 +107,7 @@ export function citiesInPrefectureQueryOptions({
 
 export function CityCandidatesList() {
   const { unit, region, prefecture, city } = useLoaderData({
-    from: '/elections/$electionId/$unitId',
+    from: '/elections/$electionCode/$unitCode',
   })
 
   switch (unit) {
@@ -177,7 +177,7 @@ function UnitPrefecture({ prefectureCode }: { prefectureCode: string }) {
 
 function CandidateHigherUnit() {
   const { unit, region } = useLoaderData({
-    from: '/elections/$electionId/$unitId',
+    from: '/elections/$electionCode/$unitCode',
   })
   const linkProps = useCurrentLink()
 
@@ -188,7 +188,7 @@ function CandidateHigherUnit() {
           {...linkProps}
           params={{
             ...linkProps.params,
-            unitId: 'national',
+            unitCode: 'national',
           }}
           resetScroll={false}
         >
@@ -210,7 +210,7 @@ function CandidateHigherUnit() {
           {...linkProps}
           params={{
             ...linkProps.params,
-            unitId: 'national',
+            unitCode: 'national',
           }}
           resetScroll={false}
         >
@@ -228,7 +228,7 @@ function CandidateHigherUnit() {
           {...linkProps}
           params={{
             ...linkProps.params,
-            unitId: region.code,
+            unitCode: region.code,
           }}
           resetScroll={false}
         >
@@ -286,7 +286,7 @@ function CandidatesListImpl({
   handlePage?: (newPage: number) => void
 }) {
   const { region, prefecture, city } = useLoaderData({
-    from: '/elections/$electionId/$unitId',
+    from: '/elections/$electionCode/$unitCode',
   })
   const linkProps = useCurrentLink()
 
@@ -315,7 +315,7 @@ function CandidatesListImpl({
             params={{
               ...linkProps.params,
               // Exposing implementaion details...😅
-              unitId: candidate.code === '1' ? '010006' : candidate.code,
+              unitCode: candidate.code === '1' ? '010006' : candidate.code,
             }}
             resetScroll={false}
           >

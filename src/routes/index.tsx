@@ -42,7 +42,7 @@ function RouteComponent() {
             <Election
               key={election.code}
               electionName={election.name}
-              electionId={election.code}
+              electionCode={election.code}
               electionDate={election.date}
             />
           ))}
@@ -74,12 +74,12 @@ function RouteComponent() {
 
 function Election({
   electionName,
-  electionId,
+  electionCode,
   electionDate,
   className,
 }: {
   electionName: string
-  electionId: string
+  electionCode: string
   electionDate: string
   className?: string
 }) {
@@ -90,8 +90,8 @@ function Election({
   return (
     <li className={className}>
       <Link
-        to='/elections/$electionId/$unitId/overview'
-        params={{ electionId, unitId: 'national' }}
+        to='/elections/$electionCode/$unitCode/overview'
+        params={{ electionCode, unitCode: 'national' }}
         className='text-brand-12 hover:bg-brand-4 focus-visible:bg-brand-5 active:bg-brand-5 flex items-center gap-4 px-4 py-2'
       >
         <div className='flex-1'>

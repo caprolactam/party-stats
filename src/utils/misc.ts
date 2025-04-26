@@ -45,7 +45,7 @@ export type Unit = 'national' | 'region' | 'prefecture' | 'city'
 
 export function useUnitInfo(): { unit: Unit; unitCode: string; label: string } {
   const data = useLoaderData({
-    from: '/elections/$electionId/$unitId',
+    from: '/elections/$electionCode/$unitCode',
   })
 
   switch (data.unit) {
