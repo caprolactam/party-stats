@@ -154,7 +154,7 @@ function ElectionMenuDrawer({
           }}
           tabIndex={-1}
           ref={contentRef}
-          className='bg-brand-1 fixed inset-x-2 bottom-2 z-50 flex max-h-[85%] flex-col overflow-hidden rounded-lg after:h-0!'
+          className='bg-brand-1 fixed inset-x-2 bottom-2 z-50 flex max-h-[85%] flex-col overflow-hidden rounded-lg pb-2 after:h-0!'
         >
           <Drawer.Title className='text-brand-11 relative flex h-10 shrink-0 items-center px-4 text-sm'>
             <div className='bg-brand-6 absolute inset-x-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-xl'></div>
@@ -172,7 +172,7 @@ function ElectionMenuDrawer({
                 >
                   <button
                     type='button'
-                    className='hover:bg-brand-4 reset-outline focus-visible:bg-brand-5 active:bg-brand-5 flex min-h-12 w-full items-center gap-4 px-4 py-2 outline-none select-none'
+                    className='hover:bg-brand-4 reset-outline focus-visible:bg-brand-5 active:bg-brand-5 flex h-12 w-full items-center gap-4 px-4 py-2 outline-none select-none'
                     onClick={() => handleSelect(election.code)}
                   >
                     {election.code === selectedElectionCode ? (

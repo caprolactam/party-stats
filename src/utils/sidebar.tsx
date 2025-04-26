@@ -5,7 +5,7 @@ import {
   type NavigateOptions,
 } from '@tanstack/react-router'
 import React from 'react'
-import { Button, buttonVariants } from '#src/components/parts/button.tsx'
+import { Button } from '#src/components/parts/button.tsx'
 import { Icon } from '#src/components/parts/icon.tsx'
 import { CityCandidatesList } from '#src/utils/city-candidates-list.tsx'
 import { ElectionsMenu } from '#src/utils/elections-menu.tsx'
@@ -37,7 +37,7 @@ export function LayoutWithSidebar({ children }: { children: React.ReactNode }) {
   return (
     <div className='flex flex-wrap gap-x-(--space-base) gap-y-(--space-xl)'>
       <div className='min-w-[55%] grow-999 basis-0'>
-        <div className='flex flex-wrap items-start justify-end gap-4'>
+        <div className='flex flex-wrap items-start gap-4'>
           <div className='shrink-0 grow'>
             <h1 className='text-2xl font-semibold'>{electionName}</h1>
             <span className='text-brand-11 block text-base'>
@@ -45,37 +45,21 @@ export function LayoutWithSidebar({ children }: { children: React.ReactNode }) {
               投開票
             </span>
           </div>
-          <div className='flex shrink-0 items-center gap-4'>
-            <a
-              href={source}
-              className={buttonVariants({
-                variant: 'outline',
-                size: 'md',
-                withIcon: 'trailing',
-              })}
+          <ElectionsMenu elections={elections}>
+            <Button
+              variant='outline'
+              size='md'
+              withIcon='trailing'
+              className='shrink-0'
             >
-              概要
+              選挙の選択
               <Icon
-                name='open-in-new'
-                size={16}
+                name='arrow-drop-down'
+                className='text-brand-11'
+                size={24}
               />
-            </a>
-            <ElectionsMenu elections={elections}>
-              <Button
-                variant='default'
-                size='md'
-                withIcon='trailing'
-                className='shrink-0'
-              >
-                選挙の選択
-                <Icon
-                  name='arrow-drop-down'
-                  className='text-brand-11'
-                  size={24}
-                />
-              </Button>
-            </ElectionsMenu>
-          </div>
+            </Button>
+          </ElectionsMenu>
         </div>
         <ul className='border-brand-7 mt-(--space-base) flex h-12 border-b'>
           {strictEntries(items).map(([key, label]) => {
@@ -126,7 +110,7 @@ export function LayoutWithSidebar({ children }: { children: React.ReactNode }) {
             <cite className='not-italic'>
               <a
                 href={source}
-                className='text-blue-600 underline-offset-2 hover:underline'
+                className='text-link-base underline-offset-2 hover:underline'
               >
                 {electionType === 'shugiin'
                   ? '市区町村別得票（総務省）'
