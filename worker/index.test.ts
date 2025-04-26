@@ -20,11 +20,16 @@ import {
   GetPrefectureRankingSchema,
   getPartyDetailsSchema,
 } from '#api/schema.ts'
-import app from './index'
+import app, {
+  NOT_FOUND_AREA,
+  NOT_FOUND_ELECTION,
+  NOT_FOUND_PARTY,
+} from './index'
 
-const PARTY_CODE = 'ldp'
-const REGION_CODE = '3'
 const ELECTION_CODE = 'shugiin20241027'
+const PARTY_CODE = 'ldp'
+const NATIONAL_CODE = 'national'
+const REGION_CODE = '3'
 const PREFECTURE_CODE = '130001'
 const CITY_CODE = '13101'
 
@@ -246,11 +251,11 @@ describe('GET /api/elections/:electionCode', () => {
     })
 })
 
-describe('GET /api/elections/:electionCode/overview/national', () => {
+describe('GET /api/elections/:electionCode/overview/unit/:unitCode', () => {
   test('not found election with 404', async () => {
     const ctx = createExecutionContext()
     const res = await app.request(
-      '/api/elections/not-found-election/overview/national',
+      '/api/elections/not-found-election/overview/unit/national',
       {},
       env,
       ctx,
@@ -260,47 +265,13 @@ describe('GET /api/elections/:electionCode/overview/national', () => {
 
     expect(res.status).toBe(404)
     expect(await res.json()).toStrictEqual({
-      message: '指定の選挙が見つかりませんでした',
+      message: NOT_FOUND_ELECTION,
     })
   }),
-    test('get election overview with 200', async () => {
+    test('not found area with 404', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/overview/national`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(200)
-      const sut = await res.json()
-      expect(() => v.parse(GetElectionOverviewSchema, sut)).not.toThrow()
-    })
-})
-
-describe('GET /api/elections/:electionCode/overview/regions/:regionCode', () => {
-  test('not found election with 404', async () => {
-    const ctx = createExecutionContext()
-    const res = await app.request(
-      `/api/elections/not-found-election/overview/regions/${REGION_CODE}`,
-      {},
-      env,
-      ctx,
-    )
-
-    await waitOnExecutionContext(ctx)
-
-    expect(res.status).toBe(404)
-    expect(await res.json()).toStrictEqual({
-      message: '指定の選挙が見つかりませんでした',
-    })
-  }),
-    test('not found region with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/overview/regions/not-found-region`,
+        `/api/elections/${ELECTION_CODE}/overview/unit/not-found-area`,
         {},
         env,
         ctx,
@@ -310,123 +281,76 @@ describe('GET /api/elections/:electionCode/overview/regions/:regionCode', () => 
 
       expect(res.status).toBe(404)
       expect(await res.json()).toStrictEqual({
-        message: 'Not found region',
+        message: NOT_FOUND_AREA,
       })
     }),
-    test('get election overview with 200', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/overview/regions/${REGION_CODE}`,
-        {},
-        env,
-        ctx,
-      )
+    describe('get area national', () => {
+      test('get election overview with 200', async () => {
+        const ctx = createExecutionContext()
+        const res = await app.request(
+          `/api/elections/${ELECTION_CODE}/overview/unit/national`,
+          {},
+          env,
+          ctx,
+        )
 
-      await waitOnExecutionContext(ctx)
+        await waitOnExecutionContext(ctx)
 
-      expect(res.status).toBe(200)
-      const sut = await res.json()
-      expect(() => v.parse(GetElectionOverviewSchema, sut)).not.toThrow()
-    })
-})
-
-describe('GET /api/elections/:electionCode/overview/prefectures/:prefectureCode', () => {
-  test('not found election with 404', async () => {
-    const ctx = createExecutionContext()
-    const res = await app.request(
-      `/api/elections/not-found-election/overview/prefectures/${PREFECTURE_CODE}`,
-      {},
-      env,
-      ctx,
-    )
-
-    await waitOnExecutionContext(ctx)
-
-    expect(res.status).toBe(404)
-    expect(await res.json()).toStrictEqual({
-      message: '指定の選挙が見つかりませんでした',
-    })
-  }),
-    test('not found prefecture with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/overview/prefectures/not-found-prefecture`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(404)
-      expect(await res.json()).toStrictEqual({
-        message: 'Not found prefecture',
+        expect(res.status).toBe(200)
+        const sut = await res.json()
+        expect(() => v.parse(GetElectionOverviewSchema, sut)).not.toThrow()
       })
     }),
-    test('get election overview with 200', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/overview/prefectures/${PREFECTURE_CODE}`,
-        {},
-        env,
-        ctx,
-      )
+    describe('get area region', () => {
+      test('get election overview with 200', async () => {
+        const ctx = createExecutionContext()
+        const res = await app.request(
+          `/api/elections/${ELECTION_CODE}/overview/unit/${REGION_CODE}`,
+          {},
+          env,
+          ctx,
+        )
 
-      await waitOnExecutionContext(ctx)
+        await waitOnExecutionContext(ctx)
 
-      expect(res.status).toBe(200)
-      const sut = await res.json()
-      expect(() => v.parse(GetElectionOverviewSchema, sut)).not.toThrow()
-    })
-})
-
-describe('GET /api/elections/:electionCode/overview/cities/:cityCode', () => {
-  test('not found election with 404', async () => {
-    const ctx = createExecutionContext()
-    const res = await app.request(
-      `/api/elections/not-found-election/overview/cities/${CITY_CODE}`,
-      {},
-      env,
-      ctx,
-    )
-
-    await waitOnExecutionContext(ctx)
-
-    expect(res.status).toBe(404)
-    expect(await res.json()).toStrictEqual({
-      message: '指定の選挙が見つかりませんでした',
-    })
-  }),
-    test('not found city with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/overview/cities/not-found-city`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(404)
-      expect(await res.json()).toStrictEqual({
-        message: 'Not found city',
+        expect(res.status).toBe(200)
+        const sut = await res.json()
+        expect(() => v.parse(GetElectionOverviewSchema, sut)).not.toThrow()
       })
     }),
-    test('get election overview with 200', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/overview/cities/${CITY_CODE}`,
-        {},
-        env,
-        ctx,
-      )
+    describe('get area prefecture', () => {
+      test('get election overview with 200', async () => {
+        const ctx = createExecutionContext()
+        const res = await app.request(
+          `/api/elections/${ELECTION_CODE}/overview/unit/${PREFECTURE_CODE}`,
+          {},
+          env,
+          ctx,
+        )
 
-      await waitOnExecutionContext(ctx)
+        await waitOnExecutionContext(ctx)
 
-      expect(res.status).toBe(200)
-      const sut = await res.json()
-      expect(() => v.parse(GetElectionOverviewSchema, sut)).not.toThrow()
+        expect(res.status).toBe(200)
+        const sut = await res.json()
+        expect(() => v.parse(GetElectionOverviewSchema, sut)).not.toThrow()
+      })
+    }),
+    describe('get area city', () => {
+      test('get election overview with 200', async () => {
+        const ctx = createExecutionContext()
+        const res = await app.request(
+          `/api/elections/${ELECTION_CODE}/overview/unit/${CITY_CODE}`,
+          {},
+          env,
+          ctx,
+        )
+
+        await waitOnExecutionContext(ctx)
+
+        expect(res.status).toBe(200)
+        const sut = await res.json()
+        expect(() => v.parse(GetElectionOverviewSchema, sut)).not.toThrow()
+      })
     })
 })
 

@@ -19,10 +19,7 @@ import {
   checkElection,
   checkParty,
   listParties,
-  getNationalOverview,
-  getRegionOverview,
-  getPrefectureOverview,
-  getCityOverview,
+  getOverview,
 } from './queries/election.ts'
 import { getPartyDetails } from './queries/party-details.ts'
 import {
@@ -35,8 +32,9 @@ import {
 } from './queries/party-ranking.ts'
 import { pageSchema, checkHokkaido, DB_ERROR } from './queries/utils.ts'
 
-const NOT_FOUND_ELECTION = '指定の選挙が見つかりませんでした'
-const NOT_FOUND_PARTY = '指定の政党が見つかりませんでした'
+export const NOT_FOUND_AREA = '指定の地域が見つかりませんでした'
+export const NOT_FOUND_ELECTION = '指定の選挙が見つかりませんでした'
+export const NOT_FOUND_PARTY = '指定の政党が見つかりませんでした'
 
 export interface HonoEnv {
   Bindings: Env
@@ -151,6 +149,29 @@ app.get('/api/elections/:electionCode', async (c) => {
   return c.json(election)
 })
 
+app.get('/api/elections/:electionCode/overview/unit/:unitCode', async (c) => {
+  const { electionCode, unitCode } = c.req.param()
+
+  const [election, unitInfo] = await Promise.all([
+    checkElection(electionCode),
+    checkUnit(unitCode),
+  ])
+
+  if (!unitInfo) {
+    return c.json({ message: NOT_FOUND_AREA }, { status: 404 })
+  }
+  if (!election) {
+    return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
+  }
+
+  const overview = await getOverview({
+    electionCode: election.code,
+    unitInfo,
+  })
+
+  return c.json(overview)
+})
+
 app.get(
   '/api/elections/:electionCode/details/:partyCode/unit/:unitCode',
   async (c) => {
@@ -200,95 +221,6 @@ app.get('/api/elections/:electionCode/parties', async (c) => {
   return c.json(parties, 200, {
     'Cache-Control': 'private, max-age=3600, must-revalidate',
   })
-})
-
-app.get('/api/elections/:electionCode/overview/national', async (c) => {
-  const { electionCode } = c.req.param()
-
-  const election = await checkElection(electionCode)
-
-  if (!election) {
-    return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
-  }
-
-  const overview = await getNationalOverview(election.code)
-
-  return c.json(overview)
-})
-
-app.get(
-  '/api/elections/:electionCode/overview/regions/:regionCode',
-  async (c) => {
-    const { regionCode, electionCode } = c.req.param()
-
-    const [region, election] = await Promise.all([
-      checkRegion(regionCode),
-      checkElection(electionCode),
-    ])
-
-    if (!region) {
-      return c.json({ message: 'Not found region' }, { status: 404 })
-    }
-    if (!election) {
-      return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
-    }
-
-    const overview = await getRegionOverview({
-      electionCode: election.code,
-      regionCode: region.code,
-    })
-
-    return c.json(overview)
-  },
-)
-
-app.get(
-  '/api/elections/:electionCode/overview/prefectures/:prefectureCode',
-  async (c) => {
-    const { prefectureCode, electionCode } = c.req.param()
-
-    const [prefecture, election] = await Promise.all([
-      checkPrefecture(prefectureCode),
-      checkElection(electionCode),
-    ])
-
-    if (!prefecture) {
-      return c.json({ message: 'Not found prefecture' }, { status: 404 })
-    }
-    if (!election) {
-      return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
-    }
-
-    const overview = await getPrefectureOverview({
-      electionCode: election.code,
-      prefectureCode: prefecture.code,
-    })
-
-    return c.json(overview)
-  },
-)
-
-app.get('/api/elections/:electionCode/overview/cities/:cityCode', async (c) => {
-  const { cityCode, electionCode } = c.req.param()
-
-  const [city, election] = await Promise.all([
-    checkCity(cityCode),
-    checkElection(electionCode),
-  ])
-
-  if (!city) {
-    return c.json({ message: 'Not found city' }, { status: 404 })
-  }
-  if (!election) {
-    return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
-  }
-
-  const overview = await getCityOverview({
-    electionCode: election.code,
-    cityCode: city.code,
-  })
-
-  return c.json(overview)
 })
 
 app.get(
