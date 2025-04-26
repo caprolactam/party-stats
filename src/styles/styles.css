@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import '@radix-ui/colors/sand.css';
 
 @theme {
   --font-sans: sans-serif;
@@ -12,69 +13,29 @@
 }
 
 @theme inline {
-  --color-brand-1: var(--color-gray-1);
-  --color-brand-2: var(--color-gray-2);
-  --color-brand-3: var(--color-gray-3);
-  --color-brand-4: var(--color-gray-4);
-  --color-brand-5: var(--color-gray-5);
-  --color-brand-6: var(--color-gray-6);
-  --color-brand-7: var(--color-gray-7);
-  --color-brand-8: var(--color-gray-8);
-  --color-brand-9: var(--color-gray-9);
-  --color-brand-10: var(--color-gray-10);
-  --color-brand-11: var(--color-gray-11);
-  --color-brand-12: var(--color-gray-12);
+  --color-brand-1: var(--sand-1);
+  --color-brand-2: var(--sand-2);
+  --color-brand-3: var(--sand-3);
+  --color-brand-4: var(--sand-4);
+  --color-brand-5: var(--sand-5);
+  --color-brand-6: var(--sand-6);
+  --color-brand-7: var(--sand-7);
+  --color-brand-8: var(--sand-8);
+  --color-brand-9: var(--sand-9);
+  --color-brand-10: var(--sand-10);
+  --color-brand-11: var(--sand-11);
+  --color-brand-12: var(--sand-12);
+
+  --color-link-base: var(--color-blue-700);
 }
 
 :root {
-  --color-gray-1: #fcfcfc;
-  --color-gray-2: #f9f9f9;
-  --color-gray-3: #efefef;
-  --color-gray-4: #e8e8e8;
-  --color-gray-5: #e0e0e0;
-  --color-gray-6: #d8d8d8;
-  --color-gray-7: #cecece;
-  --color-gray-8: #bbb;
-  --color-gray-9: #8d8d8d;
-  --color-gray-10: #838383;
-  --color-gray-11: #646464;
-  --color-gray-12: #202020;
-
-  --color-gray-contrast: #ffffff;
-  --color-gray-surface: #ffffffcc;
-  --color-gray-indicator: #8d8d8d;
-  --color-gray-track: #8d8d8d;
-
   --space-xl: calc(var(--space-lg) * 1.6);
   --space-lg: calc(var(--space-base) * 1.6);
   --space-base: 1rem;
   --space-sm: calc(var(--space-base) / 1.6);
   @media (width >= 48rem /* 768px */) {
     --space-base: 1.5rem;
-  }
-}
-
-@supports (color: color(display-p3 1 1 1)) {
-  @media (color-gamut: p3) {
-    :root {
-      --color-gray-1: oklch(99.1% 0 none);
-      --color-gray-2: oklch(98.1% 0 none);
-      --color-gray-3: oklch(95.3% 0 none);
-      --color-gray-4: oklch(93% 0 none);
-      --color-gray-5: oklch(90.8% 0 none);
-      --color-gray-6: oklch(88.4% 0 none);
-      --color-gray-7: oklch(85.1% 0 none);
-      --color-gray-8: oklch(79.1% 0 none);
-      --color-gray-9: oklch(64.3% 0 none);
-      --color-gray-10: oklch(60.9% 0 none);
-      --color-gray-11: oklch(50.3% 0 none);
-      --color-gray-12: oklch(24.3% 0 none);
-
-      --color-gray-contrast: #ffffff;
-      --color-gray-surface: color(display-p3 1 1 1 / 80%);
-      --color-gray-indicator: oklch(64.3% 0 none);
-      --color-gray-track: oklch(64.3% 0 none);
-    }
   }
 }
 
