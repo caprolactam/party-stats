@@ -17,7 +17,7 @@ const items = {
 } as const
 
 export function LayoutWithSidebar({ children }: { children: React.ReactNode }) {
-  const params = useParams({ from: '/elections/$electionId/$unitId' })
+  const params = useParams({ from: '/elections/$electionCode/$unitCode' })
   const {
     currentElection: {
       date: electionDate,
@@ -28,7 +28,7 @@ export function LayoutWithSidebar({ children }: { children: React.ReactNode }) {
     elections,
     parties,
   } = useLoaderData({
-    from: '/elections/$electionId',
+    from: '/elections/$electionCode',
   })
   const { datetime, formattedDate } = convertElectionInfo({
     electionDate,
@@ -88,7 +88,7 @@ export function LayoutWithSidebar({ children }: { children: React.ReactNode }) {
                   >
                     <TabLink
                       key={key}
-                      to={`/elections/$electionId/$unitId/${key}`}
+                      to={`/elections/$electionCode/$unitCode/${key}`}
                       params={params}
                     >
                       {label}
@@ -102,7 +102,7 @@ export function LayoutWithSidebar({ children }: { children: React.ReactNode }) {
                     className='flex-1 basis-24'
                   >
                     <TabLink
-                      to='/elections/$electionId/$unitId/ranking'
+                      to='/elections/$electionCode/$unitCode/ranking'
                       params={params}
                       search={{ party: parties[0]?.code }}
                     >

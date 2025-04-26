@@ -12,28 +12,28 @@ import { countFormatter, useUnitInfo } from '#src/utils/misc.ts'
 import { VoteResult } from '#src/utils/vote-result.tsx'
 
 async function getElectionOverview({
-  electionId,
+  electionCode,
   estimatedUnit,
-  unitId,
+  unitCode,
 }: {
-  electionId: string
+  electionCode: string
   estimatedUnit: 'national' | 'region' | 'prefecture' | 'city'
-  unitId: string
+  unitCode: string
 }) {
   let url: string
 
   switch (estimatedUnit) {
     case 'region':
-      url = `/api/elections/${electionId}/overview/regions/${unitId}`
+      url = `/api/elections/${electionCode}/overview/regions/${unitCode}`
       break
     case 'prefecture':
-      url = `/api/elections/${electionId}/overview/prefectures/${unitId}`
+      url = `/api/elections/${electionCode}/overview/prefectures/${unitCode}`
       break
     case 'city':
-      url = `/api/elections/${electionId}/overview/cities/${unitId}`
+      url = `/api/elections/${electionCode}/overview/cities/${unitCode}`
       break
     case 'national':
-      url = `/api/elections/${electionId}/overview/national`
+      url = `/api/elections/${electionCode}/overview/national`
       break
     default: {
       const _exhaustiveCheck: never = estimatedUnit
@@ -61,14 +61,14 @@ async function getElectionOverview({
 }
 
 export const Route = createFileRoute(
-  '/elections/$electionId/$unitId/overview/',
+  '/elections/$electionCode/$unitCode/overview/',
 )({
   component: RouteComponent,
   loader: ({ params, context }) =>
     getElectionOverview({
-      electionId: params.electionId,
+      electionCode: params.electionCode,
       estimatedUnit: context.estimatedUnit,
-      unitId: params.unitId,
+      unitCode: params.unitCode,
     }),
   notFoundComponent: ({ data }) => <NotFoundComponent data={data} />,
   errorComponent: ErrorBoundary,
@@ -80,10 +80,10 @@ function RouteComponent() {
   const {
     currentElection: { name: electionName },
   } = useLoaderData({
-    from: '/elections/$electionId',
+    from: '/elections/$electionCode',
   })
   const unitInfo = useUnitInfo()
-  const electionId = Route.useParams().electionId
+  const electionCode = Route.useParams().electionCode
   const title = `${unitInfo.label}の選挙結果`
   const description = `${electionName}における${title}`
 
@@ -102,8 +102,8 @@ function RouteComponent() {
             <div>【単位 : 票】</div>
           </div>
           <VoteResult
-            unitId={unitInfo.unitCode}
-            electionId={electionId}
+            unitCode={unitInfo.unitCode}
+            electionCode={electionCode}
             className='grid grid-cols-[repeat(auto-fit,_minmax(18rem,_1fr))] items-start gap-4'
           >
             {parties.map((party) => {
@@ -116,7 +116,7 @@ function RouteComponent() {
 
               return (
                 <VoteResult.Item
-                  key={`${party.code}-${unitInfo.unitCode ?? 'national'}-${electionId}`}
+                  key={`${party.code}-${unitInfo.unitCode ?? 'national'}-${electionCode}`}
                   partyName={party.name}
                   partyCode={party.code}
                   partyColor={party.color}
