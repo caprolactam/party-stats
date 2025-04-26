@@ -176,7 +176,7 @@ function UnitPrefecture({ prefectureCode }: { prefectureCode: string }) {
 }
 
 function CandidateHigherUnit() {
-  const { unit, region } = useLoaderData({
+  const { unit, region, prefecture } = useLoaderData({
     from: '/elections/$electionCode/$unitCode',
   })
   const linkProps = useCurrentLink()
@@ -203,8 +203,7 @@ function CandidateHigherUnit() {
         </CandidatesListItem>
       )
     }
-    case 'prefecture':
-    case 'city': {
+    case 'prefecture': {
       return region.code === '1' ? (
         <CandidatesListItem
           {...linkProps}
@@ -239,6 +238,27 @@ function CandidateHigherUnit() {
               className='-rotate-90'
             />
             {region.name}
+          </div>
+        </CandidatesListItem>
+      )
+    }
+    case 'city': {
+      return (
+        <CandidatesListItem
+          {...linkProps}
+          params={{
+            ...linkProps.params,
+            unitCode: prefecture.code,
+          }}
+          resetScroll={false}
+        >
+          <div className='flex items-center gap-2'>
+            <Icon
+              name='arrow-top-right'
+              size={18}
+              className='-rotate-90'
+            />
+            {prefecture.name}
           </div>
         </CandidatesListItem>
       )
@@ -301,7 +321,7 @@ function CandidatesListImpl({
       <CardHeader className='flex flex-row items-start justify-between'>
         <div>
           <CardTitle className='text-lg'>
-            {prefecture?.name ?? region?.name ?? '全国'}
+            {city?.name ?? prefecture?.name ?? region?.name ?? '全国'}
           </CardTitle>
           <CardDescription className='mt-1'>{`${totalItems}件の地域`}</CardDescription>
         </div>
