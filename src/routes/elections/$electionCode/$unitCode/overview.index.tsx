@@ -13,36 +13,15 @@ import { VoteResult } from '#src/utils/vote-result.tsx'
 
 async function getElectionOverview({
   electionCode,
-  estimatedUnit,
   unitCode,
 }: {
   electionCode: string
-  estimatedUnit: 'national' | 'region' | 'prefecture' | 'city'
   unitCode: string
 }) {
-  let url: string
-
-  switch (estimatedUnit) {
-    case 'region':
-      url = `/api/elections/${electionCode}/overview/regions/${unitCode}`
-      break
-    case 'prefecture':
-      url = `/api/elections/${electionCode}/overview/prefectures/${unitCode}`
-      break
-    case 'city':
-      url = `/api/elections/${electionCode}/overview/cities/${unitCode}`
-      break
-    case 'national':
-      url = `/api/elections/${electionCode}/overview/national`
-      break
-    default: {
-      const _exhaustiveCheck: never = estimatedUnit
-      throw new Error(`Unexpected estimatedUnit: ${_exhaustiveCheck}`)
-    }
-  }
-
   try {
-    const response = await fetch(url)
+    const response = await fetch(
+      `/api/elections/${electionCode}/overview/unit/${unitCode}`,
+    )
 
     if (response.status === 404) {
       const errorMessage = await response.json()
@@ -64,10 +43,9 @@ export const Route = createFileRoute(
   '/elections/$electionCode/$unitCode/overview/',
 )({
   component: RouteComponent,
-  loader: ({ params, context }) =>
+  loader: ({ params }) =>
     getElectionOverview({
       electionCode: params.electionCode,
-      estimatedUnit: context.estimatedUnit,
       unitCode: params.unitCode,
     }),
   notFoundComponent: ({ data }) => <NotFoundComponent data={data} />,

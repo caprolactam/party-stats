@@ -18,6 +18,7 @@ import {
   getFirstItem,
   floorDecimal,
   findElectionAndPrevious,
+  type UnitInfo,
 } from './utils.ts'
 
 export async function listElections() {
@@ -127,212 +128,195 @@ export async function listParties(electionCode: string) {
   }
 }
 
-export async function getLeadingParty(electionCode: string) {
+export async function getOverview({
+  electionCode,
+  unitInfo,
+}: {
+  electionCode: string
+  unitInfo: UnitInfo
+}) {
   try {
-    const db = connectDb()
-    electionCode = electionCode.toLowerCase()
-
-    const data = await db
-      .select({
-        code: parties.code,
-        name: parties.name,
-      })
-      .from(parties)
-      .innerJoin(votesOnAll, eq(votesOnAll.partyId, parties.id))
-      .where(eq(votesOnAll.electionCode, electionCode))
-      .orderBy(desc(votesOnAll.count))
-      .limit(1)
-      .then(getFirstItem)
-
-    return data
+    switch (unitInfo.unit) {
+      case 'national':
+        return await getNationalOverview(electionCode)
+      case 'region':
+        return await getRegionOverview({
+          electionCode,
+          regionCode: unitInfo.regionCode,
+        })
+      case 'prefecture':
+        return await getPrefectureOverview({
+          electionCode,
+          prefectureCode: unitInfo.prefectureCode,
+        })
+      case 'city':
+        return await getCityOverview({
+          electionCode,
+          cityCode: unitInfo.cityCode,
+        })
+      default:
+        throw new Error('Invalid unit type')
+    }
   } catch (error) {
     console.error(error)
     throw new Error(DB_ERROR)
   }
 }
 
-export async function getNationalOverview(electionCode: string) {
-  try {
-    const db = connectDb()
-    electionCode = electionCode.toLowerCase()
+async function getNationalOverview(electionCode: string) {
+  const db = connectDb()
 
-    const result = await db
-      .select({
-        electionCode: votesOnAll.electionCode,
-        code: parties.code,
-        name: parties.name,
-        color: parties.color,
-        count: votesOnAll.count,
-        rate: sql<number>`${votesOnAll.count} / ${totalCountsOnAll.count}`,
-        totalCount: totalCountsOnAll.count,
-      })
-      .from(votesOnAll)
-      .innerJoin(parties, eq(parties.id, votesOnAll.partyId))
-      .innerJoin(
-        totalCountsOnAll,
-        eq(totalCountsOnAll.electionCode, votesOnAll.electionCode),
-      )
-      .where(
-        inArray(votesOnAll.electionCode, findElectionAndPrevious(electionCode)),
-      )
-
-    return convertOverviewList(result, electionCode)
-  } catch (error) {
-    console.error(error)
-    throw new Error(DB_ERROR)
-  }
+  return db
+    .select({
+      electionCode: votesOnAll.electionCode,
+      code: parties.code,
+      name: parties.name,
+      color: parties.color,
+      count: votesOnAll.count,
+      rate: sql<number>`${votesOnAll.count} / ${totalCountsOnAll.count}`,
+      totalCount: totalCountsOnAll.count,
+    })
+    .from(votesOnAll)
+    .innerJoin(parties, eq(parties.id, votesOnAll.partyId))
+    .innerJoin(
+      totalCountsOnAll,
+      eq(totalCountsOnAll.electionCode, votesOnAll.electionCode),
+    )
+    .where(
+      inArray(votesOnAll.electionCode, findElectionAndPrevious(electionCode)),
+    )
+    .then((result) => convertOverviewList(result, electionCode))
 }
 
-export async function getRegionOverview({
+async function getRegionOverview({
   electionCode,
   regionCode,
 }: {
   electionCode: string
   regionCode: string
 }) {
-  try {
-    const db = connectDb()
-    electionCode = electionCode.toLowerCase()
+  const db = connectDb()
 
-    const result = await db
-      .select({
-        electionCode: votesOnRegions.electionCode,
-        code: parties.code,
-        name: parties.name,
-        color: parties.color,
-        count: votesOnRegions.count,
-        rate: sql<number>`${votesOnRegions.count} / ${totalCountsOnRegions.count}`,
-        totalCount: totalCountsOnRegions.count,
-      })
-      .from(votesOnRegions)
-      .innerJoin(parties, eq(parties.id, votesOnRegions.partyId))
-      .innerJoin(
-        totalCountsOnRegions,
-        and(
-          eq(totalCountsOnRegions.electionCode, votesOnRegions.electionCode),
-          eq(totalCountsOnRegions.regionCode, votesOnRegions.regionCode),
+  return db
+    .select({
+      electionCode: votesOnRegions.electionCode,
+      code: parties.code,
+      name: parties.name,
+      color: parties.color,
+      count: votesOnRegions.count,
+      rate: sql<number>`${votesOnRegions.count} / ${totalCountsOnRegions.count}`,
+      totalCount: totalCountsOnRegions.count,
+    })
+    .from(votesOnRegions)
+    .innerJoin(parties, eq(parties.id, votesOnRegions.partyId))
+    .innerJoin(
+      totalCountsOnRegions,
+      and(
+        eq(totalCountsOnRegions.electionCode, votesOnRegions.electionCode),
+        eq(totalCountsOnRegions.regionCode, votesOnRegions.regionCode),
+      ),
+    )
+    .where(
+      and(
+        eq(votesOnRegions.regionCode, regionCode),
+        inArray(
+          votesOnRegions.electionCode,
+          findElectionAndPrevious(electionCode),
         ),
-      )
-      .where(
-        and(
-          eq(votesOnRegions.regionCode, regionCode),
-          inArray(
-            votesOnRegions.electionCode,
-            findElectionAndPrevious(electionCode),
-          ),
-        ),
-      )
-
-    return convertOverviewList(result, electionCode)
-  } catch (error) {
-    console.error(error)
-    throw new Error(DB_ERROR)
-  }
+      ),
+    )
+    .then((result) => convertOverviewList(result, electionCode))
 }
 
-export async function getPrefectureOverview({
+async function getPrefectureOverview({
   electionCode,
   prefectureCode,
 }: {
   electionCode: string
   prefectureCode: string
 }) {
-  try {
-    const db = connectDb()
-    electionCode = electionCode.toLowerCase()
+  const db = connectDb()
 
-    const result = await db
-      .select({
-        electionCode: votesOnPrefectures.electionCode,
-        code: parties.code,
-        name: parties.name,
-        color: parties.color,
-        count: votesOnPrefectures.count,
-        rate: sql<number>`${votesOnPrefectures.count} / ${totalCountsOnPrefectures.count}`,
-        totalCount: totalCountsOnPrefectures.count,
-      })
-      .from(votesOnPrefectures)
-      .innerJoin(parties, eq(parties.id, votesOnPrefectures.partyId))
-      .innerJoin(
-        totalCountsOnPrefectures,
-        and(
-          eq(
-            totalCountsOnPrefectures.electionCode,
-            votesOnPrefectures.electionCode,
-          ),
-          eq(
-            totalCountsOnPrefectures.prefectureCode,
-            votesOnPrefectures.prefectureCode,
-          ),
+  return db
+    .select({
+      electionCode: votesOnPrefectures.electionCode,
+      code: parties.code,
+      name: parties.name,
+      color: parties.color,
+      count: votesOnPrefectures.count,
+      rate: sql<number>`${votesOnPrefectures.count} / ${totalCountsOnPrefectures.count}`,
+      totalCount: totalCountsOnPrefectures.count,
+    })
+    .from(votesOnPrefectures)
+    .innerJoin(parties, eq(parties.id, votesOnPrefectures.partyId))
+    .innerJoin(
+      totalCountsOnPrefectures,
+      and(
+        eq(
+          totalCountsOnPrefectures.electionCode,
+          votesOnPrefectures.electionCode,
         ),
-      )
-      .where(
-        and(
-          eq(votesOnPrefectures.prefectureCode, prefectureCode),
-          inArray(
-            votesOnPrefectures.electionCode,
-            findElectionAndPrevious(electionCode),
-          ),
+        eq(
+          totalCountsOnPrefectures.prefectureCode,
+          votesOnPrefectures.prefectureCode,
         ),
-      )
-
-    return convertOverviewList(result, electionCode)
-  } catch (error) {
-    console.error(error)
-    throw new Error(DB_ERROR)
-  }
+      ),
+    )
+    .where(
+      and(
+        eq(votesOnPrefectures.prefectureCode, prefectureCode),
+        inArray(
+          votesOnPrefectures.electionCode,
+          findElectionAndPrevious(electionCode),
+        ),
+      ),
+    )
+    .then((result) => convertOverviewList(result, electionCode))
 }
 
-export async function getCityOverview({
+async function getCityOverview({
   electionCode,
   cityCode,
 }: {
   electionCode: string
   cityCode: string
 }) {
-  try {
-    const db = connectDb()
-    electionCode = electionCode.toLowerCase()
+  const db = connectDb()
 
-    const results = await db
-      .select({
-        electionCode: votesOnCities.electionCode,
-        code: parties.code,
-        color: sql<string>`MIN(${parties.color})`,
-        name: sql<string>`MIN(${parties.name})`,
-        count: sql<number>`SUM(${votesOnCities.count})`,
-        rate: sql<number>`SUM(${votesOnCities.count}) / SUM(${totalCountsOnCities.count})`,
-        totalCount: sql<number>`SUM(${totalCountsOnCities.count})`,
-      })
-      .from(citiesHistories)
-      .innerJoin(
-        votesOnCities,
-        eq(votesOnCities.cityCode, citiesHistories.descendant),
-      )
-      .innerJoin(
-        totalCountsOnCities,
-        and(
-          eq(totalCountsOnCities.electionCode, votesOnCities.electionCode),
-          eq(totalCountsOnCities.cityCode, votesOnCities.cityCode),
+  return db
+    .select({
+      electionCode: votesOnCities.electionCode,
+      code: parties.code,
+      color: sql<string>`MIN(${parties.color})`,
+      name: sql<string>`MIN(${parties.name})`,
+      count: sql<number>`SUM(${votesOnCities.count})`,
+      rate: sql<number>`SUM(${votesOnCities.count}) / SUM(${totalCountsOnCities.count})`,
+      totalCount: sql<number>`SUM(${totalCountsOnCities.count})`,
+    })
+    .from(citiesHistories)
+    .innerJoin(
+      votesOnCities,
+      eq(votesOnCities.cityCode, citiesHistories.descendant),
+    )
+    .innerJoin(
+      totalCountsOnCities,
+      and(
+        eq(totalCountsOnCities.electionCode, votesOnCities.electionCode),
+        eq(totalCountsOnCities.cityCode, votesOnCities.cityCode),
+      ),
+    )
+    .innerJoin(parties, eq(parties.id, votesOnCities.partyId))
+    .where(
+      and(
+        eq(citiesHistories.ancestor, cityCode),
+        inArray(
+          votesOnCities.electionCode,
+          findElectionAndPrevious(electionCode),
         ),
-      )
-      .innerJoin(parties, eq(parties.id, votesOnCities.partyId))
-      .where(
-        and(
-          eq(citiesHistories.ancestor, cityCode),
-          inArray(
-            votesOnCities.electionCode,
-            findElectionAndPrevious(electionCode),
-          ),
-        ),
-      )
-      .groupBy(parties.code, votesOnCities.electionCode)
-
-    return convertOverviewList(results, electionCode)
-  } catch (error) {
-    console.error(error)
-    throw new Error(DB_ERROR)
-  }
+      ),
+    )
+    .groupBy(parties.code, votesOnCities.electionCode)
+    .then((result) => convertOverviewList(result, electionCode))
 }
 
 function convertOverviewList(
