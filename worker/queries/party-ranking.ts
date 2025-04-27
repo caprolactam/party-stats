@@ -16,7 +16,7 @@ import {
   totalCountsOnPrefectures,
   totalCountsOnRegions,
 } from '../schema.ts'
-import { type UnitInfo } from './area.ts'
+import { type AreaInfo } from './area.ts'
 import { floorDecimal, DB_ERROR, DEFAULT_PAGE_LIMIT } from './utils.ts'
 
 const PAGE_LIMIT = DEFAULT_PAGE_LIMIT
@@ -36,20 +36,20 @@ type RankingUnit = v.InferOutput<typeof rankingUnitSchema>
 export async function getPartyRanking({
   electionCode,
   partyId,
-  unitInfo,
+  areaInfo,
   sort,
   unit,
   page,
 }: {
   electionCode: string
   partyId: string
-  unitInfo: UnitInfo
+  areaInfo: AreaInfo
   sort: RankingSort
   unit: RankingUnit
   page: number
 }) {
   try {
-    switch (unitInfo.unit) {
+    switch (areaInfo.unit) {
       case 'national': {
         if (unit == null) unit = 'region'
         return await getPartyRankingInNational({
@@ -68,7 +68,7 @@ export async function getPartyRanking({
         return await getPartyRankingInRegion({
           electionCode,
           partyId,
-          regionCode: unitInfo.regionCode,
+          regionCode: areaInfo.regionCode,
           sort,
           unit,
           page,
@@ -78,7 +78,7 @@ export async function getPartyRanking({
         return await getPartyRankingInPrefecture({
           electionCode,
           partyId,
-          prefectureCode: unitInfo.prefectureCode,
+          prefectureCode: areaInfo.prefectureCode,
           sort,
           page,
         })
@@ -88,13 +88,13 @@ export async function getPartyRanking({
         return await getPartyRankingInPrefecture({
           electionCode,
           partyId,
-          prefectureCode: unitInfo.prefectureCode,
+          prefectureCode: areaInfo.prefectureCode,
           sort,
           page,
         })
       }
       default: {
-        const _exhaustiveCheck: never = unitInfo
+        const _exhaustiveCheck: never = areaInfo
         throw new Error(`Unexpected unit: ${_exhaustiveCheck}`)
       }
     }

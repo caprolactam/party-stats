@@ -1,9 +1,9 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/elections/$electionCode/$unitCode/')({
+export const Route = createFileRoute('/elections/$electionCode/$areaCode/')({
   loader: ({ params }) => {
     throw redirect({
-      to: '/elections/$electionCode/$unitCode/overview',
+      to: '/elections/$electionCode/$areaCode/overview',
       params,
     })
   },

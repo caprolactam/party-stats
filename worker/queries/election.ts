@@ -13,7 +13,7 @@ import {
   totalCountsOnRegions,
   totalCountsOnAll,
 } from '../schema.ts'
-import { type UnitInfo } from './area.ts'
+import { type AreaInfo } from './area.ts'
 import {
   DB_ERROR,
   getFirstItem,
@@ -130,29 +130,29 @@ export async function listParties(electionCode: string) {
 
 export async function getOverview({
   electionCode,
-  unitInfo,
+  areaInfo,
 }: {
   electionCode: string
-  unitInfo: UnitInfo
+  areaInfo: AreaInfo
 }) {
   try {
-    switch (unitInfo.unit) {
+    switch (areaInfo.unit) {
       case 'national':
         return await getNationalOverview(electionCode)
       case 'region':
         return await getRegionOverview({
           electionCode,
-          regionCode: unitInfo.regionCode,
+          regionCode: areaInfo.regionCode,
         })
       case 'prefecture':
         return await getPrefectureOverview({
           electionCode,
-          prefectureCode: unitInfo.prefectureCode,
+          prefectureCode: areaInfo.prefectureCode,
         })
       case 'city':
         return await getCityOverview({
           electionCode,
-          cityCode: unitInfo.cityCode,
+          cityCode: areaInfo.cityCode,
         })
       default:
         throw new Error('Invalid unit type')

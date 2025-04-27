@@ -90,8 +90,8 @@ function Election({
   return (
     <li className={className}>
       <Link
-        to='/elections/$electionCode/$unitCode/overview'
-        params={{ electionCode, unitCode: 'national' }}
+        to='/elections/$electionCode/$areaCode/overview'
+        params={{ electionCode, areaCode: 'national' }}
         className='text-brand-12 hover:bg-brand-4 focus-visible:bg-brand-5 active:bg-brand-5 flex items-center gap-4 px-4 py-2'
       >
         <div className='flex-1'>

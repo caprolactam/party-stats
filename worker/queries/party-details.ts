@@ -13,7 +13,7 @@ import {
   totalCountsOnAll,
   citiesHistories,
 } from '../schema.ts'
-import { type UnitInfo } from './area.ts'
+import { type AreaInfo } from './area.ts'
 import {
   listRankingPrefectureKeys,
   listRankingCityKeys,
@@ -25,14 +25,14 @@ const mapDecimal = (value: number) => floorDecimal(value, 4)
 export async function getPartyDetails({
   partyId,
   electionCode,
-  unitInfo,
+  areaInfo,
 }: {
   partyId: string
   electionCode: string
-  unitInfo: UnitInfo
+  areaInfo: AreaInfo
 }) {
   try {
-    switch (unitInfo.unit) {
+    switch (areaInfo.unit) {
       case 'national': {
         const changes = await fetchNationalPartyDetails({
           partyId,
@@ -45,7 +45,7 @@ export async function getPartyDetails({
       case 'region': {
         const changes = await fetchRegionPartyDetails({
           partyId,
-          regionCode: unitInfo.regionCode,
+          regionCode: areaInfo.regionCode,
         })
         return {
           changes,
@@ -54,7 +54,7 @@ export async function getPartyDetails({
       case 'prefecture': {
         const changesPromise = fetchPrefecturePartyDetails({
           partyId,
-          prefectureCode: unitInfo.prefectureCode,
+          prefectureCode: areaInfo.prefectureCode,
         })
         const rankingPromise = listRankingPrefectureKeys({
           electionCode,
@@ -67,7 +67,7 @@ export async function getPartyDetails({
           rankingPromise,
         ])
 
-        const rank = ranking.indexOf(unitInfo.prefectureCode)
+        const rank = ranking.indexOf(areaInfo.prefectureCode)
         let rankInNational:
           | {
               rank: number
@@ -88,7 +88,7 @@ export async function getPartyDetails({
         }
       }
       case 'city': {
-        const { cityCode } = unitInfo
+        const { cityCode } = areaInfo
 
         const changesPromise = fetchCityPartyDetails({
           partyId,
@@ -145,8 +145,10 @@ export async function getPartyDetails({
           changes,
         }
       }
-      default:
-        throw new Error('Invalid unit type')
+      default: {
+        const _exhaustiveCheck: never = areaInfo
+        throw new Error(`Unknown areaInfo unit: ${_exhaustiveCheck}`)
+      }
     }
   } catch (error) {
     console.error(error)

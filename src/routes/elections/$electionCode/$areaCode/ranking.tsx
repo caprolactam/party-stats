@@ -54,14 +54,14 @@ const DEFAULT_PAGE = 1
 
 async function getPartyRanking({
   electionCode,
-  unitCode,
+  areaCode,
   partyCode,
   page = DEFAULT_PAGE,
   sort = DEFAULT_SORT,
   unit,
 }: {
   electionCode: string
-  unitCode: string
+  areaCode: string
   partyCode: string
   page?: number
   sort?: SortType
@@ -74,7 +74,7 @@ async function getPartyRanking({
     if (unit) searchParams.set('unit', unit)
 
     const response = await fetch(
-      `/api/elections/${electionCode}/ranking/${partyCode}/unit/${unitCode}?${searchParams.toString()}`,
+      `/api/elections/${electionCode}/ranking/${partyCode}/area/${areaCode}?${searchParams.toString()}`,
     )
     if (response.status === 404) {
       const errorMessage = await response.json()
@@ -91,7 +91,7 @@ async function getPartyRanking({
 }
 
 export const Route = createFileRoute(
-  '/elections/$electionCode/$unitCode/ranking',
+  '/elections/$electionCode/$areaCode/ranking',
 )({
   validateSearch: searchParamsSchema,
   loaderDeps: ({ search: { party, sort, page, unit } }) => ({
@@ -112,7 +112,7 @@ export const Route = createFileRoute(
       searchParams.set('party', party.code)
 
       throw redirect({
-        to: '/elections/$electionCode/$unitCode/ranking',
+        to: '/elections/$electionCode/$areaCode/ranking',
         params,
         search: {
           party: party.code,
@@ -122,7 +122,7 @@ export const Route = createFileRoute(
 
     const ranking = await getPartyRanking({
       electionCode: params.electionCode,
-      unitCode: params.unitCode,
+      areaCode: params.areaCode,
       partyCode,
       page,
       sort,
@@ -155,7 +155,7 @@ function RouteComponent() {
     from: '/elections/$electionCode',
   })
   const { unit, region, prefecture } = useLoaderData({
-    from: '/elections/$electionCode/$unitCode',
+    from: '/elections/$electionCode/$areaCode',
   })
 
   const { pageNumbers, canPageBackwards, canPageForwards } = createPageNumber({
@@ -179,7 +179,7 @@ function RouteComponent() {
           selectedParty={partyCode}
           handleSelect={(party) => {
             void navigate({
-              to: '/elections/$electionCode/$unitCode/ranking',
+              to: '/elections/$electionCode/$areaCode/ranking',
               params,
               search: (prev) => ({
                 ...prev,
@@ -196,7 +196,7 @@ function RouteComponent() {
           rankingUnit={rankingUnit}
           handleRankingUnit={(unitType) => {
             void navigate({
-              to: '/elections/$electionCode/$unitCode/ranking',
+              to: '/elections/$electionCode/$areaCode/ranking',
               params,
               search: (prev) => ({
                 ...prev,
@@ -212,7 +212,7 @@ function RouteComponent() {
           sort={sort}
           handleSort={(sortType) => {
             void navigate({
-              to: '/elections/$electionCode/$unitCode/ranking',
+              to: '/elections/$electionCode/$areaCode/ranking',
               params,
               search: (prev) => ({
                 ...prev,
@@ -247,7 +247,7 @@ function RouteComponent() {
                     size: 'md',
                     className: 'size-9 p-0',
                   })}
-                  to='/elections/$electionCode/$unitCode/ranking'
+                  to='/elections/$electionCode/$areaCode/ranking'
                   params={params}
                   search={(prev) => ({
                     ...prev,
@@ -276,7 +276,7 @@ function RouteComponent() {
                       size: 'md',
                       className: 'size-9 p-0',
                     })}
-                    to='/elections/$electionCode/$unitCode/ranking'
+                    to='/elections/$electionCode/$areaCode/ranking'
                     params={params}
                     resetScroll={false}
                     search={(prev) => ({
@@ -295,7 +295,7 @@ function RouteComponent() {
                     size: 'md',
                     className: 'size-9 p-0',
                   })}
-                  to='/elections/$electionCode/$unitCode/ranking'
+                  to='/elections/$electionCode/$areaCode/ranking'
                   params={params}
                   search={(prev) => ({
                     ...prev,
@@ -346,11 +346,11 @@ function RankingItem({
   return (
     <li className='card-container'>
       <Link
-        to='/elections/$electionCode/$unitCode/overview/$partyCode'
+        to='/elections/$electionCode/$areaCode/overview/$partyCode'
         className='group flex h-14 items-center gap-4'
         params={{
           electionCode,
-          unitCode: cityCode,
+          areaCode: cityCode,
           partyCode,
         }}
       >

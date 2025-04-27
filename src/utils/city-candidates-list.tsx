@@ -107,7 +107,7 @@ export function citiesInPrefectureQueryOptions({
 
 export function CityCandidatesList() {
   const { unit, region, prefecture, city } = useLoaderData({
-    from: '/elections/$electionCode/$unitCode',
+    from: '/elections/$electionCode/$areaCode',
   })
 
   switch (unit) {
@@ -177,7 +177,7 @@ function UnitPrefecture({ prefectureCode }: { prefectureCode: string }) {
 
 function CandidateHigherUnit() {
   const { unit, region, prefecture } = useLoaderData({
-    from: '/elections/$electionCode/$unitCode',
+    from: '/elections/$electionCode/$areaCode',
   })
   const linkProps = useCurrentLink()
 
@@ -188,7 +188,7 @@ function CandidateHigherUnit() {
           {...linkProps}
           params={{
             ...linkProps.params,
-            unitCode: 'national',
+            areaCode: 'national',
           }}
           resetScroll={false}
         >
@@ -209,7 +209,7 @@ function CandidateHigherUnit() {
           {...linkProps}
           params={{
             ...linkProps.params,
-            unitCode: 'national',
+            areaCode: 'national',
           }}
           resetScroll={false}
         >
@@ -227,7 +227,7 @@ function CandidateHigherUnit() {
           {...linkProps}
           params={{
             ...linkProps.params,
-            unitCode: region.code,
+            areaCode: region.code,
           }}
           resetScroll={false}
         >
@@ -248,7 +248,7 @@ function CandidateHigherUnit() {
           {...linkProps}
           params={{
             ...linkProps.params,
-            unitCode: prefecture.code,
+            areaCode: prefecture.code,
           }}
           resetScroll={false}
         >
@@ -306,7 +306,7 @@ function CandidatesListImpl({
   handlePage?: (newPage: number) => void
 }) {
   const { region, prefecture, city } = useLoaderData({
-    from: '/elections/$electionCode/$unitCode',
+    from: '/elections/$electionCode/$areaCode',
   })
   const linkProps = useCurrentLink()
 
@@ -335,7 +335,7 @@ function CandidatesListImpl({
             params={{
               ...linkProps.params,
               // Exposing implementaion details...😅
-              unitCode: candidate.code === '1' ? '010006' : candidate.code,
+              areaCode: candidate.code === '1' ? '010006' : candidate.code,
             }}
             resetScroll={false}
           >

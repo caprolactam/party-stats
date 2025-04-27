@@ -18,7 +18,7 @@ import {
 
 const VoteResultContext = React.createContext<{
   electionCode: string
-  unitCode: string
+  areaCode: string
 } | null>(null)
 
 function useVoteResultContext() {
@@ -33,17 +33,17 @@ function useVoteResultContext() {
 
 interface VoteResultRootProps extends React.ComponentPropsWithRef<'div'> {
   electionCode: string
-  unitCode: string
+  areaCode: string
 }
 function VoteResultRoot({
   children,
   electionCode,
-  unitCode,
+  areaCode,
   ...props
 }: VoteResultRootProps) {
   return (
     <div {...props}>
-      <VoteResultContext.Provider value={{ electionCode, unitCode }}>
+      <VoteResultContext.Provider value={{ electionCode, areaCode }}>
         {children}
       </VoteResultContext.Provider>
     </div>
@@ -69,7 +69,7 @@ function VoteResultItem({
   increaseRate: number | null
   className?: string
 }) {
-  const { electionCode, unitCode } = useVoteResultContext()
+  const { electionCode, areaCode } = useVoteResultContext()
 
   return (
     <Card
@@ -109,10 +109,10 @@ function VoteResultItem({
       </CardContent>
       <CardFooter className='flex justify-end'>
         <Link
-          to='/elections/$electionCode/$unitCode/overview/$partyCode'
+          to='/elections/$electionCode/$areaCode/overview/$partyCode'
           params={{
             electionCode,
-            unitCode,
+            areaCode,
             partyCode,
           }}
           className={buttonVariants({

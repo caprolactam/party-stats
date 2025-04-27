@@ -8,7 +8,7 @@ import { type GetPartyDetails } from '#api/schema.ts'
 import { Card } from '#src/components/parts/card.tsx'
 import { selectStyles } from '#src/components/parts/native-select.tsx'
 import {
-  useUnitInfo,
+  useAreaInfo,
   countFormatter,
   rateFormatter,
   rankFormatter,
@@ -20,23 +20,23 @@ import { RateIncrease } from '#src/utils/vote-result.tsx'
 function getPartyDetails({
   electionCode,
   partyCode,
-  unitCode,
+  areaCode,
   isCompareParty = false,
 }: {
   electionCode: string
   partyCode: string | undefined
-  unitCode: string
+  areaCode: string
   isCompareParty?: boolean
 }) {
   return queryOptions({
-    queryKey: ['partyDetails', electionCode, unitCode, partyCode],
+    queryKey: ['partyDetails', electionCode, areaCode, partyCode],
     queryFn: async () => {
       try {
         if (!partyCode) {
           return null
         }
         const res = await fetch(
-          `/api/elections/${electionCode}/details/${partyCode}/unit/${unitCode}`,
+          `/api/elections/${electionCode}/details/${partyCode}/area/${areaCode}`,
         )
         if (!res.ok) {
           throw new Error('Network response was not ok')
@@ -58,7 +58,7 @@ function getPartyDetails({
 }
 
 export const Route = createFileRoute(
-  '/elections/$electionCode/$unitCode/overview/$partyCode',
+  '/elections/$electionCode/$areaCode/overview/$partyCode',
 )({
   validateSearch: v.object({
     compare: v.fallback(v.optional(comparePartySchema), undefined),
@@ -86,14 +86,14 @@ export const Route = createFileRoute(
         getPartyDetails({
           electionCode: params.electionCode,
           partyCode: params.partyCode,
-          unitCode: params.unitCode,
+          areaCode: params.areaCode,
         }),
       ),
       queryClient.ensureQueryData(
         getPartyDetails({
           electionCode: params.electionCode,
           partyCode: comparePartyCode,
-          unitCode: params.unitCode,
+          areaCode: params.areaCode,
           isCompareParty: true,
         }),
       ),
@@ -110,7 +110,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const navigate = Route.useNavigate()
   const { comparePartyCode } = Route.useLoaderData()
-  const { electionCode, unitCode, partyCode } = Route.useParams()
+  const { electionCode, areaCode, partyCode } = Route.useParams()
   const {
     currentElection: { name: electionName },
     prevElectionCode,
@@ -120,9 +120,9 @@ function RouteComponent() {
     from: '/elections/$electionCode',
   })
   const { prefecture } = useLoaderData({
-    from: '/elections/$electionCode/$unitCode',
+    from: '/elections/$electionCode/$areaCode',
   })
-  const unitInfo = useUnitInfo()
+  const areaInfo = useAreaInfo()
 
   const [{ data: partyDetails }, { data: comparePartyDetails }] =
     useSuspenseQueries({
@@ -130,12 +130,12 @@ function RouteComponent() {
         getPartyDetails({
           electionCode,
           partyCode,
-          unitCode,
+          areaCode,
         }),
         getPartyDetails({
           electionCode,
           partyCode: comparePartyCode,
-          unitCode,
+          areaCode,
         }),
       ],
     })
@@ -238,7 +238,7 @@ function RouteComponent() {
       : {}),
   }
 
-  const title = `${unitInfo.label}の選挙結果`
+  const title = `${areaInfo.label}の選挙結果`
   const description = `${electionName}における${title}/${partyName}`
 
   const comparePartyList = parties.filter((party) => party.code !== partyCode)
@@ -279,10 +279,10 @@ function RouteComponent() {
         <h2 className='sr-only'>{`${title}/${partyName}`}</h2>
         <div className='flex flex-wrap gap-x-2 text-xl font-bold'>
           <Link
-            to='/elections/$electionCode/$unitCode/overview'
+            to='/elections/$electionCode/$areaCode/overview'
             params={{
               electionCode,
-              unitCode,
+              areaCode,
             }}
             activeOptions={{
               exact: true,

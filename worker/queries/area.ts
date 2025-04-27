@@ -4,25 +4,25 @@ import { regions, prefectures, cities, citiesHistories } from '../schema.ts'
 import { DB_ERROR, DEFAULT_PAGE_LIMIT, getFirstItem } from './utils.ts'
 const PAGE_LIMIT = DEFAULT_PAGE_LIMIT
 
-function estimateUnit(unitCodeParam: string) {
-  const unitCode = unitCodeParam.toLowerCase()
+function estimateUnit(areaCodeParam: string) {
+  const areaCode = areaCodeParam.toLowerCase()
   const regionRegex = /^[0-9]$/
   const prefectureRegex = /^[0-9]{6}$/
   const cityRegex = /^[0-9]{5}$/
 
-  if (unitCode === 'national') {
+  if (areaCode === 'national') {
     return { unit: 'national' } as const
-  } else if (regionRegex.test(unitCode)) {
-    return { unit: 'region', regionCode: unitCode } as const
-  } else if (prefectureRegex.test(unitCode)) {
-    return { unit: 'prefecture', prefectureCode: unitCode } as const
-  } else if (cityRegex.test(unitCode)) {
-    return { unit: 'city', cityCode: unitCode } as const
+  } else if (regionRegex.test(areaCode)) {
+    return { unit: 'region', regionCode: areaCode } as const
+  } else if (prefectureRegex.test(areaCode)) {
+    return { unit: 'prefecture', prefectureCode: areaCode } as const
+  } else if (cityRegex.test(areaCode)) {
+    return { unit: 'city', cityCode: areaCode } as const
   }
 
   return null
 }
-export type UnitInfo =
+export type AreaInfo =
   | {
       unit: 'national'
     }
@@ -40,10 +40,10 @@ export type UnitInfo =
       cityCode: string
       prefectureCode: string
     }
-export async function checkUnit(
-  unitCodeParam: string,
-): Promise<UnitInfo | null> {
-  const unitInfo = estimateUnit(unitCodeParam)
+export async function checkArea(
+  areaCodeParam: string,
+): Promise<AreaInfo | null> {
+  const unitInfo = estimateUnit(areaCodeParam)
   if (!unitInfo) return null
 
   try {
