@@ -5,6 +5,7 @@ import {
   NotFoundComponent,
   ErrorBoundary,
 } from '#src/components/templates/misc.tsx'
+import { QUERY_KEY } from '#src/utils/area-options-list.tsx'
 import { listElections, listParties } from '#src/utils/queries.ts'
 
 async function getElection(electionCode: string) {
@@ -58,7 +59,7 @@ function RouteComponent() {
   React.useEffect(() => {
     return () => {
       // NOTE: React.StrictModeの影響で関連するクエリがrouteのローダーとコンポーネントで二回フェッチされる
-      queryClient.removeQueries({ queryKey: ['city-candidates'] })
+      queryClient.removeQueries({ queryKey: [QUERY_KEY] })
     }
   }, [queryClient])
 

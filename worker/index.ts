@@ -11,6 +11,8 @@ import {
   listCitiesInPrefecture,
   getCity,
   checkArea,
+  getArea,
+  listAreaOptions,
 } from './queries/area.ts'
 import {
   listElections,
@@ -106,15 +108,12 @@ app.get('/api/prefectures/:prefectureCode/cities', async (c) => {
     return c.json({ message: 'Not found prefecture' }, { status: 404 })
   }
 
-  const { cities, ...pageInfo } = await listCitiesInPrefecture(
+  const data = await listCitiesInPrefecture(
     prefectureCode,
     pageSubmission.output,
   )
 
-  return c.json({
-    cities,
-    meta: pageInfo,
-  })
+  return c.json(data)
 })
 
 app.get('/api/cities/:cityCode', async (c) => {
@@ -126,6 +125,40 @@ app.get('/api/cities/:cityCode', async (c) => {
   }
 
   return c.json(city)
+})
+
+app.get('/api/areas/:areaCode', async (c) => {
+  const { areaCode } = c.req.param()
+  const area = await getArea(areaCode)
+
+  if (!area) {
+    return c.json({ message: NOT_FOUND_AREA }, { status: 404 })
+  }
+
+  return c.json(area)
+})
+
+app.get('/api/areas/:areaCode/options', async (c) => {
+  const { page: pageQuery } = c.req.query()
+  const pageSubmission = safeParse(pageSchema, pageQuery)
+  if (!pageSubmission.success) {
+    return c.json({ message: 'Invalid page' }, { status: 400 })
+  }
+  const { output: page } = pageSubmission
+
+  const { areaCode } = c.req.param()
+  const areaInfo = await checkArea(areaCode)
+
+  if (!areaInfo) {
+    return c.json({ message: NOT_FOUND_AREA }, { status: 404 })
+  }
+
+  const options = await listAreaOptions({
+    areaInfo,
+    page,
+  })
+
+  return c.json(options)
 })
 
 app.get('/api/elections', async (c) => {

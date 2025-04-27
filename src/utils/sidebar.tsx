@@ -7,7 +7,7 @@ import {
 import React from 'react'
 import { Button } from '#src/components/parts/button.tsx'
 import { Icon } from '#src/components/parts/icon.tsx'
-import { CityCandidatesList } from '#src/utils/city-candidates-list.tsx'
+import { AreaOptionsList } from '#src/utils/area-options-list.tsx'
 import { ElectionsMenu } from '#src/utils/elections-menu.tsx'
 import { strictEntries, convertElectionInfo } from '#src/utils/misc.ts'
 
@@ -105,7 +105,7 @@ export function LayoutWithSidebar({ children }: { children: React.ReactNode }) {
       </div>
       <div className='grow basis-80'>
         <div className='sticky top-(--space-base) flex flex-col gap-(--space-base)'>
-          <CityCandidatesList />
+          <AreaOptionsList />
           <div className='text-xs'>
             <cite className='not-italic'>
               <a

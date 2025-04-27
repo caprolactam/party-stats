@@ -10,11 +10,7 @@ import {
   type ActiveOptions,
 } from '@tanstack/react-router'
 import React from 'react'
-import {
-  type ListRegions,
-  type ListPrefecturesInRegion,
-  type ListCitiesInPrefecture,
-} from '#api/schema'
+import { type ListAreaOptions } from '#api/schema'
 import { Button } from '#src/components/parts/button.tsx'
 import {
   Card,
@@ -30,125 +26,50 @@ import { cn } from '#src/utils/misc.ts'
 import { createPageNumber } from './pagination.tsx'
 import { useCurrentLink } from './use-current-link.ts'
 
-const QUERY_KEY = 'city-candidates'
+export const QUERY_KEY = 'area-options'
 
-export function regionsQueryOptions() {
-  return queryOptions({
-    queryKey: [QUERY_KEY, 'regions'],
-    queryFn: async () => {
-      const data = (await fetch('/api/regions').then((res) =>
-        res.json(),
-      )) as ListRegions
-      return {
-        candidates: data,
-        currentPage: 1,
-        pageSize: data.length,
-        totalItems: data.length,
-        totalPages: 1,
-      }
-    },
-    experimental_prefetchInRender: true,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  })
-}
-
-export function prefecturesInRegionQueryOptions({
-  regionCode,
-}: {
-  regionCode: string
-}) {
-  return queryOptions({
-    queryKey: [QUERY_KEY, 'prefectures', regionCode],
-    queryFn: async () => {
-      const data = (await fetch(`/api/regions/${regionCode}/prefectures`).then(
-        (res) => res.json(),
-      )) as ListPrefecturesInRegion
-
-      return {
-        candidates: data,
-        currentPage: 1,
-        pageSize: data.length,
-        totalItems: data.length,
-        totalPages: 1,
-      }
-    },
-    experimental_prefetchInRender: true,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-  })
-}
-
-export function citiesInPrefectureQueryOptions({
-  prefectureCode,
+function listAreaOptionsQueryOptions({
+  areaCode,
   page,
 }: {
-  prefectureCode: string
+  areaCode: string
   page: number
 }) {
   return queryOptions({
-    queryKey: [QUERY_KEY, 'cities', prefectureCode, page],
+    queryKey: [QUERY_KEY, areaCode, page],
     queryFn: async () => {
       const data = (await fetch(
-        `/api/prefectures/${prefectureCode}/cities?page=${page}`,
-      ).then((res) => res.json())) as ListCitiesInPrefecture
+        `/api/areas/${areaCode}/options?page=${page}`,
+      ).then((res) => res.json())) as ListAreaOptions
 
-      const { cities, meta } = data
-
-      return {
-        ...meta,
-        candidates: cities,
-      }
+      return data
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
     experimental_prefetchInRender: true,
+    staleTime: 1000 * 60 * 5, // 5 minutes
     // https://tanstack.com/query/latest/docs/framework/react/guides/paginated-queries
     placeholderData: (prevData) => prevData,
   })
 }
 
-export function CityCandidatesList() {
-  const { unit, region, prefecture, city } = useLoaderData({
+export function AreaOptionsList() {
+  const { region, prefecture } = useLoaderData({
     from: '/elections/$electionCode/$areaCode',
   })
 
-  switch (unit) {
-    case 'national':
-      return <UnitNational />
-    case 'region':
-      return <UnitRegion regionCode={region.code} />
-    case 'prefecture':
-      return <UnitPrefecture prefectureCode={prefecture.code} />
-    case 'city':
-      return <UnitPrefecture prefectureCode={city.prefecture.code} />
-    default: {
-      const _: never = unit
-      throw new Error(`Invalid unit type: ${_}`)
-    }
-  }
-}
-
-function UnitNational() {
-  const query = useQuery(regionsQueryOptions())
+  let key = prefecture?.code ?? region?.code ?? 'national'
 
   return (
-    <React.Suspense fallback={<CandidatesListSkeleton />}>
-      <CandidatesListImpl candidatesQuery={query} />
-    </React.Suspense>
+    <AreaOptionsContainer
+      // page状態ををareaごとにリセットしたいのでkeyでレンダリングを管理
+      key={key}
+      areaCode={key}
+    />
   )
 }
-function UnitRegion({ regionCode }: { regionCode: string }) {
-  const query = useQuery(prefecturesInRegionQueryOptions({ regionCode }))
 
-  return (
-    <React.Suspense fallback={<CandidatesListSkeleton />}>
-      <CandidatesListImpl candidatesQuery={query} />
-    </React.Suspense>
-  )
-}
-function UnitPrefecture({ prefectureCode }: { prefectureCode: string }) {
+function AreaOptionsContainer({ areaCode }: { areaCode: string }) {
   const [page, setPage] = React.useState(1)
-  const query = useQuery(
-    citiesInPrefectureQueryOptions({ prefectureCode, page }),
-  )
+  const query = useQuery(listAreaOptionsQueryOptions({ areaCode, page }))
 
   function handlePage(newPage: number) {
     if (Number.isInteger(newPage) && newPage > 0) {
@@ -161,21 +82,21 @@ function UnitPrefecture({ prefectureCode }: { prefectureCode: string }) {
   return (
     <React.Suspense
       fallback={
-        <CandidatesListSkeleton
+        <AreaOptionsListSkeleton
           count={11}
           showPaginationBar
         />
       }
     >
-      <CandidatesListImpl
-        candidatesQuery={query}
+      <AreaOptionsListImpl
+        optionsQuery={query}
         handlePage={handlePage}
       />
     </React.Suspense>
   )
 }
 
-function CandidateHigherUnit() {
+function AreaOptionHigherUnit() {
   const { unit, region, prefecture } = useLoaderData({
     from: '/elections/$electionCode/$areaCode',
   })
@@ -184,7 +105,7 @@ function CandidateHigherUnit() {
   switch (unit) {
     case 'region': {
       return (
-        <CandidatesListItem
+        <AreaOptionsListItem
           {...linkProps}
           params={{
             ...linkProps.params,
@@ -200,12 +121,12 @@ function CandidateHigherUnit() {
             />
             <span className='text-brand-12'>全国</span>
           </div>
-        </CandidatesListItem>
+        </AreaOptionsListItem>
       )
     }
     case 'prefecture': {
       return region.code === '1' ? (
-        <CandidatesListItem
+        <AreaOptionsListItem
           {...linkProps}
           params={{
             ...linkProps.params,
@@ -221,9 +142,9 @@ function CandidateHigherUnit() {
             />
             全国
           </div>
-        </CandidatesListItem>
+        </AreaOptionsListItem>
       ) : (
-        <CandidatesListItem
+        <AreaOptionsListItem
           {...linkProps}
           params={{
             ...linkProps.params,
@@ -239,12 +160,12 @@ function CandidateHigherUnit() {
             />
             {region.name}
           </div>
-        </CandidatesListItem>
+        </AreaOptionsListItem>
       )
     }
     case 'city': {
       return (
-        <CandidatesListItem
+        <AreaOptionsListItem
           {...linkProps}
           params={{
             ...linkProps.params,
@@ -260,7 +181,7 @@ function CandidateHigherUnit() {
             />
             {prefecture.name}
           </div>
-        </CandidatesListItem>
+        </AreaOptionsListItem>
       )
     }
     case 'national':
@@ -270,7 +191,7 @@ function CandidateHigherUnit() {
   }
 }
 
-function CandidatesListItem({
+function AreaOptionsListItem({
   children,
   ...props
 }: {
@@ -292,17 +213,11 @@ function CandidatesListItem({
   )
 }
 
-function CandidatesListImpl({
-  candidatesQuery,
+function AreaOptionsListImpl({
+  optionsQuery,
   handlePage,
 }: {
-  candidatesQuery: UseQueryResult<{
-    candidates: Array<{ code: string; name: string }>
-    currentPage: number
-    pageSize: number
-    totalItems: number
-    totalPages: number
-  }>
+  optionsQuery: UseQueryResult<ListAreaOptions>
   handlePage?: (newPage: number) => void
 }) {
   const { region, prefecture, city } = useLoaderData({
@@ -310,9 +225,10 @@ function CandidatesListImpl({
   })
   const linkProps = useCurrentLink()
 
-  const { candidates, totalItems, currentPage, totalPages } = React.use(
-    candidatesQuery.promise,
-  )
+  const {
+    data: options,
+    meta: { totalItems, currentPage, totalPages },
+  } = React.use(optionsQuery.promise)
 
   const showPaginationBar = totalPages > 1
 
@@ -327,30 +243,30 @@ function CandidatesListImpl({
         </div>
       </CardHeader>
       <CardContent className='px-0'>
-        <CandidateHigherUnit />
-        {candidates.map((candidate) => (
-          <CandidatesListItem
-            key={candidate.code}
+        <AreaOptionHigherUnit />
+        {options.map((option) => (
+          <AreaOptionsListItem
+            key={option.code}
             {...linkProps}
             params={{
               ...linkProps.params,
               // Exposing implementaion details...😅
-              areaCode: candidate.code === '1' ? '010006' : candidate.code,
+              areaCode: option.code === '1' ? '010006' : option.code,
             }}
             resetScroll={false}
           >
-            {city?.code === candidate.code ? (
+            {city?.code === option.code ? (
               <div className='flex items-center gap-2'>
                 <Icon
                   name='check'
                   size={18}
                 />
-                {candidate.name}
+                {option.name}
               </div>
             ) : (
-              candidate.name
+              option.name
             )}
-          </CandidatesListItem>
+          </AreaOptionsListItem>
         ))}
       </CardContent>
       {showPaginationBar && (
@@ -366,7 +282,7 @@ function CandidatesListImpl({
   )
 }
 
-function CandidatesListSkeleton({
+function AreaOptionsListSkeleton({
   count = 10,
   showPaginationBar = false,
 }: {
