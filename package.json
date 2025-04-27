@@ -52,7 +52,6 @@
     "@cloudflare/workers-types": "^4.20250426.0",
     "@epic-web/config": "^1.19.0",
     "@eslint/compat": "^1.2.8",
-    "@sly-cli/sly": "^2.1.1",
     "@tailwindcss/vite": "^4.1.4",
     "@tanstack/eslint-plugin-query": "^5.73.3",
     "@tanstack/react-query-devtools": "^5.74.6",
