@@ -4,6 +4,7 @@ import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { defineConfig, type UserConfig } from 'vite'
+import babel from 'vite-plugin-babel'
 import { iconsSpritesheet } from 'vite-plugin-icons-spritesheet'
 
 export default defineConfig(({ mode }) => {
@@ -14,6 +15,16 @@ export default defineConfig(({ mode }) => {
       sourcemap: isAnalysis,
     },
     plugins: [
+      {
+        ...babel({
+          filter: /\.tsx?$/,
+          babelConfig: {
+            presets: ['@babel/preset-typescript'],
+            plugins: ['babel-plugin-react-compiler'],
+          },
+        }),
+        apply: 'build',
+      },
       tailwindcss(),
       iconsSpritesheet({
         withTypes: true,
