@@ -128,50 +128,25 @@ export type GetElectionOverview = v.InferOutput<
   typeof GetElectionOverviewSchema
 >
 
-const GetRankingMetaSchema = v.strictObject({
-  sort: v.picklist(['desc-popularity', 'asc-popularity']),
-  currentPage: v.number(),
-  pageSize: v.number(),
-  totalItems: v.number(),
-  totalPages: v.number(),
-})
-const GetRankingDataSchema = v.array(
-  v.strictObject({
-    code: v.string(),
-    name: v.string(),
-    rate: v.number(),
-    supportText: v.optional(v.string()),
-  }),
-)
-
-export const GetNationalRankingSchema = v.strictObject({
+export const GetPartyRankingSchema = v.strictObject({
   meta: v.strictObject({
-    ...GetRankingMetaSchema.entries,
+    sort: v.picklist(['desc-popularity', 'asc-popularity']),
     unit: v.picklist(['region', 'prefecture', 'city']),
+    currentPage: v.number(),
+    pageSize: v.number(),
+    totalItems: v.number(),
+    totalPages: v.number(),
   }),
-  data: GetRankingDataSchema,
+  data: v.array(
+    v.strictObject({
+      code: v.string(),
+      name: v.string(),
+      rate: v.number(),
+      supportText: v.optional(v.string()),
+    }),
+  ),
 })
-export type GetJapanRanking = v.InferOutput<typeof GetNationalRankingSchema>
-
-export const GetRegionRankingSchema = v.strictObject({
-  meta: v.strictObject({
-    ...GetRankingMetaSchema.entries,
-    unit: v.picklist(['prefecture', 'city']),
-  }),
-  data: GetRankingDataSchema,
-})
-export type GetRegionRanking = v.InferOutput<typeof GetRegionRankingSchema>
-
-export const GetPrefectureRankingSchema = v.strictObject({
-  meta: v.strictObject({
-    ...GetRankingMetaSchema.entries,
-    unit: v.literal('city'),
-  }),
-  data: GetRankingDataSchema,
-})
-export type GetPrefectureRanking = v.InferOutput<
-  typeof GetPrefectureRankingSchema
->
+export type GetPartyRanking = v.InferOutput<typeof GetPartyRankingSchema>
 
 export const getPartyDetailsSchema = v.strictObject({
   party: v.strictObject({

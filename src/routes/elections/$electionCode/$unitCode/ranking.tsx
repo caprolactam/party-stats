@@ -9,11 +9,7 @@ import { RadioGroup } from 'radix-ui'
 import React from 'react'
 import invariant from 'tiny-invariant'
 import * as v from 'valibot'
-import {
-  type GetJapanRanking,
-  type GetRegionRanking,
-  type GetPrefectureRanking,
-} from '#api/schema.ts'
+import { type GetPartyRanking } from '#api/schema.ts'
 import { buttonVariants } from '#src/components/parts/button.tsx'
 import { Icon } from '#src/components/parts/icon.tsx'
 import { selectStyles } from '#src/components/parts/native-select.tsx'
@@ -56,30 +52,29 @@ const sortLabels = {
 const DEFAULT_SORT = 'desc-popularity' satisfies SortType
 const DEFAULT_PAGE = 1
 
-interface BaseRankingProps {
-  electionCode: string
-  partyCode: string
-  page?: number
-  sort?: SortType
-}
-
-async function getNationalRanking({
+async function getPartyRanking({
   electionCode,
+  unitCode,
   partyCode,
   page = DEFAULT_PAGE,
   sort = DEFAULT_SORT,
-  rankingUnit,
-}: BaseRankingProps & {
-  rankingUnit: 'region' | 'prefecture' | 'city'
+  unit,
+}: {
+  electionCode: string
+  unitCode: string
+  partyCode: string
+  page?: number
+  sort?: SortType
+  unit?: RankingUnit
 }) {
   try {
     const searchParams = new URLSearchParams()
     searchParams.set('sort', sort)
-    searchParams.set('page', String(page))
-    searchParams.set('unit', rankingUnit)
+    searchParams.set('page', page.toString())
+    if (unit) searchParams.set('unit', unit)
 
     const response = await fetch(
-      `/api/elections/${electionCode}/ranking/parties/${partyCode}/national?${searchParams.toString()}`,
+      `/api/elections/${electionCode}/ranking/${partyCode}/unit/${unitCode}?${searchParams.toString()}`,
     )
     if (response.status === 404) {
       const errorMessage = await response.json()
@@ -88,103 +83,7 @@ async function getNationalRanking({
     if (!response.ok) {
       throw new Error('Failed to fetch national ranking')
     }
-    const data = (await response.json()) as GetJapanRanking
-    return data
-  } catch (error) {
-    throw error
-  }
-}
-
-async function getRegionRanking({
-  electionCode,
-  partyCode,
-  page = DEFAULT_PAGE,
-  sort = DEFAULT_SORT,
-  rankingUnit,
-  regionCode,
-}: BaseRankingProps & {
-  regionCode: string
-  rankingUnit: 'prefecture' | 'city'
-}) {
-  try {
-    const searchParams = new URLSearchParams()
-    searchParams.set('sort', sort)
-    searchParams.set('page', String(page))
-    searchParams.set('unit', rankingUnit)
-
-    const response = await fetch(
-      `/api/elections/${electionCode}/ranking/parties/${partyCode}/regions/${regionCode}?${searchParams.toString()}`,
-    )
-    if (response.status === 404) {
-      const errorMessage = await response.json()
-      throw notFound({ data: errorMessage })
-    }
-    if (!response.ok) {
-      throw new Error('Failed to fetch region ranking')
-    }
-    const data = (await response.json()) as GetRegionRanking
-    return data
-  } catch (error) {
-    throw error
-  }
-}
-
-async function getPrefectureRanking({
-  electionCode,
-  partyCode,
-  page = DEFAULT_PAGE,
-  sort = DEFAULT_SORT,
-  prefectureCode,
-}: BaseRankingProps & {
-  prefectureCode: string
-}) {
-  try {
-    const searchParams = new URLSearchParams()
-    searchParams.set('sort', sort)
-    searchParams.set('page', String(page))
-
-    const response = await fetch(
-      `/api/elections/${electionCode}/ranking/parties/${partyCode}/prefectures/${prefectureCode}?${searchParams.toString()}`,
-    )
-    if (response.status === 404) {
-      const errorMessage = await response.json()
-      throw notFound({ data: errorMessage })
-    }
-    if (!response.ok) {
-      throw new Error('Failed to fetch prefecture ranking')
-    }
-    const data = (await response.json()) as GetPrefectureRanking
-    return data
-  } catch (error) {
-    throw error
-  }
-}
-
-async function getPrefectureByCityCodeRanking({
-  electionCode,
-  partyCode,
-  page = DEFAULT_PAGE,
-  sort = DEFAULT_SORT,
-  cityCode,
-}: BaseRankingProps & {
-  cityCode: string
-}) {
-  try {
-    const searchParams = new URLSearchParams()
-    searchParams.set('sort', sort)
-    searchParams.set('page', String(page))
-
-    const response = await fetch(
-      `/api/elections/${electionCode}/ranking/parties/${partyCode}/cities/${cityCode}?${searchParams.toString()}`,
-    )
-    if (response.status === 404) {
-      const errorMessage = await response.json()
-      throw notFound({ data: errorMessage })
-    }
-    if (!response.ok) {
-      throw new Error('Failed to fetch prefecture ranking')
-    }
-    const data = (await response.json()) as GetPrefectureRanking
+    const data = (await response.json()) as GetPartyRanking
     return data
   } catch (error) {
     throw error
@@ -201,11 +100,7 @@ export const Route = createFileRoute(
     page,
     unit,
   }),
-  loader: async ({
-    params,
-    deps: { page, sort, unit, party: partyCode },
-    context: { estimatedUnit, unitCode },
-  }) => {
+  loader: async ({ params, deps: { page, sort, unit, party: partyCode } }) => {
     if (!partyCode) {
       const { electionCode } = params
 
@@ -225,56 +120,18 @@ export const Route = createFileRoute(
       })
     }
 
-    switch (estimatedUnit) {
-      case 'national': {
-        const ranking = await getNationalRanking({
-          electionCode: params.electionCode,
-          partyCode,
-          page,
-          sort,
-          rankingUnit: unit ?? 'region',
-        })
+    const ranking = await getPartyRanking({
+      electionCode: params.electionCode,
+      unitCode: params.unitCode,
+      partyCode,
+      page,
+      sort,
+      unit,
+    })
 
-        return { ...ranking, partyCode }
-      }
-      case 'region': {
-        const rankingUnit = !unit || unit === 'region' ? 'prefecture' : unit
-        const ranking = await getRegionRanking({
-          electionCode: params.electionCode,
-          partyCode,
-          page,
-          sort,
-          regionCode: unitCode,
-          rankingUnit,
-        })
-
-        return { ...ranking, partyCode }
-      }
-      case 'prefecture': {
-        const ranking = await getPrefectureRanking({
-          electionCode: params.electionCode,
-          partyCode,
-          page,
-          sort,
-          prefectureCode: unitCode,
-        })
-
-        return { ...ranking, partyCode }
-      }
-      case 'city': {
-        const ranking = await getPrefectureByCityCodeRanking({
-          electionCode: params.electionCode,
-          partyCode,
-          page,
-          sort,
-          cityCode: unitCode,
-        })
-
-        return { ...ranking, partyCode }
-      }
-      default:
-        const _exhaustiveCheck: never = estimatedUnit
-        throw new Error(`Unsupported unit: ${_exhaustiveCheck}`)
+    return {
+      ...ranking,
+      partyCode,
     }
   },
   component: RouteComponent,

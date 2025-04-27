@@ -16,6 +16,7 @@ import {
   totalCountsOnPrefectures,
   totalCountsOnRegions,
 } from '../schema.ts'
+import { type UnitInfo } from './area.ts'
 import { floorDecimal, DB_ERROR, DEFAULT_PAGE_LIMIT } from './utils.ts'
 
 const PAGE_LIMIT = DEFAULT_PAGE_LIMIT
@@ -27,150 +28,73 @@ export const rankingSortSchema = v.optional(
 )
 type RankingSort = v.InferOutput<typeof rankingSortSchema>
 
-export const nationalRankingUnitSchema = v.optional(
+export const rankingUnitSchema = v.optional(
   v.picklist(['region', 'prefecture', 'city']),
-  'region',
 )
-type NationalRankingUnit = v.InferOutput<typeof nationalRankingUnitSchema>
+type RankingUnit = v.InferOutput<typeof rankingUnitSchema>
 
-export const regionRankingUnitSchema = v.optional(
-  v.picklist(['prefecture', 'city']),
-  'prefecture',
-)
-type RegionRankingUnit = v.InferOutput<typeof regionRankingUnitSchema>
-
-export async function getNationalRanking({
+export async function getPartyRanking({
   electionCode,
   partyId,
+  unitInfo,
   sort,
   unit,
   page,
 }: {
   electionCode: string
   partyId: string
+  unitInfo: UnitInfo
   sort: RankingSort
-  unit: NationalRankingUnit
+  unit: RankingUnit
   page: number
 }) {
   try {
-    const offset = PAGE_LIMIT * (page - 1)
-
-    switch (unit) {
+    switch (unitInfo.unit) {
+      case 'national': {
+        if (unit == null) unit = 'region'
+        return await getPartyRankingInNational({
+          electionCode,
+          partyId,
+          sort,
+          unit,
+          page,
+        })
+      }
       case 'region': {
-        const db = connectDb()
-        const ranking = await db
-          .select({
-            code: regions.code,
-            name: regions.name,
-            rate: sql<number>`(${votesOnRegions.count} / ${totalCountsOnRegions.count})`
-              .mapWith(mapDecimal)
-              .as('rate'),
-          })
-          .from(votesOnRegions)
-          .innerJoin(
-            totalCountsOnRegions,
-            and(
-              eq(totalCountsOnRegions.regionCode, votesOnRegions.regionCode),
-              eq(
-                totalCountsOnRegions.electionCode,
-                votesOnRegions.electionCode,
-              ),
-            ),
-          )
-          .innerJoin(regions, eq(regions.code, votesOnRegions.regionCode))
-          .where(
-            and(
-              eq(votesOnRegions.electionCode, electionCode),
-              eq(votesOnRegions.partyId, partyId),
-            ),
-          )
-          .orderBy(sort === 'desc-popularity' ? sql`rate DESC` : sql`rate ASC`)
-
-        const totalItems = ranking.length
-        const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
-        const data = ranking.slice(offset, offset + PAGE_LIMIT)
-
-        return {
-          data,
-          currentPage: page,
-          pageSize: PAGE_LIMIT,
-          totalItems,
-          totalPages,
+        const DEFAULT_UNIT = 'prefecture'
+        if (unit == null || unit === 'region') {
+          unit = DEFAULT_UNIT
         }
+        return await getPartyRankingInRegion({
+          electionCode,
+          partyId,
+          regionCode: unitInfo.regionCode,
+          sort,
+          unit,
+          page,
+        })
       }
       case 'prefecture': {
-        const allKeys = await listRankingPrefectureKeys({
+        return await getPartyRankingInPrefecture({
           electionCode,
           partyId,
+          prefectureCode: unitInfo.prefectureCode,
           sort,
+          page,
         })
-
-        const totalItems = allKeys.length
-        const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
-        const keys = allKeys.slice(offset, offset + PAGE_LIMIT)
-
-        if (!keys.length) {
-          return {
-            data: [],
-            currentPage: page,
-            pageSize: PAGE_LIMIT,
-            totalItems,
-            totalPages,
-          }
-        }
-
-        const data = await fetchRankingByPrefectureKeys({
-          electionCode,
-          partyId,
-          prefectureKeys: keys,
-          sort,
-        })
-
-        return {
-          data,
-          currentPage: page,
-          pageSize: PAGE_LIMIT,
-          totalItems,
-          totalPages,
-        }
       }
       case 'city': {
-        const allKeys = await listRankingCityKeys({
+        // cityが所属するprefectureのランキングを取得する
+        return await getPartyRankingInPrefecture({
           electionCode,
           partyId,
+          prefectureCode: unitInfo.prefectureCode,
           sort,
+          page,
         })
-        const totalItems = allKeys.length
-        const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
-        const keys = allKeys.slice(offset, offset + PAGE_LIMIT)
-
-        if (!keys.length) {
-          return {
-            data: [],
-            currentPage: page,
-            pageSize: PAGE_LIMIT,
-            totalItems,
-            totalPages,
-          }
-        }
-
-        const data = await fetchRankingByCityKeys({
-          electionCode,
-          partyId,
-          cityKeys: keys,
-          sort,
-        })
-
-        return {
-          data,
-          currentPage: page,
-          pageSize: PAGE_LIMIT,
-          totalItems,
-          totalPages,
-        }
       }
       default: {
-        const _exhaustiveCheck: never = unit
+        const _exhaustiveCheck: never = unitInfo
         throw new Error(`Unexpected unit: ${_exhaustiveCheck}`)
       }
     }
@@ -180,7 +104,160 @@ export async function getNationalRanking({
   }
 }
 
-export async function getRegionRanking({
+async function getPartyRankingInNational({
+  electionCode,
+  partyId,
+  sort,
+  unit,
+  page,
+}: {
+  electionCode: string
+  partyId: string
+  sort: RankingSort
+  unit: 'region' | 'prefecture' | 'city'
+  page: number
+}) {
+  const offset = PAGE_LIMIT * (page - 1)
+
+  switch (unit) {
+    case 'region': {
+      const db = connectDb()
+      const ranking = await db
+        .select({
+          code: regions.code,
+          name: regions.name,
+          rate: sql<number>`(${votesOnRegions.count} / ${totalCountsOnRegions.count})`
+            .mapWith(mapDecimal)
+            .as('rate'),
+        })
+        .from(votesOnRegions)
+        .innerJoin(
+          totalCountsOnRegions,
+          and(
+            eq(totalCountsOnRegions.regionCode, votesOnRegions.regionCode),
+            eq(totalCountsOnRegions.electionCode, votesOnRegions.electionCode),
+          ),
+        )
+        .innerJoin(regions, eq(regions.code, votesOnRegions.regionCode))
+        .where(
+          and(
+            eq(votesOnRegions.electionCode, electionCode),
+            eq(votesOnRegions.partyId, partyId),
+          ),
+        )
+        .orderBy(sort === 'desc-popularity' ? sql`rate DESC` : sql`rate ASC`)
+
+      const totalItems = ranking.length
+      const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
+      const data = ranking.slice(offset, offset + PAGE_LIMIT)
+
+      return {
+        data,
+        meta: {
+          unit,
+          sort,
+          currentPage: page,
+          pageSize: PAGE_LIMIT,
+          totalItems,
+          totalPages,
+        },
+      }
+    }
+    case 'prefecture': {
+      const allKeys = await listRankingPrefectureKeys({
+        electionCode,
+        partyId,
+        sort,
+      })
+
+      const totalItems = allKeys.length
+      const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
+      const keys = allKeys.slice(offset, offset + PAGE_LIMIT)
+
+      if (!keys.length) {
+        return {
+          data: [],
+          meta: {
+            sort,
+            unit,
+            currentPage: page,
+            pageSize: PAGE_LIMIT,
+            totalItems,
+            totalPages,
+          },
+        }
+      }
+
+      const data = await fetchRankingByPrefectureKeys({
+        electionCode,
+        partyId,
+        prefectureKeys: keys,
+        sort,
+      })
+
+      return {
+        data,
+        meta: {
+          sort,
+          unit,
+          currentPage: page,
+          pageSize: PAGE_LIMIT,
+          totalItems,
+          totalPages,
+        },
+      }
+    }
+    case 'city': {
+      const allKeys = await listRankingCityKeys({
+        electionCode,
+        partyId,
+        sort,
+      })
+      const totalItems = allKeys.length
+      const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
+      const keys = allKeys.slice(offset, offset + PAGE_LIMIT)
+
+      if (!keys.length) {
+        return {
+          data: [],
+          meta: {
+            sort,
+            unit,
+            currentPage: page,
+            pageSize: PAGE_LIMIT,
+            totalItems,
+            totalPages,
+          },
+        }
+      }
+
+      const data = await fetchRankingByCityKeys({
+        electionCode,
+        partyId,
+        cityKeys: keys,
+        sort,
+      })
+
+      return {
+        data,
+        meta: {
+          sort,
+          unit,
+          currentPage: page,
+          pageSize: PAGE_LIMIT,
+          totalItems,
+          totalPages,
+        },
+      }
+    }
+    default: {
+      const _exhaustiveCheck: never = unit
+      throw new Error(`Unexpected unit: ${_exhaustiveCheck}`)
+    }
+  }
+}
+
+async function getPartyRankingInRegion({
   electionCode,
   partyId,
   regionCode,
@@ -192,98 +269,109 @@ export async function getRegionRanking({
   partyId: string
   regionCode: string
   sort: RankingSort
-  unit: RegionRankingUnit
+  unit: 'prefecture' | 'city'
   page: number
 }) {
-  try {
-    const offset = PAGE_LIMIT * (page - 1)
+  const offset = PAGE_LIMIT * (page - 1)
 
-    switch (unit) {
-      case 'prefecture': {
-        const allKeys = await listRankingPrefectureKeys({
-          electionCode,
-          partyId,
-          sort,
-          regionCode,
-        })
+  switch (unit) {
+    case 'prefecture': {
+      const allKeys = await listRankingPrefectureKeys({
+        electionCode,
+        partyId,
+        sort,
+        regionCode,
+      })
 
-        const totalItems = allKeys.length
-        const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
-        const keys = allKeys.slice(offset, offset + PAGE_LIMIT)
+      const totalItems = allKeys.length
+      const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
+      const keys = allKeys.slice(offset, offset + PAGE_LIMIT)
 
-        if (!keys.length) {
-          return {
-            data: [],
+      if (!keys.length) {
+        return {
+          data: [],
+          meta: {
+            sort,
+            unit,
             currentPage: page,
             pageSize: PAGE_LIMIT,
             totalItems,
             totalPages,
-          }
+          },
         }
+      }
 
-        const data = await fetchRankingByPrefectureKeys({
-          electionCode,
-          partyId,
-          prefectureKeys: keys,
+      const data = await fetchRankingByPrefectureKeys({
+        electionCode,
+        partyId,
+        prefectureKeys: keys,
+        sort,
+      })
+
+      return {
+        data,
+        meta: {
           sort,
-        })
-
-        return {
-          data,
+          unit,
           currentPage: page,
           pageSize: PAGE_LIMIT,
           totalItems,
           totalPages,
-        }
-      }
-      case 'city': {
-        const allKeys = await listRankingCityKeys({
-          electionCode,
-          partyId,
-          regionCode,
-          sort,
-        })
-        const totalItems = allKeys.length
-        const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
-        const keys = allKeys.slice(offset, offset + PAGE_LIMIT)
-
-        if (!keys.length) {
-          return {
-            data: [],
-            currentPage: page,
-            pageSize: PAGE_LIMIT,
-            totalItems,
-            totalPages,
-          }
-        }
-
-        const data = await fetchRankingByCityKeys({
-          electionCode,
-          partyId,
-          cityKeys: keys,
-          sort,
-        })
-
-        return {
-          data,
-          currentPage: page,
-          pageSize: PAGE_LIMIT,
-          totalItems,
-          totalPages,
-        }
-      }
-      default: {
-        const _exhaustiveCheck: never = unit
-        throw new Error(`Unexpected unit: ${_exhaustiveCheck}`)
+        },
       }
     }
-  } catch (error) {
-    console.error(error)
-    throw new Error(DB_ERROR)
+    case 'city': {
+      const allKeys = await listRankingCityKeys({
+        electionCode,
+        partyId,
+        regionCode,
+        sort,
+      })
+      const totalItems = allKeys.length
+      const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
+      const keys = allKeys.slice(offset, offset + PAGE_LIMIT)
+
+      if (!keys.length) {
+        return {
+          data: [],
+          meta: {
+            sort,
+            unit,
+            currentPage: page,
+            pageSize: PAGE_LIMIT,
+            totalItems,
+            totalPages,
+          },
+        }
+      }
+
+      const data = await fetchRankingByCityKeys({
+        electionCode,
+        partyId,
+        cityKeys: keys,
+        sort,
+      })
+
+      return {
+        data,
+        meta: {
+          sort,
+          unit,
+          currentPage: page,
+          pageSize: PAGE_LIMIT,
+          totalItems,
+          totalPages,
+        },
+      }
+    }
+    default: {
+      const _exhaustiveCheck: never = unit
+      throw new Error(`Unexpected unit: ${_exhaustiveCheck}`)
+    }
   }
 }
 
-export async function getPrefectureRanking({
+async function getPartyRankingInPrefecture({
   electionCode,
   partyId,
   prefectureCode,
@@ -296,46 +384,49 @@ export async function getPrefectureRanking({
   sort: RankingSort
   page: number
 }) {
-  try {
-    const offset = PAGE_LIMIT * (page - 1)
+  const offset = PAGE_LIMIT * (page - 1)
 
-    const allKeys = await listRankingCityKeys({
-      electionCode,
-      partyId,
-      prefectureCode,
-      sort,
-    })
-    const totalItems = allKeys.length
-    const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
-    const keys = allKeys.slice(offset, offset + PAGE_LIMIT)
+  const allKeys = await listRankingCityKeys({
+    electionCode,
+    partyId,
+    prefectureCode,
+    sort,
+  })
+  const totalItems = allKeys.length
+  const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
+  const keys = allKeys.slice(offset, offset + PAGE_LIMIT)
 
-    if (!keys.length) {
-      return {
-        data: [],
+  if (!keys.length) {
+    return {
+      data: [],
+      meta: {
+        sort,
+        unit: 'city',
         currentPage: page,
         pageSize: PAGE_LIMIT,
         totalItems,
         totalPages,
-      }
+      },
     }
+  }
 
-    const data = await fetchRankingByCityKeys({
-      electionCode,
-      partyId,
-      cityKeys: keys,
+  const data = await fetchRankingByCityKeys({
+    electionCode,
+    partyId,
+    cityKeys: keys,
+    sort,
+  })
+
+  return {
+    data,
+    meta: {
       sort,
-    })
-
-    return {
-      data,
+      unit: 'city',
       currentPage: page,
       pageSize: PAGE_LIMIT,
       totalItems,
       totalPages,
-    }
-  } catch (error) {
-    console.error(error)
-    throw new Error(DB_ERROR)
+    },
   }
 }
 

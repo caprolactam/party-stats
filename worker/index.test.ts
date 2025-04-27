@@ -15,20 +15,18 @@ import {
   ListElectionsSchema,
   GetElectionSchema,
   GetElectionOverviewSchema,
-  GetNationalRankingSchema,
-  GetRegionRankingSchema,
-  GetPrefectureRankingSchema,
+  GetPartyRankingSchema,
   getPartyDetailsSchema,
 } from '#api/schema.ts'
-import app, {
+import {
   NOT_FOUND_AREA,
   NOT_FOUND_ELECTION,
   NOT_FOUND_PARTY,
-} from './index'
+} from './queries/utils.ts'
+import app from './index'
 
 const ELECTION_CODE = 'shugiin20241027'
 const PARTY_CODE = 'ldp'
-const NATIONAL_CODE = 'national'
 const REGION_CODE = '3'
 const PREFECTURE_CODE = '130001'
 const CITY_CODE = '13101'
@@ -354,11 +352,11 @@ describe('GET /api/elections/:electionCode/overview/unit/:unitCode', () => {
     })
 })
 
-describe('GET /api/elections/:electionCode/ranking/parties/:partyCode/national', () => {
+describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', () => {
   test('invalid sort with 400', async () => {
     const ctx = createExecutionContext()
     const res = await app.request(
-      `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/national?sort=invalid`,
+      `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/national?sort=invalid`,
       {},
       env,
       ctx,
@@ -370,26 +368,10 @@ describe('GET /api/elections/:electionCode/ranking/parties/:partyCode/national',
       message: 'Invalid sort',
     })
   }),
-    test.each(['asc-popularity', 'desc-popularity'])(
-      'valid sort with %s',
-      async (sort) => {
-        const ctx = createExecutionContext()
-        const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/national?sort=${sort}`,
-          {},
-          env,
-          ctx,
-        )
-        await waitOnExecutionContext(ctx)
-        expect(res.status).toBe(200)
-        const sut = await res.json()
-        expect(() => v.parse(GetNationalRankingSchema, sut)).not.toThrow()
-      },
-    ),
     test('invalid unit with 400', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/national?unit=invalid`,
+        `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/national?unit=invalid`,
         {},
         env,
         ctx,
@@ -401,26 +383,10 @@ describe('GET /api/elections/:electionCode/ranking/parties/:partyCode/national',
         message: 'Invalid unit',
       })
     }),
-    test.each(['region', 'prefecture', 'city'])(
-      'valid unit with %s',
-      async (unit) => {
-        const ctx = createExecutionContext()
-        const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/national?unit=${unit}`,
-          {},
-          env,
-          ctx,
-        )
-        await waitOnExecutionContext(ctx)
-        expect(res.status).toBe(200)
-        const sut = await res.json()
-        expect(() => v.parse(GetNationalRankingSchema, sut)).not.toThrow()
-      },
-    ),
     test('not found election with 404', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/not-found-election/ranking/parties/${PARTY_CODE}/national`,
+        `/api/elections/not-found-election/ranking/${PARTY_CODE}/unit/national`,
         {},
         env,
         ctx,
@@ -430,13 +396,13 @@ describe('GET /api/elections/:electionCode/ranking/parties/:partyCode/national',
 
       expect(res.status).toBe(404)
       expect(await res.json()).toStrictEqual({
-        message: '指定の選挙が見つかりませんでした',
+        message: NOT_FOUND_ELECTION,
       })
     }),
     test('not found party with 404', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/not-found-party/national`,
+        `/api/elections/${ELECTION_CODE}/ranking/not-found-party/unit/national`,
         {},
         env,
         ctx,
@@ -446,13 +412,13 @@ describe('GET /api/elections/:electionCode/ranking/parties/:partyCode/national',
 
       expect(res.status).toBe(404)
       expect(await res.json()).toStrictEqual({
-        message: '指定の政党が見つかりませんでした',
+        message: NOT_FOUND_PARTY,
       })
     }),
-    test('get election party ranking with 200', async () => {
+    test('not found area with 404', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/national`,
+        `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/not-found-area`,
         {},
         env,
         ctx,
@@ -460,327 +426,200 @@ describe('GET /api/elections/:electionCode/ranking/parties/:partyCode/national',
 
       await waitOnExecutionContext(ctx)
 
-      expect(res.status).toBe(200)
-      const sut = await res.json()
-      expect(() => v.parse(GetNationalRankingSchema, sut)).not.toThrow()
-    })
-})
-
-describe('GET /api/elections/:electionCode/ranking/parties/:partyCode/regions/:regionCode', () => {
-  test('invalid sort with 400', async () => {
-    const ctx = createExecutionContext()
-    const res = await app.request(
-      `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/regions/${REGION_CODE}?sort=invalid`,
-      {},
-      env,
-      ctx,
-    )
-    await waitOnExecutionContext(ctx)
-    expect(res.status).toBe(400)
-    const sut = await res.json()
-    expect(sut).toStrictEqual({
-      message: 'Invalid sort',
-    })
-  }),
-    test.each(['asc-popularity', 'desc-popularity'])(
-      'valid sort with %s',
-      async (sort) => {
+      expect(res.status).toBe(404)
+      expect(await res.json()).toStrictEqual({
+        message: NOT_FOUND_AREA,
+      })
+    }),
+    describe('get area national', () => {
+      test('get party ranking with 200', async () => {
         const ctx = createExecutionContext()
         const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/regions/${REGION_CODE}?sort=${sort}`,
+          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/national`,
           {},
           env,
           ctx,
         )
+
         await waitOnExecutionContext(ctx)
+
         expect(res.status).toBe(200)
         const sut = await res.json()
-        expect(() => v.parse(GetRegionRankingSchema, sut)).not.toThrow()
-      },
-    ),
-    test('invalid unit with 400', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/regions/${REGION_CODE}?unit=invalid`,
-        {},
-        env,
-        ctx,
-      )
-      await waitOnExecutionContext(ctx)
-      expect(res.status).toBe(400)
-      const sut = await res.json()
-      expect(sut).toStrictEqual({
-        message: 'Invalid unit',
-      })
+        expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+      }),
+        test.each(['asc-popularity', 'desc-popularity'])(
+          'valid sort with %s',
+          async (sort) => {
+            const ctx = createExecutionContext()
+            const res = await app.request(
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/national?sort=${sort}`,
+              {},
+              env,
+              ctx,
+            )
+            await waitOnExecutionContext(ctx)
+            expect(res.status).toBe(200)
+            const sut = await res.json()
+            expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+          },
+        ),
+        test.each(['region', 'prefecture', 'city'])(
+          'valid unit with %s',
+          async (unit) => {
+            const ctx = createExecutionContext()
+            const res = await app.request(
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/national?unit=${unit}`,
+              {},
+              env,
+              ctx,
+            )
+            await waitOnExecutionContext(ctx)
+            expect(res.status).toBe(200)
+            const sut = await res.json()
+            expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+          },
+        )
     }),
-    test.each(['prefecture', 'city'])('valid unit with %s', async (unit) => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/regions/${REGION_CODE}?unit=${unit}`,
-        {},
-        env,
-        ctx,
-      )
-      await waitOnExecutionContext(ctx)
-      expect(res.status).toBe(200)
-      const sut = await res.json()
-      expect(() => v.parse(GetRegionRankingSchema, sut)).not.toThrow()
-    }),
-    test('not found election with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/not-found-election/ranking/parties/${PARTY_CODE}/regions/${REGION_CODE}`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(404)
-      expect(await res.json()).toStrictEqual({
-        message: '指定の選挙が見つかりませんでした',
-      })
-    }),
-    test('not found region with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/regions/not-found-region`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(404)
-      expect(await res.json()).toStrictEqual({
-        message: 'Not found region',
-      })
-    }),
-    test('not found party with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/not-found-party/regions/${REGION_CODE}`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(404)
-      expect(await res.json()).toStrictEqual({
-        message: '指定の政党が見つかりませんでした',
-      })
-    }),
-    test('get election party ranking with 200', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/regions/${REGION_CODE}`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(200)
-      const sut = await res.json()
-      expect(() => v.parse(GetRegionRankingSchema, sut)).not.toThrow()
-    })
-})
-
-describe('GET /api/elections/:electionCode/ranking/parties/:partyCode/prefectures/:prefectureCode', () => {
-  test('invalid sort with 400', async () => {
-    const ctx = createExecutionContext()
-    const res = await app.request(
-      `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/prefectures/${PREFECTURE_CODE}?sort=invalid`,
-      {},
-      env,
-      ctx,
-    )
-    await waitOnExecutionContext(ctx)
-    expect(res.status).toBe(400)
-    const sut = await res.json()
-    expect(sut).toStrictEqual({
-      message: 'Invalid sort',
-    })
-  }),
-    test.each(['asc-popularity', 'desc-popularity'])(
-      'valid sort with %s',
-      async (sort) => {
+    describe('get area region', () => {
+      test('get party ranking with 200', async () => {
         const ctx = createExecutionContext()
         const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/prefectures/${PREFECTURE_CODE}?sort=${sort}`,
+          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${REGION_CODE}`,
           {},
           env,
           ctx,
         )
+
         await waitOnExecutionContext(ctx)
+
         expect(res.status).toBe(200)
         const sut = await res.json()
-        expect(() => v.parse(GetPrefectureRankingSchema, sut)).not.toThrow()
-      },
-    ),
-    test('not found election with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/not-found-election/ranking/parties/${PARTY_CODE}/prefectures/${PREFECTURE_CODE}`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(404)
-      expect(await res.json()).toStrictEqual({
-        message: '指定の選挙が見つかりませんでした',
-      })
+        expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+      }),
+        test.each(['asc-popularity', 'desc-popularity'])(
+          'valid sort with %s',
+          async (sort) => {
+            const ctx = createExecutionContext()
+            const res = await app.request(
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${REGION_CODE}?sort=${sort}`,
+              {},
+              env,
+              ctx,
+            )
+            await waitOnExecutionContext(ctx)
+            expect(res.status).toBe(200)
+            const sut = await res.json()
+            expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+          },
+        ),
+        test.each(['prefecture', 'city'])(
+          'valid unit with %s',
+          async (unit) => {
+            const ctx = createExecutionContext()
+            const res = await app.request(
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${REGION_CODE}?unit=${unit}`,
+              {},
+              env,
+              ctx,
+            )
+            await waitOnExecutionContext(ctx)
+            expect(res.status).toBe(200)
+            const sut = await res.json()
+            expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+          },
+        )
     }),
-    test('not found prefecture with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/prefectures/not-found-prefecture`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(404)
-      expect(await res.json()).toStrictEqual({
-        message: 'Not found prefecture',
-      })
-    }),
-    test('not found party with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/not-found-party/prefectures/${PREFECTURE_CODE}`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(404)
-      expect(await res.json()).toStrictEqual({
-        message: '指定の政党が見つかりませんでした',
-      })
-    }),
-    test('get election party ranking with 200', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/prefectures/${PREFECTURE_CODE}`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(200)
-      const sut = await res.json()
-      expect(() => v.parse(GetPrefectureRankingSchema, sut)).not.toThrow()
-    })
-})
-
-describe('GET /api/elections/:electionCode/ranking/parties/:partyCode/cities/:cityCode', () => {
-  test('invalid sort with 400', async () => {
-    const ctx = createExecutionContext()
-    const res = await app.request(
-      `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/cities/${CITY_CODE}?sort=invalid`,
-      {},
-      env,
-      ctx,
-    )
-    await waitOnExecutionContext(ctx)
-    expect(res.status).toBe(400)
-    const sut = await res.json()
-    expect(sut).toStrictEqual({
-      message: 'Invalid sort',
-    })
-  }),
-    test.each(['asc-popularity', 'desc-popularity'])(
-      'valid sort with %s',
-      async (sort) => {
+    describe('get area prefecture', () => {
+      test('get party ranking with 200', async () => {
         const ctx = createExecutionContext()
         const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/cities/${CITY_CODE}?sort=${sort}`,
+          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${PREFECTURE_CODE}`,
           {},
           env,
           ctx,
         )
+
         await waitOnExecutionContext(ctx)
+
         expect(res.status).toBe(200)
         const sut = await res.json()
-        expect(() => v.parse(GetPrefectureRankingSchema, sut)).not.toThrow()
-      },
-    ),
-    test('not found election with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/not-found-election/ranking/parties/${PARTY_CODE}/cities/${CITY_CODE}`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(404)
-      expect(await res.json()).toStrictEqual({
-        message: '指定の選挙が見つかりませんでした',
-      })
+        expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+      }),
+        test.each(['asc-popularity', 'desc-popularity'])(
+          'valid sort with %s',
+          async (sort) => {
+            const ctx = createExecutionContext()
+            const res = await app.request(
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${PREFECTURE_CODE}?sort=${sort}`,
+              {},
+              env,
+              ctx,
+            )
+            await waitOnExecutionContext(ctx)
+            expect(res.status).toBe(200)
+            const sut = await res.json()
+            expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+          },
+        ),
+        test.each(['city'])('valid unit with %s', async (unit) => {
+          const ctx = createExecutionContext()
+          const res = await app.request(
+            `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${PREFECTURE_CODE}?unit=${unit}`,
+            {},
+            env,
+            ctx,
+          )
+          await waitOnExecutionContext(ctx)
+          expect(res.status).toBe(200)
+          const sut = await res.json()
+          expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+        })
     }),
-    test('not found city with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/cities/not-found-city`,
-        {},
-        env,
-        ctx,
-      )
+    describe('get area city', () => {
+      test('get party ranking with 200', async () => {
+        const ctx = createExecutionContext()
+        const res = await app.request(
+          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${CITY_CODE}`,
+          {},
+          env,
+          ctx,
+        )
 
-      await waitOnExecutionContext(ctx)
+        await waitOnExecutionContext(ctx)
 
-      expect(res.status).toBe(404)
-      expect(await res.json()).toStrictEqual({
-        message: 'Not found city',
-      })
-    }),
-    test('not found party with 404', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/not-found-party/cities/${CITY_CODE}`,
-        {},
-        env,
-        ctx,
-      )
-      await waitOnExecutionContext(ctx)
-      expect(res.status).toBe(404)
-      const sut = await res.json()
-      expect(sut).toStrictEqual({
-        message: '指定の政党が見つかりませんでした',
-      })
-    }),
-    test('get election party ranking with 200', async () => {
-      const ctx = createExecutionContext()
-      const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/parties/${PARTY_CODE}/cities/${CITY_CODE}`,
-        {},
-        env,
-        ctx,
-      )
-
-      await waitOnExecutionContext(ctx)
-
-      expect(res.status).toBe(200)
-      const sut = await res.json()
-      expect(() => v.parse(GetPrefectureRankingSchema, sut)).not.toThrow()
+        expect(res.status).toBe(200)
+        const sut = await res.json()
+        expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+      }),
+        test.each(['asc-popularity', 'desc-popularity'])(
+          'valid sort with %s',
+          async (sort) => {
+            const ctx = createExecutionContext()
+            const res = await app.request(
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${CITY_CODE}?sort=${sort}`,
+              {},
+              env,
+              ctx,
+            )
+            await waitOnExecutionContext(ctx)
+            expect(res.status).toBe(200)
+            const sut = await res.json()
+            expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+          },
+        ),
+        test.each(['city'])('valid unit with %s', async (unit) => {
+          const ctx = createExecutionContext()
+          const res = await app.request(
+            `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${CITY_CODE}?unit=${unit}`,
+            {},
+            env,
+            ctx,
+          )
+          await waitOnExecutionContext(ctx)
+          expect(res.status).toBe(200)
+          const sut = await res.json()
+          expect(() => v.parse(GetPartyRankingSchema, sut)).not.toThrow()
+        })
     })
 })
 
