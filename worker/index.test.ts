@@ -637,7 +637,7 @@ describe('GET /api/elections/:electionCode/details/:partyCode/unit/:unitCode', (
 
     expect(res.status).toBe(404)
     expect(await res.json()).toStrictEqual({
-      message: '指定の選挙が見つかりませんでした',
+      message: NOT_FOUND_ELECTION,
     })
   }),
     test('not found party with 404', async () => {
@@ -653,10 +653,10 @@ describe('GET /api/elections/:electionCode/details/:partyCode/unit/:unitCode', (
 
       expect(res.status).toBe(404)
       expect(await res.json()).toStrictEqual({
-        message: '指定の政党が見つかりませんでした',
+        message: NOT_FOUND_PARTY,
       })
     }),
-    test('invalid unit with 400', async () => {
+    test('invalid unit with 404', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
         `/api/elections/${ELECTION_CODE}/details/${PARTY_CODE}/unit/not-found-unit`,
@@ -667,9 +667,9 @@ describe('GET /api/elections/:electionCode/details/:partyCode/unit/:unitCode', (
 
       await waitOnExecutionContext(ctx)
 
-      expect(res.status).toBe(400)
+      expect(res.status).toBe(404)
       expect(await res.json()).toStrictEqual({
-        message: 'Invalid unit',
+        message: NOT_FOUND_AREA,
       })
     }),
     test('get national party details with 200', async () => {
