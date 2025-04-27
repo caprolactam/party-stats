@@ -43,39 +43,39 @@ export const rateIncreaseFormatter = new Intl.NumberFormat('ja-JP', {
 
 export type Unit = 'national' | 'region' | 'prefecture' | 'city'
 
-export function useUnitInfo(): { unit: Unit; unitCode: string; label: string } {
+export function useAreaInfo(): { unit: Unit; areaCode: string; label: string } {
   const data = useLoaderData({
-    from: '/elections/$electionCode/$unitCode',
+    from: '/elections/$electionCode/$areaCode',
   })
 
   switch (data.unit) {
     case 'national':
       return {
         unit: 'national',
-        unitCode: 'national',
+        areaCode: 'national',
         label: '全国',
       }
     case 'region':
       return {
         unit: 'region',
-        unitCode: data.region.code,
+        areaCode: data.region.code,
         label: data.region.name,
       }
     case 'prefecture':
       return {
         unit: 'prefecture',
-        unitCode: data.prefecture.code,
+        areaCode: data.prefecture.code,
         label: data.prefecture.name,
       }
     case 'city':
       return {
         unit: 'city',
-        unitCode: data.city.code,
+        areaCode: data.city.code,
         label: data.city.name,
       }
     default: {
       const _exhaustiveCheck: never = data
-      throw new Error(`Unexpected unit: ${_exhaustiveCheck}`)
+      throw new Error(`Unexpected area: ${_exhaustiveCheck}`)
     }
   }
 }

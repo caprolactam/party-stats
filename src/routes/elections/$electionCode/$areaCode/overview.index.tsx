@@ -8,19 +8,19 @@ import {
   NotFoundComponent,
   ErrorBoundary,
 } from '#src/components/templates/misc.tsx'
-import { countFormatter, useUnitInfo } from '#src/utils/misc.ts'
+import { countFormatter, useAreaInfo } from '#src/utils/misc.ts'
 import { VoteResult } from '#src/utils/vote-result.tsx'
 
 async function getElectionOverview({
   electionCode,
-  unitCode,
+  areaCode,
 }: {
   electionCode: string
-  unitCode: string
+  areaCode: string
 }) {
   try {
     const response = await fetch(
-      `/api/elections/${electionCode}/overview/unit/${unitCode}`,
+      `/api/elections/${electionCode}/overview/area/${areaCode}`,
     )
 
     if (response.status === 404) {
@@ -40,13 +40,13 @@ async function getElectionOverview({
 }
 
 export const Route = createFileRoute(
-  '/elections/$electionCode/$unitCode/overview/',
+  '/elections/$electionCode/$areaCode/overview/',
 )({
   component: RouteComponent,
   loader: ({ params }) =>
     getElectionOverview({
       electionCode: params.electionCode,
-      unitCode: params.unitCode,
+      areaCode: params.areaCode,
     }),
   notFoundComponent: ({ data }) => <NotFoundComponent data={data} />,
   errorComponent: ErrorBoundary,
@@ -60,9 +60,9 @@ function RouteComponent() {
   } = useLoaderData({
     from: '/elections/$electionCode',
   })
-  const unitInfo = useUnitInfo()
+  const areaInfo = useAreaInfo()
   const electionCode = Route.useParams().electionCode
-  const title = `${unitInfo.label}の選挙結果`
+  const title = `${areaInfo.label}の選挙結果`
   const description = `${electionName}における${title}`
 
   return (
@@ -80,7 +80,7 @@ function RouteComponent() {
             <div>【単位 : 票】</div>
           </div>
           <VoteResult
-            unitCode={unitInfo.unitCode}
+            areaCode={areaInfo.areaCode}
             electionCode={electionCode}
             className='grid grid-cols-[repeat(auto-fit,_minmax(18rem,_1fr))] items-start gap-4'
           >
@@ -94,7 +94,7 @@ function RouteComponent() {
 
               return (
                 <VoteResult.Item
-                  key={`${party.code}-${unitInfo.unitCode ?? 'national'}-${electionCode}`}
+                  key={`${party.code}-${areaInfo.areaCode ?? 'national'}-${electionCode}`}
                   partyName={party.name}
                   partyCode={party.code}
                   partyColor={party.color}

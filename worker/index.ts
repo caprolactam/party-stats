@@ -10,7 +10,7 @@ import {
   checkPrefecture,
   listCitiesInPrefecture,
   getCity,
-  checkUnit,
+  checkArea,
 } from './queries/area.ts'
 import {
   listElections,
@@ -147,15 +147,15 @@ app.get('/api/elections/:electionCode', async (c) => {
   return c.json(election)
 })
 
-app.get('/api/elections/:electionCode/overview/unit/:unitCode', async (c) => {
-  const { electionCode, unitCode } = c.req.param()
+app.get('/api/elections/:electionCode/overview/area/:areaCode', async (c) => {
+  const { electionCode, areaCode } = c.req.param()
 
-  const [election, unitInfo] = await Promise.all([
+  const [election, areaInfo] = await Promise.all([
     checkElection(electionCode),
-    checkUnit(unitCode),
+    checkArea(areaCode),
   ])
 
-  if (!unitInfo) {
+  if (!areaInfo) {
     return c.json({ message: NOT_FOUND_AREA }, { status: 404 })
   }
   if (!election) {
@@ -164,24 +164,24 @@ app.get('/api/elections/:electionCode/overview/unit/:unitCode', async (c) => {
 
   const overview = await getOverview({
     electionCode: election.code,
-    unitInfo,
+    areaInfo,
   })
 
   return c.json(overview)
 })
 
 app.get(
-  '/api/elections/:electionCode/details/:partyCode/unit/:unitCode',
+  '/api/elections/:electionCode/details/:partyCode/area/:areaCode',
   async (c) => {
-    const { electionCode, partyCode, unitCode } = c.req.param()
+    const { electionCode, partyCode, areaCode } = c.req.param()
 
-    const [election, party, unitInfo] = await Promise.all([
+    const [election, party, areaInfo] = await Promise.all([
       checkElection(electionCode),
       checkParty(partyCode),
-      checkUnit(unitCode),
+      checkArea(areaCode),
     ])
 
-    if (!unitInfo) {
+    if (!areaInfo) {
       return c.json({ message: NOT_FOUND_AREA }, { status: 404 })
     }
     if (!election) {
@@ -194,7 +194,7 @@ app.get(
     const details = await getPartyDetails({
       partyId: party.id,
       electionCode: election.code,
-      unitInfo,
+      areaInfo,
     })
 
     const { id, ...rest } = party
@@ -207,7 +207,7 @@ app.get(
 )
 
 app.get(
-  '/api/elections/:electionCode/ranking/:partyCode/unit/:unitCode',
+  '/api/elections/:electionCode/ranking/:partyCode/area/:areaCode',
   async (c) => {
     const { sort: sortQuery, unit: unitQuery, page: pageQuery } = c.req.query()
 
@@ -229,15 +229,15 @@ app.get(
     const { output: unit } = unitSubmission
     const { output: page } = pageSubmission
 
-    const { electionCode, partyCode, unitCode } = c.req.param()
+    const { electionCode, partyCode, areaCode } = c.req.param()
 
-    const [election, party, unitInfo] = await Promise.all([
+    const [election, party, areaInfo] = await Promise.all([
       checkElection(electionCode),
       checkParty(partyCode),
-      checkUnit(unitCode),
+      checkArea(areaCode),
     ])
 
-    if (!unitInfo) {
+    if (!areaInfo) {
       return c.json({ message: NOT_FOUND_AREA }, { status: 404 })
     }
     if (!election) {
@@ -250,7 +250,7 @@ app.get(
     const ranking = await getPartyRanking({
       electionCode: election.code,
       partyId: party.id,
-      unitInfo,
+      areaInfo,
       sort,
       unit,
       page,

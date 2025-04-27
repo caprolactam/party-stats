@@ -249,11 +249,11 @@ describe('GET /api/elections/:electionCode', () => {
     })
 })
 
-describe('GET /api/elections/:electionCode/overview/unit/:unitCode', () => {
+describe('GET /api/elections/:electionCode/overview/area/:areaCode', () => {
   test('not found election with 404', async () => {
     const ctx = createExecutionContext()
     const res = await app.request(
-      '/api/elections/not-found-election/overview/unit/national',
+      '/api/elections/not-found-election/overview/area/national',
       {},
       env,
       ctx,
@@ -269,7 +269,7 @@ describe('GET /api/elections/:electionCode/overview/unit/:unitCode', () => {
     test('not found area with 404', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/overview/unit/not-found-area`,
+        `/api/elections/${ELECTION_CODE}/overview/area/not-found-area`,
         {},
         env,
         ctx,
@@ -286,7 +286,7 @@ describe('GET /api/elections/:electionCode/overview/unit/:unitCode', () => {
       test('get election overview with 200', async () => {
         const ctx = createExecutionContext()
         const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/overview/unit/national`,
+          `/api/elections/${ELECTION_CODE}/overview/area/national`,
           {},
           env,
           ctx,
@@ -303,7 +303,7 @@ describe('GET /api/elections/:electionCode/overview/unit/:unitCode', () => {
       test('get election overview with 200', async () => {
         const ctx = createExecutionContext()
         const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/overview/unit/${REGION_CODE}`,
+          `/api/elections/${ELECTION_CODE}/overview/area/${REGION_CODE}`,
           {},
           env,
           ctx,
@@ -320,7 +320,7 @@ describe('GET /api/elections/:electionCode/overview/unit/:unitCode', () => {
       test('get election overview with 200', async () => {
         const ctx = createExecutionContext()
         const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/overview/unit/${PREFECTURE_CODE}`,
+          `/api/elections/${ELECTION_CODE}/overview/area/${PREFECTURE_CODE}`,
           {},
           env,
           ctx,
@@ -337,7 +337,7 @@ describe('GET /api/elections/:electionCode/overview/unit/:unitCode', () => {
       test('get election overview with 200', async () => {
         const ctx = createExecutionContext()
         const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/overview/unit/${CITY_CODE}`,
+          `/api/elections/${ELECTION_CODE}/overview/area/${CITY_CODE}`,
           {},
           env,
           ctx,
@@ -352,11 +352,11 @@ describe('GET /api/elections/:electionCode/overview/unit/:unitCode', () => {
     })
 })
 
-describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', () => {
+describe('GET /api/elections/:electionCode/ranking/:partyCode/area/:areaCode', () => {
   test('invalid sort with 400', async () => {
     const ctx = createExecutionContext()
     const res = await app.request(
-      `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/national?sort=invalid`,
+      `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/national?sort=invalid`,
       {},
       env,
       ctx,
@@ -371,7 +371,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
     test('invalid unit with 400', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/national?unit=invalid`,
+        `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/national?unit=invalid`,
         {},
         env,
         ctx,
@@ -386,7 +386,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
     test('not found election with 404', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/not-found-election/ranking/${PARTY_CODE}/unit/national`,
+        `/api/elections/not-found-election/ranking/${PARTY_CODE}/area/national`,
         {},
         env,
         ctx,
@@ -402,7 +402,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
     test('not found party with 404', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/not-found-party/unit/national`,
+        `/api/elections/${ELECTION_CODE}/ranking/not-found-party/area/national`,
         {},
         env,
         ctx,
@@ -418,7 +418,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
     test('not found area with 404', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/not-found-area`,
+        `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/not-found-area`,
         {},
         env,
         ctx,
@@ -435,7 +435,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
       test('get party ranking with 200', async () => {
         const ctx = createExecutionContext()
         const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/national`,
+          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/national`,
           {},
           env,
           ctx,
@@ -452,7 +452,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
           async (sort) => {
             const ctx = createExecutionContext()
             const res = await app.request(
-              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/national?sort=${sort}`,
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/national?sort=${sort}`,
               {},
               env,
               ctx,
@@ -468,7 +468,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
           async (unit) => {
             const ctx = createExecutionContext()
             const res = await app.request(
-              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/national?unit=${unit}`,
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/national?unit=${unit}`,
               {},
               env,
               ctx,
@@ -484,7 +484,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
       test('get party ranking with 200', async () => {
         const ctx = createExecutionContext()
         const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${REGION_CODE}`,
+          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/${REGION_CODE}`,
           {},
           env,
           ctx,
@@ -501,7 +501,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
           async (sort) => {
             const ctx = createExecutionContext()
             const res = await app.request(
-              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${REGION_CODE}?sort=${sort}`,
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/${REGION_CODE}?sort=${sort}`,
               {},
               env,
               ctx,
@@ -517,7 +517,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
           async (unit) => {
             const ctx = createExecutionContext()
             const res = await app.request(
-              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${REGION_CODE}?unit=${unit}`,
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/${REGION_CODE}?unit=${unit}`,
               {},
               env,
               ctx,
@@ -533,7 +533,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
       test('get party ranking with 200', async () => {
         const ctx = createExecutionContext()
         const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${PREFECTURE_CODE}`,
+          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/${PREFECTURE_CODE}`,
           {},
           env,
           ctx,
@@ -550,7 +550,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
           async (sort) => {
             const ctx = createExecutionContext()
             const res = await app.request(
-              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${PREFECTURE_CODE}?sort=${sort}`,
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/${PREFECTURE_CODE}?sort=${sort}`,
               {},
               env,
               ctx,
@@ -564,7 +564,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
         test.each(['city'])('valid unit with %s', async (unit) => {
           const ctx = createExecutionContext()
           const res = await app.request(
-            `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${PREFECTURE_CODE}?unit=${unit}`,
+            `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/${PREFECTURE_CODE}?unit=${unit}`,
             {},
             env,
             ctx,
@@ -579,7 +579,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
       test('get party ranking with 200', async () => {
         const ctx = createExecutionContext()
         const res = await app.request(
-          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${CITY_CODE}`,
+          `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/${CITY_CODE}`,
           {},
           env,
           ctx,
@@ -596,7 +596,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
           async (sort) => {
             const ctx = createExecutionContext()
             const res = await app.request(
-              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${CITY_CODE}?sort=${sort}`,
+              `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/${CITY_CODE}?sort=${sort}`,
               {},
               env,
               ctx,
@@ -610,7 +610,7 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
         test.each(['city'])('valid unit with %s', async (unit) => {
           const ctx = createExecutionContext()
           const res = await app.request(
-            `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/unit/${CITY_CODE}?unit=${unit}`,
+            `/api/elections/${ELECTION_CODE}/ranking/${PARTY_CODE}/area/${CITY_CODE}?unit=${unit}`,
             {},
             env,
             ctx,
@@ -623,11 +623,11 @@ describe('GET /api/elections/:electionCode/ranking/:partyCode/unit/:unitCode', (
     })
 })
 
-describe('GET /api/elections/:electionCode/details/:partyCode/unit/:unitCode', () => {
+describe('GET /api/elections/:electionCode/details/:partyCode/area/:areaCode', () => {
   test('not found election with 404', async () => {
     const ctx = createExecutionContext()
     const res = await app.request(
-      `/api/elections/not-found-election/details/${PARTY_CODE}/unit/${REGION_CODE}`,
+      `/api/elections/not-found-election/details/${PARTY_CODE}/area/${REGION_CODE}`,
       {},
       env,
       ctx,
@@ -643,7 +643,7 @@ describe('GET /api/elections/:electionCode/details/:partyCode/unit/:unitCode', (
     test('not found party with 404', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/details/not-found-party/unit/${REGION_CODE}`,
+        `/api/elections/${ELECTION_CODE}/details/not-found-party/area/${REGION_CODE}`,
         {},
         env,
         ctx,
@@ -659,7 +659,7 @@ describe('GET /api/elections/:electionCode/details/:partyCode/unit/:unitCode', (
     test('invalid unit with 404', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/details/${PARTY_CODE}/unit/not-found-unit`,
+        `/api/elections/${ELECTION_CODE}/details/${PARTY_CODE}/area/not-found-unit`,
         {},
         env,
         ctx,
@@ -675,7 +675,7 @@ describe('GET /api/elections/:electionCode/details/:partyCode/unit/:unitCode', (
     test('get national party details with 200', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/details/${PARTY_CODE}/unit/national`,
+        `/api/elections/${ELECTION_CODE}/details/${PARTY_CODE}/area/national`,
         {},
         env,
         ctx,
@@ -690,7 +690,7 @@ describe('GET /api/elections/:electionCode/details/:partyCode/unit/:unitCode', (
     test('get region party details with 200', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/details/${PARTY_CODE}/unit/${REGION_CODE}`,
+        `/api/elections/${ELECTION_CODE}/details/${PARTY_CODE}/area/${REGION_CODE}`,
         {},
         env,
         ctx,
@@ -705,7 +705,7 @@ describe('GET /api/elections/:electionCode/details/:partyCode/unit/:unitCode', (
     test('get prefecture party details with 200', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/details/${PARTY_CODE}/unit/${PREFECTURE_CODE}`,
+        `/api/elections/${ELECTION_CODE}/details/${PARTY_CODE}/area/${PREFECTURE_CODE}`,
         {},
         env,
         ctx,
@@ -720,7 +720,7 @@ describe('GET /api/elections/:electionCode/details/:partyCode/unit/:unitCode', (
     test('get city party details with 200', async () => {
       const ctx = createExecutionContext()
       const res = await app.request(
-        `/api/elections/${ELECTION_CODE}/details/${PARTY_CODE}/unit/${CITY_CODE}`,
+        `/api/elections/${ELECTION_CODE}/details/${PARTY_CODE}/area/${CITY_CODE}`,
         {},
         env,
         ctx,

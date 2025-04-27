@@ -1,13 +1,13 @@
 import { useChildMatches, useParams, linkOptions } from '@tanstack/react-router'
 
 export function useCurrentLink() {
-  const params = useParams({ from: '/elections/$electionCode/$unitCode' })
+  const params = useParams({ from: '/elections/$electionCode/$areaCode' })
 
   const overviewRoute = useChildMatches({
     select: (matches) =>
       matches.find(
         (match) =>
-          match.routeId === '/elections/$electionCode/$unitCode/overview/',
+          match.routeId === '/elections/$electionCode/$areaCode/overview/',
       ),
   })
   const isOverview = !!overviewRoute
@@ -17,7 +17,7 @@ export function useCurrentLink() {
       matches.find(
         (match) =>
           match.routeId ===
-          '/elections/$electionCode/$unitCode/overview/$partyCode',
+          '/elections/$electionCode/$areaCode/overview/$partyCode',
       ),
   })
   const isDetails = !!detailsRoute
@@ -26,25 +26,25 @@ export function useCurrentLink() {
     select: (matches) =>
       matches.find(
         (match) =>
-          match.routeId === '/elections/$electionCode/$unitCode/ranking',
+          match.routeId === '/elections/$electionCode/$areaCode/ranking',
       ),
   })
   const isRanking = !!rankingRoute
 
   const linkProps = isOverview
     ? linkOptions({
-        to: '/elections/$electionCode/$unitCode/overview',
+        to: '/elections/$electionCode/$areaCode/overview',
         params: overviewRoute.params,
       })
     : isDetails
       ? linkOptions({
-          to: '/elections/$electionCode/$unitCode/overview/$partyCode',
+          to: '/elections/$electionCode/$areaCode/overview/$partyCode',
           params: detailsRoute.params,
           search: detailsRoute.search,
         })
       : isRanking
         ? linkOptions({
-            to: '/elections/$electionCode/$unitCode/ranking',
+            to: '/elections/$electionCode/$areaCode/ranking',
             params: rankingRoute.params,
             search: {
               ...rankingRoute.search,
@@ -52,7 +52,7 @@ export function useCurrentLink() {
             },
           })
         : linkOptions({
-            to: '/elections/$electionCode/$unitCode/overview',
+            to: '/elections/$electionCode/$areaCode/overview',
             params,
           })
 
