@@ -12,44 +12,13 @@ import { connectDb } from '../databases.ts'
 import { elections } from '../schema.ts'
 
 export const DB_ERROR = 'DB_ERROR'
+export const NOT_FOUND_AREA = '指定の地域が見つかりませんでした'
+export const NOT_FOUND_ELECTION = '指定の選挙が見つかりませんでした'
+export const NOT_FOUND_PARTY = '指定の政党が見つかりませんでした'
+
 export const DEFAULT_PAGE_LIMIT = 10
 
 export type Unit = 'national' | 'region' | 'prefecture' | 'city'
-export type UnitInfo =
-  | {
-      unit: 'national'
-    }
-  | {
-      unit: 'region'
-      regionCode: string
-    }
-  | {
-      unit: 'prefecture'
-      prefectureCode: string
-    }
-  | {
-      unit: 'city'
-      cityCode: string
-    }
-
-export function estimateUnit(unitCodeParam: string): UnitInfo | null {
-  const unitCode = unitCodeParam.toLowerCase()
-  const regionRegex = /^[0-9]$/
-  const prefectureRegex = /^[0-9]{6}$/
-  const cityRegex = /^[0-9]{5}$/
-
-  if (unitCode === 'national') {
-    return { unit: 'national' }
-  } else if (regionRegex.test(unitCode)) {
-    return { unit: 'region', regionCode: unitCode }
-  } else if (prefectureRegex.test(unitCode)) {
-    return { unit: 'prefecture', prefectureCode: unitCode }
-  } else if (cityRegex.test(unitCode)) {
-    return { unit: 'city', cityCode: unitCode }
-  }
-
-  return null
-}
 
 export const pageSchema = pipe(
   optional(pipe(unknown(), transform(Number)), 1),

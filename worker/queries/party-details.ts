@@ -13,11 +13,12 @@ import {
   totalCountsOnAll,
   citiesHistories,
 } from '../schema.ts'
+import { type UnitInfo } from './area.ts'
 import {
   listRankingPrefectureKeys,
   listRankingCityKeys,
 } from './party-ranking.ts'
-import { floorDecimal, DB_ERROR, type UnitInfo } from './utils.ts'
+import { floorDecimal, DB_ERROR } from './utils.ts'
 
 const mapDecimal = (value: number) => floorDecimal(value, 4)
 

@@ -1,15 +1,45 @@
 import { and, eq, not, asc } from 'drizzle-orm'
 import { connectDb } from '../databases.ts'
 import { regions, prefectures, cities, citiesHistories } from '../schema.ts'
-import {
-  DB_ERROR,
-  DEFAULT_PAGE_LIMIT,
-  getFirstItem,
-  type UnitInfo,
-  estimateUnit,
-} from './utils.ts'
+import { DB_ERROR, DEFAULT_PAGE_LIMIT, getFirstItem } from './utils.ts'
 const PAGE_LIMIT = DEFAULT_PAGE_LIMIT
 
+function estimateUnit(unitCodeParam: string) {
+  const unitCode = unitCodeParam.toLowerCase()
+  const regionRegex = /^[0-9]$/
+  const prefectureRegex = /^[0-9]{6}$/
+  const cityRegex = /^[0-9]{5}$/
+
+  if (unitCode === 'national') {
+    return { unit: 'national' } as const
+  } else if (regionRegex.test(unitCode)) {
+    return { unit: 'region', regionCode: unitCode } as const
+  } else if (prefectureRegex.test(unitCode)) {
+    return { unit: 'prefecture', prefectureCode: unitCode } as const
+  } else if (cityRegex.test(unitCode)) {
+    return { unit: 'city', cityCode: unitCode } as const
+  }
+
+  return null
+}
+export type UnitInfo =
+  | {
+      unit: 'national'
+    }
+  | {
+      unit: 'region'
+      regionCode: string
+    }
+  | {
+      unit: 'prefecture'
+      prefectureCode: string
+      regionCode: string
+    }
+  | {
+      unit: 'city'
+      cityCode: string
+      prefectureCode: string
+    }
 export async function checkUnit(
   unitCodeParam: string,
 ): Promise<UnitInfo | null> {
@@ -19,32 +49,43 @@ export async function checkUnit(
   try {
     switch (unitInfo.unit) {
       case 'national':
-        break
+        return {
+          unit: 'national',
+        }
       case 'region': {
         const region = await checkRegion(unitInfo.regionCode)
         if (!region) return null
 
-        break
+        return {
+          unit: 'region',
+          regionCode: region.code,
+        }
       }
       case 'prefecture': {
         const prefecture = await checkPrefecture(unitInfo.prefectureCode)
-        if (!prefecture) null
+        if (!prefecture) return null
 
-        break
+        return {
+          unit: 'prefecture',
+          prefectureCode: prefecture.code,
+          regionCode: prefecture.regionCode,
+        }
       }
       case 'city': {
         const city = await checkCity(unitInfo.cityCode)
         if (!city) return null
 
-        break
+        return {
+          unit: 'city',
+          cityCode: city.code,
+          prefectureCode: city.prefectureCode,
+        }
       }
       default: {
         const _: never = unitInfo
         throw new Error(`Invalid unit: ${_}`)
       }
     }
-
-    return unitInfo
   } catch (error) {
     console.error(error)
     throw new Error(DB_ERROR)

@@ -13,12 +13,12 @@ import {
   totalCountsOnRegions,
   totalCountsOnAll,
 } from '../schema.ts'
+import { type UnitInfo } from './area.ts'
 import {
   DB_ERROR,
   getFirstItem,
   floorDecimal,
   findElectionAndPrevious,
-  type UnitInfo,
 } from './utils.ts'
 
 export async function listElections() {

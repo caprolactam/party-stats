@@ -10,7 +10,6 @@ import {
   checkPrefecture,
   listCitiesInPrefecture,
   getCity,
-  checkCity,
   checkUnit,
 } from './queries/area.ts'
 import {
@@ -24,17 +23,16 @@ import {
 import { getPartyDetails } from './queries/party-details.ts'
 import {
   rankingSortSchema,
-  nationalRankingUnitSchema,
-  regionRankingUnitSchema,
-  getNationalRanking,
-  getRegionRanking,
-  getPrefectureRanking,
+  rankingUnitSchema,
+  getPartyRanking,
 } from './queries/party-ranking.ts'
-import { pageSchema, checkHokkaido, DB_ERROR } from './queries/utils.ts'
-
-export const NOT_FOUND_AREA = '指定の地域が見つかりませんでした'
-export const NOT_FOUND_ELECTION = '指定の選挙が見つかりませんでした'
-export const NOT_FOUND_PARTY = '指定の政党が見つかりませんでした'
+import {
+  pageSchema,
+  DB_ERROR,
+  NOT_FOUND_AREA,
+  NOT_FOUND_ELECTION,
+  NOT_FOUND_PARTY,
+} from './queries/utils.ts'
 
 export interface HonoEnv {
   Bindings: Env
@@ -208,6 +206,60 @@ app.get(
   },
 )
 
+app.get(
+  '/api/elections/:electionCode/ranking/:partyCode/unit/:unitCode',
+  async (c) => {
+    const { sort: sortQuery, unit: unitQuery, page: pageQuery } = c.req.query()
+
+    const sortSubmission = safeParse(rankingSortSchema, sortQuery)
+    const unitSubmission = safeParse(rankingUnitSchema, unitQuery)
+    const pageSubmission = safeParse(pageSchema, pageQuery)
+
+    if (!sortSubmission.success) {
+      return c.json({ message: 'Invalid sort' }, { status: 400 })
+    }
+    if (!unitSubmission.success) {
+      return c.json({ message: 'Invalid unit' }, { status: 400 })
+    }
+    if (!pageSubmission.success) {
+      return c.json({ message: 'Invalid page' }, { status: 400 })
+    }
+
+    const { output: sort } = sortSubmission
+    const { output: unit } = unitSubmission
+    const { output: page } = pageSubmission
+
+    const { electionCode, partyCode, unitCode } = c.req.param()
+
+    const [election, party, unitInfo] = await Promise.all([
+      checkElection(electionCode),
+      checkParty(partyCode),
+      checkUnit(unitCode),
+    ])
+
+    if (!unitInfo) {
+      return c.json({ message: NOT_FOUND_AREA }, { status: 404 })
+    }
+    if (!election) {
+      return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
+    }
+    if (!party) {
+      return c.json({ message: NOT_FOUND_PARTY }, { status: 404 })
+    }
+
+    const ranking = await getPartyRanking({
+      electionCode: election.code,
+      partyId: party.id,
+      unitInfo,
+      sort,
+      unit,
+      page,
+    })
+
+    return c.json(ranking)
+  },
+)
+
 app.get('/api/elections/:electionCode/parties', async (c) => {
   const { electionCode } = c.req.param()
   const election = await checkElection(electionCode)
@@ -222,234 +274,6 @@ app.get('/api/elections/:electionCode/parties', async (c) => {
     'Cache-Control': 'private, max-age=3600, must-revalidate',
   })
 })
-
-app.get(
-  '/api/elections/:electionCode/ranking/parties/:partyCode/national',
-  async (c) => {
-    const { electionCode, partyCode } = c.req.param()
-    const { sort: sortQuery, unit: unitQuery, page: pageQuery } = c.req.query()
-
-    const sortSubmission = safeParse(rankingSortSchema, sortQuery)
-    const unitSubmission = safeParse(nationalRankingUnitSchema, unitQuery)
-    const pageSubmission = safeParse(pageSchema, pageQuery)
-
-    if (!sortSubmission.success) {
-      return c.json({ message: 'Invalid sort' }, { status: 400 })
-    }
-    if (!unitSubmission.success) {
-      return c.json({ message: 'Invalid unit' }, { status: 400 })
-    }
-    if (!pageSubmission.success) {
-      return c.json({ message: 'Invalid page' }, { status: 400 })
-    }
-
-    const { output: sort } = sortSubmission
-    const { output: unit } = unitSubmission
-    const { output: page } = pageSubmission
-
-    const [election, party] = await Promise.all([
-      checkElection(electionCode),
-      checkParty(partyCode),
-    ])
-    if (!election) {
-      return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
-    }
-    if (!party) {
-      return c.json({ message: NOT_FOUND_PARTY }, { status: 404 })
-    }
-
-    const { data, ...pageInfo } = await getNationalRanking({
-      electionCode: election.code,
-      partyId: party.id,
-      sort,
-      unit,
-      page,
-    })
-
-    return c.json({
-      meta: {
-        unit,
-        sort,
-        ...pageInfo,
-      },
-      data,
-    })
-  },
-)
-
-app.get(
-  '/api/elections/:electionCode/ranking/parties/:partyCode/regions/:regionCode',
-  async (c) => {
-    const { regionCode, electionCode, partyCode } = c.req.param()
-    const { sort: sortQuery, unit: unitQuery, page: pageQuery } = c.req.query()
-
-    const sortSubmission = safeParse(rankingSortSchema, sortQuery)
-    const unitSubmission = safeParse(regionRankingUnitSchema, unitQuery)
-    const regionSubmission = checkHokkaido(regionCode)
-    const pageSubmission = safeParse(pageSchema, pageQuery)
-
-    if (!sortSubmission.success) {
-      return c.json({ message: 'Invalid sort' }, { status: 400 })
-    }
-    if (!unitSubmission.success) {
-      return c.json({ message: 'Invalid unit' }, { status: 400 })
-    }
-    if (!pageSubmission.success) {
-      return c.json({ message: 'Invalid page' }, { status: 400 })
-    }
-    if (regionSubmission.isHokkaido) {
-      const originalUrl = new URL(c.req.url)
-
-      return c.redirect(
-        `/api/elections/${electionCode}/ranking/parties/${partyCode}/prefectures/${regionSubmission.prefectureCode}${originalUrl.search}`,
-        301,
-      )
-    }
-
-    const { output: sort } = sortSubmission
-    const { output: unit } = unitSubmission
-    const { output: page } = pageSubmission
-
-    const [election, party, region] = await Promise.all([
-      checkElection(electionCode),
-      checkParty(partyCode),
-      checkRegion(regionCode),
-    ])
-    if (!election) {
-      return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
-    }
-    if (!party) {
-      return c.json({ message: NOT_FOUND_PARTY }, { status: 404 })
-    }
-    if (!region) {
-      return c.json({ message: 'Not found region' }, { status: 404 })
-    }
-
-    const { data, ...pageInfo } = await getRegionRanking({
-      electionCode: election.code,
-      partyId: party.id,
-      regionCode: region.code,
-      sort,
-      unit,
-      page,
-    })
-
-    return c.json({
-      meta: {
-        unit,
-        sort,
-        ...pageInfo,
-      },
-      data,
-    })
-  },
-)
-
-app.get(
-  '/api/elections/:electionCode/ranking/parties/:partyCode/prefectures/:prefectureCode',
-  async (c) => {
-    const { prefectureCode, electionCode, partyCode } = c.req.param()
-    const { sort: sortQuery, page: pageQuery } = c.req.query()
-
-    const sortSubmission = safeParse(rankingSortSchema, sortQuery)
-    const pageSubmission = safeParse(pageSchema, pageQuery)
-
-    if (!sortSubmission.success) {
-      return c.json({ message: 'Invalid sort' }, { status: 400 })
-    }
-    if (!pageSubmission.success) {
-      return c.json({ message: 'Invalid page' }, { status: 400 })
-    }
-
-    const { output: sort } = sortSubmission
-    const { output: page } = pageSubmission
-
-    const [prefecture, party, election] = await Promise.all([
-      checkPrefecture(prefectureCode),
-      checkParty(partyCode),
-      checkElection(electionCode),
-    ])
-    if (!election) {
-      return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
-    }
-    if (!party) {
-      return c.json({ message: NOT_FOUND_PARTY }, { status: 404 })
-    }
-    if (!prefecture) {
-      return c.json({ message: 'Not found prefecture' }, { status: 404 })
-    }
-
-    const { data, ...pageInfo } = await getPrefectureRanking({
-      electionCode: election.code,
-      partyId: party.id,
-      prefectureCode: prefecture.code,
-      sort,
-      page,
-    })
-
-    return c.json({
-      meta: {
-        sort,
-        unit: 'city',
-        ...pageInfo,
-      },
-      data,
-    })
-  },
-)
-
-app.get(
-  '/api/elections/:electionCode/ranking/parties/:partyCode/cities/:cityCode',
-  async (c) => {
-    const { cityCode, electionCode, partyCode } = c.req.param()
-    const { sort: sortQuery, page: pageQuery } = c.req.query()
-
-    const sortSubmission = safeParse(rankingSortSchema, sortQuery)
-    const pageSubmission = safeParse(pageSchema, pageQuery)
-
-    if (!sortSubmission.success) {
-      return c.json({ message: 'Invalid sort' }, { status: 400 })
-    }
-    if (!pageSubmission.success) {
-      return c.json({ message: 'Invalid page' }, { status: 400 })
-    }
-
-    const { output: sort } = sortSubmission
-    const { output: page } = pageSubmission
-
-    const [city, party, election] = await Promise.all([
-      checkCity(cityCode),
-      checkParty(partyCode),
-      checkElection(electionCode),
-    ])
-    if (!election) {
-      return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
-    }
-    if (!party) {
-      return c.json({ message: NOT_FOUND_PARTY }, { status: 404 })
-    }
-    if (!city) {
-      return c.json({ message: 'Not found city' }, { status: 404 })
-    }
-
-    const { data, ...pageInfo } = await getPrefectureRanking({
-      electionCode: election.code,
-      partyId: party.id,
-      prefectureCode: city.prefectureCode,
-      sort,
-      page,
-    })
-
-    return c.json({
-      meta: {
-        sort,
-        unit: 'city',
-        ...pageInfo,
-      },
-      data,
-    })
-  },
-)
 
 app.get('/api/*', (c) => {
   return c.notFound()
