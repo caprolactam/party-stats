@@ -5,170 +5,145 @@ import {
   redirect,
   Link,
   type NavigateOptions,
+  notFound,
 } from '@tanstack/react-router'
 import React from 'react'
-import {
-  type GetRegion,
-  type GetPrefecture,
-  type GetCity,
-} from '#api/schema.ts'
+import { type GetArea, type ListAreaOptions } from '#api/schema.ts'
 import { Icon } from '#src/components/parts/icon.tsx'
-import {
-  regionsQueryOptions,
-  prefecturesInRegionQueryOptions,
-  citiesInPrefectureQueryOptions,
-} from '#src/utils/city-candidates-list.tsx'
-import { type Unit } from '#src/utils/misc.ts'
+import { QUERY_KEY } from '#src/utils/area-options-list.tsx'
 import { LayoutWithSidebar } from '#src/utils/sidebar.tsx'
 import { useCurrentLink } from '#src/utils/use-current-link.ts'
 
-type UnitInfo = {
-  estimatedUnit: Unit
-  areaCode: string
-} | null
+async function getArea(areaCode: string) {
+  try {
+    const response = await fetch(`/api/areas/${areaCode}`)
 
-function estimateUnitId(areaCodeParam: string): UnitInfo {
-  const areaCode = areaCodeParam.toLowerCase()
-  const regionRegex = /^[0-9]$/
-  const prefectureRegex = /^[0-9]{6}$/
-  const cityRegex = /^[0-9]{5}$/
+    if (response.status === 404) {
+      const errorMessage = await response.json()
+      throw notFound({ data: errorMessage })
+    }
 
-  if (areaCode === 'national') {
-    return { estimatedUnit: 'national', areaCode }
-  } else if (regionRegex.test(areaCode)) {
-    return { estimatedUnit: 'region', areaCode }
-  } else if (prefectureRegex.test(areaCode)) {
-    return { estimatedUnit: 'prefecture', areaCode }
-  } else if (cityRegex.test(areaCode)) {
-    return { estimatedUnit: 'city', areaCode }
+    if (!response.ok) {
+      throw new Error(`Error fetching area data: ${response.statusText}`)
+    }
+
+    const data = (await response.json()) as GetArea
+
+    return data
+  } catch (error) {
+    throw error
   }
-
-  return null
 }
 
-async function getUnitInfo({
-  estimatedUnit,
-  areaCode: areaCodeParam,
-}: NonNullable<UnitInfo>) {
+async function listAreaOptions(areaCode: string) {
+  // perfomance optimization
+  // cityの場合はルートレベルではなくコンポーネントにFetch-on-renderさせる
+  const isCity = /^[0-9]{5}$/.test(areaCode)
+  if (isCity) {
+    return null
+  }
   try {
-    switch (estimatedUnit) {
-      case 'national':
-        return {
-          unit: estimatedUnit,
-        }
-      case 'region': {
-        const response = await fetch(`/api/regions/${areaCodeParam}`)
-        if (!response.ok) {
-          throw new Error('Region not found')
-        }
-        const region: GetRegion = (await response.json()) as GetRegion
+    const searchParams = new URLSearchParams()
+    searchParams.set('page', '1')
 
-        return {
-          unit: estimatedUnit,
-          region,
-        }
-      }
-      case 'prefecture': {
-        const response = await fetch(`/api/prefectures/${areaCodeParam}`)
-        if (!response.ok) {
-          throw new Error('Prefecture not found')
-        }
-        const prefecture: GetPrefecture =
-          (await response.json()) as GetPrefecture
+    const response = await fetch(
+      `/api/areas/${areaCode}/options?${searchParams.toString()}`,
+    )
 
-        return {
-          unit: estimatedUnit,
-          region: prefecture.region,
-          prefecture,
-        }
-      }
-      case 'city': {
-        const response = await fetch(`/api/cities/${areaCodeParam}`)
-        if (!response.ok) {
-          throw new Error('City not found')
-        }
-        const city: GetCity = (await response.json()) as GetCity
-
-        return {
-          unit: estimatedUnit,
-          region: city.region,
-          prefecture: city.prefecture,
-          city,
-        }
-      }
-      default: {
-        const _: never = estimatedUnit
-        throw new Error(`Invalid areaCode: ${_}`)
-      }
+    if (response.status === 404) {
+      const errorMessage = await response.json()
+      throw notFound({ data: errorMessage })
     }
+
+    if (!response.ok) {
+      throw new Error(`Error fetching area options: ${response.statusText}`)
+    }
+
+    const data = (await response.json()) as ListAreaOptions
+
+    return data
   } catch (error) {
-    console.error('Error fetching unit info:', error)
     throw error
   }
 }
 
 export const Route = createFileRoute('/elections/$electionCode/$areaCode')({
-  beforeLoad: (ctx) => {
-    const unitInfo = estimateUnitId(ctx.params.areaCode)
-    if (!unitInfo) {
-      // TODO: handle error
-      throw new Error('Invalid areaCode')
-    }
+  loader: async ({ params, context: { queryClient } }) => {
+    const areaOptionsPromise = queryClient.getQueryData([
+      QUERY_KEY,
+      params.areaCode,
+      1,
+    ])
+      ? null
+      : listAreaOptions(params.areaCode)
+    const [areaInfo, areaOptions] = await Promise.all([
+      getArea(params.areaCode),
+      areaOptionsPromise,
+    ])
 
     // Exposing implementaion details...😅
-    if (unitInfo.estimatedUnit === 'region' && unitInfo.areaCode === '1') {
+    if (areaInfo.unit === 'region' && areaInfo.code === '1') {
       throw redirect({
         to: `/elections/$electionCode/$areaCode/overview`,
         params: {
-          ...ctx.params,
+          ...params,
           areaCode: '010006',
         },
       })
     }
 
-    return unitInfo
-  },
-  loader: async ({ context, params }) => {
-    switch (context.estimatedUnit) {
-      case 'national':
-        void context.queryClient.prefetchQuery(regionsQueryOptions())
-        break
-      case 'region':
-        void context.queryClient.prefetchQuery(
-          prefecturesInRegionQueryOptions({
-            regionCode: context.areaCode,
-          }),
-        )
-        break
-      case 'prefecture':
-        void context.queryClient.prefetchQuery(
-          citiesInPrefectureQueryOptions({
-            prefectureCode: context.areaCode,
-            page: 1,
-          }),
-        )
-        break
-      case 'city':
-      default:
-        break
-    }
-
-    const unitInfo = await getUnitInfo({
-      estimatedUnit: context.estimatedUnit,
-      areaCode: context.areaCode,
-    })
-
-    if (unitInfo.city?.archived) {
+    if (areaInfo.unit === 'city' && areaInfo.archived) {
       throw redirect({
         to: `/elections/$electionCode/$areaCode/overview`,
         params: {
           ...params,
-          areaCode: unitInfo.city.redirectTo,
+          areaCode: areaInfo.redirectTo,
         },
       })
     }
 
-    return unitInfo
+    if (areaOptions) {
+      // params.areaCodeではなくareaOptions.meta.cacheKeyを用いる
+      queryClient.setQueryData(
+        [QUERY_KEY, areaOptions.meta.cacheKey, areaOptions.meta.currentPage],
+        areaOptions,
+      )
+    }
+
+    switch (areaInfo.unit) {
+      case 'national':
+        return {
+          unit: 'national',
+        } as const
+      case 'region': {
+        const { unit, ...region } = areaInfo
+        return {
+          unit,
+          region,
+        } as const
+      }
+      case 'prefecture': {
+        const { unit, region, ...prefecture } = areaInfo
+        return {
+          unit,
+          region,
+          prefecture,
+        } as const
+      }
+      case 'city': {
+        const { unit, region, prefecture, ...city } = areaInfo
+        return {
+          unit,
+          region,
+          prefecture,
+          city,
+        } as const
+      }
+      default: {
+        const _: never = areaInfo
+        throw new Error(`Invalid areaCode: ${_}`)
+      }
+    }
   },
   gcTime: 0,
   shouldReload: false,

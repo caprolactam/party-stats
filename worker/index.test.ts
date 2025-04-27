@@ -12,6 +12,8 @@ import {
   GetPrefectureSchema,
   ListCitiesInPrefectureSchema,
   GetCitySchema,
+  GetAreaSchema,
+  ListAreaOptionsSchema,
   ListElectionsSchema,
   GetElectionSchema,
   GetElectionOverviewSchema,
@@ -202,6 +204,141 @@ describe('GET /api/cities/:cityCode', () => {
       expect(res.status).toBe(200)
       const sut = await res.json()
       expect(() => v.parse(GetCitySchema, sut)).not.toThrow()
+    })
+})
+
+describe('GET /api/areas/:areaCode', () => {
+  test('not found area with 404', async () => {
+    const ctx = createExecutionContext()
+    const res = await app.request('/api/areas/not-found-area', {}, env, ctx)
+    await waitOnExecutionContext(ctx)
+
+    expect(res.status).toBe(404)
+
+    const sut = await res.json()
+    expect(sut).toStrictEqual({
+      message: NOT_FOUND_AREA,
+    })
+  }),
+    test('get area national with 200', async () => {
+      const ctx = createExecutionContext()
+      const res = await app.request('/api/areas/national', {}, env, ctx)
+      await waitOnExecutionContext(ctx)
+
+      expect(res.status).toBe(200)
+
+      const sut = await res.json()
+      expect(() => v.parse(GetAreaSchema, sut)).not.toThrow()
+    }),
+    test('get area region with 200', async () => {
+      const ctx = createExecutionContext()
+      const res = await app.request(`/api/areas/${REGION_CODE}`, {}, env, ctx)
+      await waitOnExecutionContext(ctx)
+
+      expect(res.status).toBe(200)
+
+      const sut = await res.json()
+      expect(() => v.parse(GetAreaSchema, sut)).not.toThrow()
+    }),
+    test('get area prefecture with 200', async () => {
+      const ctx = createExecutionContext()
+      const res = await app.request(
+        `/api/areas/${PREFECTURE_CODE}`,
+        {},
+        env,
+        ctx,
+      )
+      await waitOnExecutionContext(ctx)
+
+      expect(res.status).toBe(200)
+
+      const sut = await res.json()
+      expect(() => v.parse(GetAreaSchema, sut)).not.toThrow()
+    }),
+    test('get area city with 200', async () => {
+      const ctx = createExecutionContext()
+      const res = await app.request(`/api/areas/${CITY_CODE}`, {}, env, ctx)
+      await waitOnExecutionContext(ctx)
+
+      expect(res.status).toBe(200)
+
+      const sut = await res.json()
+      expect(() => v.parse(GetAreaSchema, sut)).not.toThrow()
+    })
+})
+
+describe('LIST /api/areas/:areaCode/options', () => {
+  test('not found area with 404', async () => {
+    const ctx = createExecutionContext()
+    const res = await app.request(
+      '/api/areas/not-found-area/options',
+      {},
+      env,
+      ctx,
+    )
+    await waitOnExecutionContext(ctx)
+
+    expect(res.status).toBe(404)
+
+    const sut = await res.json()
+    expect(sut).toStrictEqual({
+      message: NOT_FOUND_AREA,
+    })
+  }),
+    test('list area national with 200', async () => {
+      const ctx = createExecutionContext()
+      const res = await app.request(`/api/areas/national/options`, {}, env, ctx)
+      await waitOnExecutionContext(ctx)
+
+      expect(res.status).toBe(200)
+
+      const sut = await res.json()
+      expect(() => v.parse(ListAreaOptionsSchema, sut)).not.toThrow()
+    }),
+    test('list area region with 200', async () => {
+      const ctx = createExecutionContext()
+      const res = await app.request(
+        `/api/areas/${REGION_CODE}/options`,
+        {},
+        env,
+        ctx,
+      )
+      await waitOnExecutionContext(ctx)
+
+      expect(res.status).toBe(200)
+
+      const sut = await res.json()
+      expect(() => v.parse(ListAreaOptionsSchema, sut)).not.toThrow()
+    }),
+    test('list area prefecture with 200', async () => {
+      const ctx = createExecutionContext()
+      const res = await app.request(
+        `/api/areas/${PREFECTURE_CODE}/options`,
+        {},
+        env,
+        ctx,
+      )
+      await waitOnExecutionContext(ctx)
+
+      expect(res.status).toBe(200)
+
+      const sut = await res.json()
+      expect(() => v.parse(ListAreaOptionsSchema, sut)).not.toThrow()
+    }),
+    test('list area city with 200', async () => {
+      const ctx = createExecutionContext()
+      const res = await app.request(
+        `/api/areas/${CITY_CODE}/options`,
+        {},
+        env,
+        ctx,
+      )
+      await waitOnExecutionContext(ctx)
+
+      expect(res.status).toBe(200)
+
+      const sut = await res.json()
+      expect(() => v.parse(ListAreaOptionsSchema, sut)).not.toThrow()
     })
 })
 

@@ -92,6 +92,112 @@ export async function checkArea(
   }
 }
 
+export async function getArea(areaCode: string) {
+  const unitInfo = estimateUnit(areaCode)
+  if (!unitInfo) return null
+
+  switch (unitInfo.unit) {
+    case 'national':
+      return {
+        unit: 'national',
+      }
+    case 'region': {
+      const region = await getRegion(unitInfo.regionCode)
+      if (!region) return null
+
+      return {
+        unit: 'region',
+        ...region,
+      }
+    }
+    case 'prefecture': {
+      const prefecture = await getPrefecture(unitInfo.prefectureCode)
+      if (!prefecture) return null
+
+      return {
+        unit: 'prefecture',
+        ...prefecture,
+      }
+    }
+    case 'city': {
+      const city = await getCity(unitInfo.cityCode)
+      if (!city) return null
+
+      return {
+        unit: 'city',
+        ...city,
+      }
+    }
+  }
+}
+
+export async function listAreaOptions({
+  areaInfo,
+  page,
+}: {
+  areaInfo: AreaInfo
+  page: number
+}) {
+  const offset = PAGE_LIMIT * (page - 1)
+
+  switch (areaInfo.unit) {
+    case 'national': {
+      const regions = await listRegions()
+      const totalItems = regions.length
+      const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
+      const data = regions.slice(offset, offset + PAGE_LIMIT)
+
+      return {
+        meta: {
+          cacheKey: 'national',
+          currentPage: page,
+          pageSize: PAGE_LIMIT,
+          totalItems,
+          totalPages,
+        },
+        data,
+      }
+    }
+    case 'region': {
+      const prefectures = await listPrefecturesInRegion(areaInfo.regionCode)
+      const totalItems = prefectures.length
+      const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
+      const data = prefectures.slice(offset, offset + PAGE_LIMIT)
+      return {
+        meta: {
+          cacheKey: areaInfo.regionCode,
+          currentPage: page,
+          pageSize: PAGE_LIMIT,
+          totalItems,
+          totalPages,
+        },
+        data,
+      }
+    }
+    case 'prefecture':
+    // cityが属するprefectureのcitiesを取得
+    case 'city': {
+      const { meta, data } = await listCitiesInPrefecture(
+        areaInfo.prefectureCode,
+        page,
+      )
+
+      return {
+        meta: {
+          ...meta,
+          // クライアントでキャッシュするためのkeyで、cityの場合もprefectureCodeを使用
+          cacheKey: areaInfo.prefectureCode,
+        },
+        data,
+      }
+    }
+    default: {
+      const _: never = areaInfo
+      throw new Error(`Invalid unit: ${_}`)
+    }
+  }
+}
+
 export async function listRegions() {
   try {
     const db = connectDb()
@@ -219,13 +325,16 @@ export async function listCitiesInPrefecture(
 
     const totalItems = citiesInPrefecture.length
     const totalPages = Math.ceil(totalItems / PAGE_LIMIT)
+    const data = citiesInPrefecture.slice(offset, offset + PAGE_LIMIT)
 
     return {
-      cities: citiesInPrefecture.slice(offset, offset + PAGE_LIMIT),
-      currentPage: page,
-      pageSize: PAGE_LIMIT,
-      totalItems,
-      totalPages,
+      meta: {
+        currentPage: page,
+        pageSize: PAGE_LIMIT,
+        totalItems,
+        totalPages,
+      },
+      data,
     }
   } catch (error) {
     console.error(error)

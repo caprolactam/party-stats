@@ -35,7 +35,7 @@ export const GetPrefectureSchema = v.strictObject({
 export type GetPrefecture = v.InferOutput<typeof GetPrefectureSchema>
 
 export const ListCitiesInPrefectureSchema = v.strictObject({
-  cities: v.array(
+  data: v.array(
     v.strictObject({
       code: v.string(),
       name: v.string(),
@@ -82,6 +82,67 @@ export const GetCitySchema = v.union([
   }),
 ])
 export type GetCity = v.InferOutput<typeof GetCitySchema>
+
+export const ListAreaOptionsSchema = v.strictObject({
+  meta: v.strictObject({
+    cacheKey: v.string(),
+    currentPage: v.number(),
+    pageSize: v.number(),
+    totalItems: v.number(),
+    totalPages: v.number(),
+  }),
+  data: v.array(
+    v.strictObject({
+      code: v.string(),
+      name: v.string(),
+    }),
+  ),
+})
+export type ListAreaOptions = v.InferOutput<typeof ListAreaOptionsSchema>
+
+export const GetAreaSchema = v.union([
+  v.strictObject({
+    unit: v.literal('national'),
+  }),
+  v.strictObject({
+    unit: v.literal('region'),
+    ...GetRegionSchema.entries,
+  }),
+  v.strictObject({
+    unit: v.literal('prefecture'),
+    ...GetPrefectureSchema.entries,
+  }),
+  v.strictObject({
+    unit: v.literal('city'),
+    code: v.string(),
+    name: v.string(),
+    archived: v.literal(true),
+    redirectTo: v.string(),
+    prefecture: v.strictObject({
+      code: v.string(),
+      name: v.string(),
+    }),
+    region: v.strictObject({
+      code: v.string(),
+      name: v.string(),
+    }),
+  }),
+  v.strictObject({
+    unit: v.literal('city'),
+    code: v.string(),
+    name: v.string(),
+    archived: v.literal(false),
+    prefecture: v.strictObject({
+      code: v.string(),
+      name: v.string(),
+    }),
+    region: v.strictObject({
+      code: v.string(),
+      name: v.string(),
+    }),
+  }),
+])
+export type GetArea = v.InferOutput<typeof GetAreaSchema>
 
 export const ListElectionsSchema = v.array(
   v.strictObject({
