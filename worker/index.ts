@@ -182,7 +182,7 @@ app.get(
     ])
 
     if (!unitInfo) {
-      return c.json({ message: 'Invalid unit' }, { status: 400 })
+      return c.json({ message: NOT_FOUND_AREA }, { status: 404 })
     }
     if (!election) {
       return c.json({ message: NOT_FOUND_ELECTION }, { status: 404 })
