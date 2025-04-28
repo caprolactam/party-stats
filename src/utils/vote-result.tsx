@@ -1,12 +1,10 @@
 import { Link } from '@tanstack/react-router'
 import React from 'react'
-import { buttonVariants } from '#src/components/parts/button.tsx'
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
-  CardFooter,
 } from '#src/components/parts/card.tsx'
 import {
   cn,
@@ -50,7 +48,7 @@ function VoteResultRoot({
   )
 }
 
-function VoteResultItem({
+function VoteResultCard({
   partyCode,
   partyName,
   partyColor,
@@ -62,7 +60,7 @@ function VoteResultItem({
 }: {
   partyCode: string
   partyName: string
-  partyColor: string | undefined
+  partyColor: string
   count: number
   rate: number
   increaseCount: number | null
@@ -74,55 +72,49 @@ function VoteResultItem({
   return (
     <Card
       variant='outline'
-      className={className}
+      className={cn('card-container relative hover:shadow-md', className)}
+      asChild
     >
-      <CardHeader>
-        <CardTitle className='text-base'>{partyName}</CardTitle>
-      </CardHeader>
-      <CardContent className='grid gap-4'>
-        <div className='bg-brand-7 h-4 w-full'>
-          <div
-            className='h-full origin-left'
-            aria-hidden
-            style={{
-              backgroundColor: partyColor,
-              transform: `scale3d(${rate}, 1, 1)`,
-            }}
-          ></div>
-        </div>
-        <div className='flex w-full gap-4'>
-          <RateIncrease
-            value={countFormatter.format(count)}
-            count={increaseCount ?? 0}
-            className='flex-1'
-          >
-            得票数
-          </RateIncrease>
-          <RateIncrease
-            value={rateFormatter.format(rate)}
-            rate={increaseRate ?? 0}
-            className='flex-1'
-          >
-            得票率
-          </RateIncrease>
-        </div>
-      </CardContent>
-      <CardFooter className='flex justify-end'>
-        <Link
-          to='/elections/$electionCode/$areaCode/overview/$partyCode'
-          params={{
-            electionCode,
-            areaCode,
-            partyCode,
-          }}
-          className={buttonVariants({
-            size: 'md',
-            variant: 'outline',
-          })}
-        >
-          詳しく見る
-        </Link>
-      </CardFooter>
+      <Link
+        to='/elections/$electionCode/$areaCode/overview/$partyCode'
+        params={{
+          electionCode,
+          areaCode,
+          partyCode,
+        }}
+      >
+        <CardHeader>
+          <CardTitle className='text-base'>{partyName}</CardTitle>
+        </CardHeader>
+        <CardContent className='grid gap-4'>
+          <div className='bg-brand-7 border-brand-8 h-3 w-full overflow-hidden rounded-xl border'>
+            <div
+              className='h-full origin-left rounded-l-lg'
+              aria-hidden
+              style={{
+                backgroundColor: partyColor,
+                transform: `scale3d(clamp(0.01, ${rate}, 1), 1, 1)`,
+              }}
+            ></div>
+          </div>
+          <div className='flex w-full gap-4'>
+            <RateIncrease
+              value={countFormatter.format(count)}
+              count={increaseCount ?? 0}
+              className='flex-1'
+            >
+              得票数
+            </RateIncrease>
+            <RateIncrease
+              value={rateFormatter.format(rate)}
+              rate={increaseRate ?? 0}
+              className='flex-1'
+            >
+              得票率
+            </RateIncrease>
+          </div>
+        </CardContent>
+      </Link>
     </Card>
   )
 }
@@ -179,6 +171,61 @@ export function RateIncrease({
   )
 }
 
+function VoteResultListItem({
+  partyCode,
+  partyName,
+  partyColor,
+  count,
+  rate,
+  className,
+}: {
+  partyCode: string
+  partyName: string
+  partyColor: string
+  count: number
+  rate: number
+  className?: string
+}) {
+  const { electionCode, areaCode } = useVoteResultContext()
+
+  return (
+    <Link
+      className={cn('group card-container', className)}
+      to='/elections/$electionCode/$areaCode/overview/$partyCode'
+      params={{
+        electionCode,
+        areaCode,
+        partyCode: partyCode,
+      }}
+    >
+      <div className='flex items-center gap-4 py-2.5'>
+        <div className='flex-1 text-base font-semibold tracking-tight underline-offset-2 group-hover:underline'>
+          {partyName}
+        </div>
+        <div className='flex shrink-0 flex-col gap-2 text-right font-mono tabular-nums'>
+          <span className='leading-none font-semibold'>
+            {countFormatter.format(count)}
+          </span>
+          <span className='text-right text-sm leading-none'>
+            {`${rateFormatter.format(rate)}`}
+          </span>
+        </div>
+      </div>
+      <div className='bg-brand-7 border-brand-8 h-2 w-full overflow-hidden rounded-md border'>
+        <div
+          className='h-1.5 origin-left rounded-l-sm'
+          aria-hidden
+          style={{
+            backgroundColor: partyColor,
+            transform: `scale3d(clamp(0.01, ${rate}, 1), 1, 1)`,
+          }}
+        ></div>
+      </div>
+    </Link>
+  )
+}
+
 export const VoteResult = Object.assign(VoteResultRoot, {
-  Item: VoteResultItem,
+  Card: VoteResultCard,
+  ListItem: VoteResultListItem,
 })
