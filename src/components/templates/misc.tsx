@@ -14,7 +14,7 @@ export function Header({
       ref={ref}
       {...props}
     >
-      <div className='mx-auto flex size-full max-w-5xl items-center px-4 md:px-6'>
+      <div className='mx-auto flex size-full max-w-5xl items-center gap-(--space-base) px-(--space-base)'>
         <Link
           to='/'
           className='relative inline-flex h-10 shrink-0 items-center gap-1.5 text-base font-bold'
@@ -39,7 +39,7 @@ export function Header({
         <div className='flex-1' />
         <Link
           to='/about'
-          className='relative inline-flex items-center text-sm font-medium underline-offset-2 hover:underline'
+          className='data-[status=active]:decoration-brand-11 [&_]:hover:decoration-brand-12 relative inline-flex items-center text-sm font-medium underline-offset-2 hover:underline data-[status=active]:underline'
         >
           サイトについて
           <div className='absolute inset-y-1/2 h-14 w-full -translate-y-1/2' />
