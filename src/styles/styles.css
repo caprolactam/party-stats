@@ -34,6 +34,7 @@
   --space-lg: calc(var(--space-base) * 1.6);
   --space-base: 1rem;
   --space-sm: calc(var(--space-base) / 1.6);
+  --space-xs: calc(var(--space-sm) / 1.6);
   @media (width >= 48rem /* 768px */) {
     --space-base: 1.5rem;
   }
