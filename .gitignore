@@ -9,7 +9,9 @@ coverage
 
 # Build Outputs
 dist
+build
 src/components/icons
+app/components/icons
 public/sprite.svg
 
 # Debug
@@ -21,6 +23,7 @@ worker-configuration.d.ts
 
 # App
 routeTree.gen.ts
+.react-router/
 
 # Misc
 .DS_Store

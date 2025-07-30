@@ -1,8 +1,45 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.base.json" },
-    { "path": "./tsconfig.worker.json" }
-  ]
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "include": [
+    ".react-router/types/**/*",
+    "app/**/*",
+    "workers/**/*",
+    "./*.config.ts"
+  ],
+  "compilerOptions": {
+    "types": [
+      "@total-typescript/ts-reset/dom",
+      "@cloudflare/vitest-pool-workers",
+      "node",
+      "vite/client",
+      "./worker-configuration.d.ts"
+    ],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "rootDirs": [".", "./.react-router/types"],
+    "paths": {
+      "~/*": ["./app/*"],
+      "@/icon-name": [
+        "./app/components/icons/types.ts",
+        "./types/icon-name.d.ts"
+      ]
+    },
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "noUncheckedIndexedAccess": true,
+    // allow javascript files
+    "allowJs": true,
+    "checkJs": true
+  }
 }

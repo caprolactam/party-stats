@@ -14,7 +14,7 @@ export default defineWorkersProject(async () => {
       poolOptions: {
         workers: {
           wrangler: {
-            configPath: './wrangler.json',
+            configPath: './wrangler.jsonc',
           },
           singleWorker: true,
           miniflare: {
@@ -24,7 +24,7 @@ export default defineWorkersProject(async () => {
           },
         },
       },
-      include: ['./src/**/*.test.{ts,tsx}', './worker/**/*.test.{ts,tsx}'],
+      include: ['./app/**/*.test.{ts,tsx}'],
     },
   }
 })
