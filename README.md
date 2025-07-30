@@ -1,9 +1,6 @@
-<div align="center">
-  <h1 align="center"><a href="https://party-stats.caprolactam113.workers.dev/">The Party Stats 📈</a></h1>
-  <p>
-    国政選挙における政党の得票データをまとめたWebサイトです。
-  </p>
-</div>
+# The Party Stats 📈
+
+国政選挙における政党の得票データをまとめたWebサイトです。
 
 ## Developing
 
