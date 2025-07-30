@@ -1,1 +1,0 @@
-CREATE INDEX `cities_pref_city_idx` ON `cities` (`prefecture_code`,`code`);
