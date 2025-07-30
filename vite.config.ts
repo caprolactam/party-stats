@@ -45,7 +45,7 @@ function reactCompiler(): PluginOption {
 function iconsSpritesheet(): PluginOption {
   return iconsSpritesheetPlugin({
     withTypes: true,
-    inputDir: './scripts/svg-icons',
+    inputDir: './svg-icons',
     outputDir: './app/components/icons',
     typesOutputFile: './app/components/icons/types.ts',
     fileName: 'sprite.svg',
