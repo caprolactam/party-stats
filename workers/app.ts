@@ -1,4 +1,5 @@
-import { drizzle, type DrizzleD1Database } from 'drizzle-orm/d1'
+import { drizzle } from 'drizzle-orm/d1'
+import type { DrizzleD1Database } from 'drizzle-orm/d1'
 import { createRequestHandler } from 'react-router'
 
 declare module 'react-router' {
