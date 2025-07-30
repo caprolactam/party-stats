@@ -1,0 +1,5 @@
+{
+  "plugins": ["typescript", "react", "oxc", "jsdoc", "jsx-a11y", "vitest"],
+  // TODO: srcフォルダ削除に同時削除
+  "ignorePatterns": ["src/**/*", "worker/**/*"]
+}
