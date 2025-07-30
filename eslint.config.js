@@ -105,6 +105,7 @@ function tailwind() {
     rules: {
       // enable all recommended rules as warning
       ...tailwindPlugin.configs['recommended-warn'].rules,
+      'better-tailwindcss/enforce-consistent-line-wrapping': 'off',
     },
     settings: {
       'better-tailwindcss': {
