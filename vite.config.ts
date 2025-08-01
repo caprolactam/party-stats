@@ -8,22 +8,26 @@ import babel from 'vite-plugin-babel'
 import { iconsSpritesheet as iconsSpritesheetPlugin } from 'vite-plugin-icons-spritesheet'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
+const MODE = process.env.NODE_ENV
+const IS_TEST = MODE === 'test'
+console.log(`Vite build mode: ${MODE}`)
+
 export default defineConfig(({ mode }) => {
   const shouldAnalyze = mode === 'analysis'
 
   return {
     build: {
       sourcemap: shouldAnalyze,
-      // rollupOptions: {
-      //   external: [/node:.*/],
-      // },
+      rollupOptions: {
+        external: [/node:.*/],
+      },
     },
     plugins: [
       reactCompiler(),
       tailwindcss(),
       iconsSpritesheet(),
       cloudflare({ viteEnvironment: { name: 'ssr' } }),
-      reactRouter(),
+      IS_TEST ? null : reactRouter(),
       shouldAnalyze ? buildSizeAnalyzer() : null,
       tsconfigPaths(),
     ].filter(Boolean),

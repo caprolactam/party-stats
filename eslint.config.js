@@ -90,6 +90,7 @@ function style() {
     rules: {
       ...stylistic.configs['recommended'].rules,
       '@stylistic/arrow-parens': [ERROR, 'always'],
+      '@stylistic/newline-per-chained-call': [ERROR, { ignoreChainWithDepth: 2 }],
     },
   }
 }

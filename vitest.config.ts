@@ -1,27 +1,22 @@
-import path from 'node:path'
 import {
   defineWorkersProject,
-  readD1Migrations,
 } from '@cloudflare/vitest-pool-workers/config'
 
-export default defineWorkersProject(async () => {
-  const migrationsPath = path.join(process.cwd(), 'drizzle')
-  const migrations = await readD1Migrations(migrationsPath)
+// cloudflare サービスをテスト環境で使用する設定
+// https://developers.cloudflare.com/workers/testing/vitest-integration/write-your-first-test/
 
+export default defineWorkersProject(async () => {
   return {
     test: {
-      setupFiles: ['./tests/apply-migrations.ts'],
+      coverage: {
+        provider: 'istanbul',
+      },
       poolOptions: {
         workers: {
           wrangler: {
             configPath: './wrangler.jsonc',
           },
           singleWorker: true,
-          miniflare: {
-            // Add a test-only binding for migrations, so we can apply them in a
-            // setup file
-            bindings: { TEST_MIGRATIONS: migrations },
-          },
         },
       },
       include: ['./app/**/*.test.{ts,tsx}'],
