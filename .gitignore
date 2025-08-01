@@ -2,27 +2,23 @@
 node_modules/
 
 # Local env files
-.dev.vars
 
 # Testing
-coverage
+coverage/
 
 # Build Outputs
-dist
-build
-src/components/icons
-app/components/icons
-public/sprite.svg
+build/
+app/components/icons/
 
 # Debug
 npm-debug.log*
 
 # Cloudflare
-.wrangler
+.wrangler/
 worker-configuration.d.ts
+.dev.vars
 
 # App
-routeTree.gen.ts
 .react-router/
 
 # Misc

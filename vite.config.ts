@@ -10,7 +10,6 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 const MODE = process.env.NODE_ENV
 const IS_TEST = MODE === 'test'
-console.log(`Vite build mode: ${MODE}`)
 
 export default defineConfig(({ mode }) => {
   const shouldAnalyze = mode === 'analysis'

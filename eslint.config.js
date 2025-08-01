@@ -21,8 +21,6 @@ export default [
   ignoreFiles(),
 ]
 
-// TODO: import rules
-
 function parser() {
   return {
     files: [TS_FILES],
@@ -117,6 +115,5 @@ function tailwind() {
 }
 
 function ignoreFiles() {
-  // TODO: srcフォルダ削除に同時削除
-  return globalIgnores(['build', '**/*.d.ts', 'src/**/*', 'worker/**/*'])
+  return globalIgnores(['build', '**/*.d.ts'])
 }
