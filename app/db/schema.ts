@@ -51,7 +51,8 @@ export const areas = sqliteTable(
       enum: ['NATIONAL', 'REGION', 'PREFECTURE', 'CITY'],
     }).notNull(),
     // 地域コード（総務省コード等）
-    code: text('code').unique().notNull(),
+    code: text('code').unique()
+      .notNull(),
     /**
      * 現在の地域が合併などにより存在しているかどうか（非正規化フィールド）
      *
@@ -63,7 +64,8 @@ export const areas = sqliteTable(
      * データ整合性:
      * - area_succession テーブル更新時に連動して更新する必要あり
      */
-    isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+    isActive: integer('is_active', { mode: 'boolean' }).notNull()
+      .default(true),
     /**
      * 親地域ID（階層構造用）
      * - null許容: 国全体に親は存在しない
@@ -143,7 +145,8 @@ export const parties = sqliteTable('parties', {
    *
    * 想定件数は少ないためインデックスは付けない
    */
-  name: text('name').notNull().unique(),
+  name: text('name').notNull()
+    .unique(),
   // 表示色（ルールはドメインによって決定する => check制約を含めない）
   color: text('color').notNull(),
 })
@@ -219,7 +222,8 @@ export const electionResults = sqliteTable(
      * データ整合性:
      * - JavaScript側では100で割って元の値に復元
      */
-    votes: integer('votes').notNull().default(0),
+    votes: integer('votes').notNull()
+      .default(0),
     /**
      * 得票率（%） - 非正規化フィールド
      *
@@ -235,7 +239,8 @@ export const electionResults = sqliteTable(
      * - election_area_metas または votes 更新時に連動して再計算・更新する必要あり
      * - JavaScript側では100で割って元の値（%）に復元
      */
-    voteRate: integer('vote_rate').notNull().default(0),
+    voteRate: integer('vote_rate').notNull()
+      .default(0),
     /**
      * 議席数
      *
@@ -303,7 +308,8 @@ export const electionAreaMetas = sqliteTable(
      * - 男女別有権者数更新時に連動して更新する必要あり
      * - JavaScript側では100で割って元の値に復元
      */
-    registered: integer('registered').notNull().default(0),
+    registered: integer('registered').notNull()
+      .default(0),
     /**
      * 男性有権者数
      *
@@ -337,7 +343,8 @@ export const electionAreaMetas = sqliteTable(
      * データ整合性:
      * - JavaScript側では100で割って元の値に復元
      */
-    turnoutVotersMale: integer('turnout_voters_male').notNull().default(0),
+    turnoutVotersMale: integer('turnout_voters_male').notNull()
+      .default(0),
     /**
      * 女性投票者数
      *
@@ -347,7 +354,8 @@ export const electionAreaMetas = sqliteTable(
      * データ整合性:
      * - JavaScript側では100で割って元の値に復元
      */
-    turnoutVotersFemale: integer('turnout_voters_female').notNull().default(0),
+    turnoutVotersFemale: integer('turnout_voters_female').notNull()
+      .default(0),
     /**
      * 投票率（%） - 非正規化フィールド
      *
@@ -363,7 +371,8 @@ export const electionAreaMetas = sqliteTable(
      * - 男女別投票者数または有権者数更新時に連動して再計算・更新する必要あり
      * - JavaScript側では100で割って元の値（%）に復元
      */
-    turnoutRate: integer('turnout_rate').notNull().default(0),
+    turnoutRate: integer('turnout_rate').notNull()
+      .default(0),
     /**
      * 有効投票数
      *
@@ -373,7 +382,8 @@ export const electionAreaMetas = sqliteTable(
      * データ整合性:
      * - JavaScript側では100で割って元の値に復元
      */
-    validVotes: integer('valid_votes').notNull().default(0),
+    validVotes: integer('valid_votes').notNull()
+      .default(0),
     /**
      * 無効投票数
      *
@@ -384,7 +394,8 @@ export const electionAreaMetas = sqliteTable(
      * - JavaScript側では100で割って元の値に復元
      * - 投票総数は validVotes + invalidVotes で計算される
      */
-    invalidVotes: integer('invalid_votes').notNull().default(0),
+    invalidVotes: integer('invalid_votes').notNull()
+      .default(0),
   },
   (table) => [
     // 選挙メタデータの一意性制約（選挙・地域の組み合わせは一意）
