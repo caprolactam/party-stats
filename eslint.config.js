@@ -82,6 +82,8 @@ function importRules() {
 function style() {
   return {
     files: [JS_AND_TS],
+    // 自動生成されるのでフォーマットが制御できない
+    ignores: ['./app/components/icons/**/*'],
     plugins: {
       '@stylistic': stylistic,
     },
