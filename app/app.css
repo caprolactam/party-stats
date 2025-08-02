@@ -2,6 +2,13 @@
 @import "tw-animate-css";
 @import "@radix-ui/colors/sand.css";
 
+@font-face {
+  font-family: "Commit Mono";
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+  src: url("/fonts/commit-mono.woff2") format("woff2");
+}
 /**
 * tailwindcssでダークモードを`class="dark"`で切り替えるための設定
 * https://tailwindcss.com/docs/dark-mode#toggling-dark-mode-manually
@@ -90,8 +97,7 @@
 }
 
 @theme {
-  --font-sans: sans-serif;
-  --font-mono: monospace;
+  --font-mono: "Commit Mono", monospace;
   --color-transparent: transparent;
   --ease-in-cubic: cubic-bezier(0.55, 0.055, 0.675, 0.19);
   --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
