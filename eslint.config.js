@@ -64,7 +64,19 @@ function importRules() {
         WARN,
         {
           alphabetize: { order: 'asc', caseInsensitive: true },
-          pathGroups: [{ pattern: '~/**/*', group: 'internal' }],
+          pathGroups: [
+            { pattern: '~/**/*', group: 'internal' },
+            {
+              pattern: '{react,react-dom/**}',
+              group: 'external',
+              position: 'before',
+            },
+            {
+              pattern: 'react-router',
+              group: 'external',
+              position: 'before',
+            },
+          ],
           groups: [
             'builtin',
             'external',
@@ -73,6 +85,7 @@ function importRules() {
             'sibling',
             'index',
           ],
+          pathGroupsExcludedImportTypes: ['react', 'react-dom/**', 'react-router'],
         },
       ],
     },

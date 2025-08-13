@@ -4,6 +4,7 @@
     ".react-router/types/**/*",
     "app/**/*",
     "workers/**/*",
+    "tests/**/*",
     "./*.config.ts"
   ],
   "compilerOptions": {
@@ -17,13 +18,22 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "jsx": "react-jsx",
     "baseUrl": ".",
     "outDir": "./build",
-    "rootDirs": [".", "./.react-router/types"],
+    "rootDirs": [
+      ".",
+      "./.react-router/types"
+    ],
     "paths": {
-      "~/*": ["./app/*"],
+      "~/*": [
+        "./app/*"
+      ],
       "@/icon-name": [
         "./app/components/icons/types.ts",
         "./types/icon-name.d.ts"

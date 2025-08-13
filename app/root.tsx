@@ -7,31 +7,15 @@ import {
   ScrollRestoration,
 } from 'react-router'
 import type { Route } from './+types/root'
-import { Footer } from './components/footer.tsx'
-import { Header } from './components/header.tsx'
-import { SideNavigation } from './components/side-navigation.tsx'
-import { ThemeProvider } from './utils/theme.tsx'
+import { BaseLayout } from './components/base-layout/base-layout.tsx'
+import { ThemeProvider } from './lib/theme.tsx'
 
 import './app.css'
-
-export const links: Route.LinksFunction = () => [
-  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-  {
-    rel: 'preconnect',
-    href: 'https://fonts.gstatic.com',
-    crossOrigin: 'anonymous',
-  },
-  {
-    rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap',
-  },
-]
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="ja"
-      className="bg-background text-base text-foreground antialiased"
       suppressHydrationWarning
     >
       <head>
@@ -62,22 +46,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body className="flex min-h-screen flex-col">
+      <body
+        className="min-h-screen min-w-(--min-screen-width) bg-background text-base text-foreground antialiased"
+      >
         <ThemeProvider>
-          <div className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <Header className="container mx-auto w-full" />
-          </div>
-          <div className="container mx-auto flex w-full flex-1">
-            <SideNavigation
-              className="hidden lg:flex lg:w-60 lg:shrink-0 lg:flex-col"
-            />
-            <div className="flex flex-1 flex-col">
-              <main className="flex-1 p-4 md:p-6">
-                {children}
-              </main>
-              <Footer />
-            </div>
-          </div>
+          <BaseLayout>
+            {children}
+          </BaseLayout>
         </ThemeProvider>
         <ScrollRestoration />
         <Scripts />
@@ -92,6 +67,7 @@ export default function App() {
   )
 }
 
+// TODO: エラーハンドリングの設定
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = 'Oops!'
   let details = 'An unexpected error occurred.'

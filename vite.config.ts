@@ -17,9 +17,6 @@ export default defineConfig(({ mode }) => {
   return {
     build: {
       sourcemap: shouldAnalyze,
-      rollupOptions: {
-        external: [/node:.*/],
-      },
     },
     plugins: [
       reactCompiler(),
