@@ -1,7 +1,7 @@
+import type React from 'react'
 import { cva } from 'class-variance-authority'
 import { Slot } from 'radix-ui'
-import type React from 'react'
-import { cn } from '~/utils/misc.ts'
+import { cn } from '~/lib/utils.ts'
 
 /**
  * `before`疑似要素を使用して、視覚的要素を変更せずに44pxのタッチ可能領域を確保します。
@@ -34,7 +34,7 @@ export const touchTargetVariants = cva('before:absolute', {
   },
 })
 
-export type TouchTargetProps = React.ComponentPropsWithRef<typeof Slot.Root> & {
+export interface TouchTargetProps extends React.ComponentPropsWithRef<typeof Slot.Root> {
   /**
    * - vertical: 縦方向に引き延ばし、横幅は最小44pxを確保
    * - horizontal: 横方向に引き延ばし、高さは最小44pxを確保
@@ -48,11 +48,11 @@ export type TouchTargetProps = React.ComponentPropsWithRef<typeof Slot.Root> & {
  * このコンポーネントは視覚的なデザインを変更することなく、タッチ・クリック可能な
  * 領域を最小44pxに拡張します。小さなボタンやリンクのアクセシビリティ向上に使用します。
  *
- * **Radix UI Slotパターン**: `asChild`プロパティを使用して、子要素のpropsとマージし合成します。
+ * **Radix UI Slotパターン**: 子要素のpropsとマージし合成します。
  *
  * @example
  * ```tsx
- * <TouchTarget asChild stretch="vertical">
+ * <TouchTarget stretch="vertical">
  *   <button className="h-20 w-8 bg-blue-500">|</button>
  * </TouchTarget>
  * ```

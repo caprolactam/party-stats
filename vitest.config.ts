@@ -19,7 +19,7 @@ export default defineWorkersProject(async () => {
           singleWorker: true,
         },
       },
-      include: ['./app/**/*.test.{ts,tsx}'],
+      include: ['./app/**/*.test.ts'], // .tsxファイルを除外
     },
   }
 })

@@ -1,6 +1,8 @@
+import { useCallback } from 'react'
 import { ThemeProvider as NextThemeProvider, useTheme as useNextTheme } from 'next-themes'
 import type { ThemeProviderProps } from 'next-themes'
-import { useCallback } from 'react'
+
+export type ResolvedTheme = 'light' | 'dark'
 
 const THEME_OPTIONS = {
   attribute: 'class',
@@ -14,7 +16,7 @@ export function useTheme() {
   const { theme: originalTheme, resolvedTheme: originalResolvedTheme, ...props } = useNextTheme()
 
   const theme = getTypedTheme(originalTheme)
-  const resolvedTheme = originalResolvedTheme === 'dark' ? 'dark' : 'light'
+  const resolvedTheme = originalResolvedTheme === 'dark' ? 'dark' : 'light' satisfies ResolvedTheme
   const setOriginalTheme = props.setTheme
 
   const toggleTheme = useCallback(

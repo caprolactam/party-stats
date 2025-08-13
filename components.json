@@ -13,8 +13,8 @@
   "aliases": {
     "components": "~/components",
     "ui": "~/components/ui",
-    "lib": "~/utils",
-    "utils": "~/utils/misc",
+    "lib": "~/lib",
+    "utils": "~/lib/utils.ts",
     "hooks": "~/hooks"
   }
 }
