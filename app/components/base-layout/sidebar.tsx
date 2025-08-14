@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useState } from 'react'
+import { cn } from '~/lib/utils.ts'
 
 const defaultItems: SidebarNavItem[] = [
   {
@@ -85,16 +86,13 @@ export function Sidebar({ navigationItems = [], className }: SidebarProps) {
   const items = navigationItems.length > 0 ? navigationItems : defaultItems
 
   return (
-    <nav aria-label="主要ナビゲーション" className={className}>
+    <nav aria-label="主要ナビゲーション" className={cn('grid gap-1', className)}>
       {items.map((item, index) => (
         <SidebarNavItem
           key={`${item.label}-${index}`}
           item={item}
         />
       ))}
-      <div className="h-100 w-full" />
-      <div className="h-100 w-full" />
-      <div className="h-100 w-full" />
     </nav>
   )
 }
@@ -134,8 +132,8 @@ function SidebarNavItem({ item, level = 0 }: { item: SidebarNavItem, level?: num
   return (
     <div>
       <div
-        className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${
-          item.isActive ? 'bg-sidebar-accent text-sidebar-accent-foreground' : ''
+        className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-hovered hover:text-sidebar-accent-foreground ${
+          item.isActive ? 'bg-selected text-sidebar-accent-foreground' : ''
         }`}
         style={{ paddingLeft }}
       >
