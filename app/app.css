@@ -163,6 +163,8 @@
   --color-brand-11: var(--sand-11);
   --color-brand-12: var(--sand-12);
 
+  --color-hovered: var(--sand-4);
+  --color-selected: var(--sand-5);
   --color-link-base: var(--color-blue-700);
 }
 

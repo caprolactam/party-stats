@@ -1,24 +1,40 @@
+import ListItem from '~/components/list-item.tsx'
+
 export default function Route() {
   return (
-    <div className="py-6">
-      <p className="text-muted-foreground">
-        選挙結果と政党情報を統計的に分析・表示するサイトです。
-      </p>
-
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        <div className="rounded-lg border p-6">
-          <h2 className="mb-2 text-xl font-semibold">地域別選挙結果</h2>
-          <p className="text-sm text-muted-foreground">
-            各地域の選挙結果を詳細に確認できます。
-          </p>
-        </div>
-        <div className="rounded-lg border p-6">
-          <h2 className="mb-2 text-xl font-semibold">政党別データ</h2>
-          <p className="text-sm text-muted-foreground">
-            政党ごとの得票数や議席数を比較できます。
-          </p>
-        </div>
-      </div>
+    <div>
+      <ListItem
+        size="sm"
+        items={[
+          {
+            id: 'tokyo',
+            name: '東京都',
+            subtitle: '投票率ランキング',
+            href: '/pref/tokyo/turnout',
+            rank: 1,
+            icon: (
+            // ここに1:1のあなたのシンボルを入れる（SVG推奨）
+            // 例: 東京都シルエット＋都庁の簡略化
+              <svg viewBox="0 0 24 24" className="h-full w-full p-2">
+                <rect x="4" y="6" width="6" height="12" rx="1.5" className="fill-neutral-300 dark:fill-neutral-700" />
+                <rect x="12" y="4" width="6" height="14" rx="1.5" className="fill-neutral-300 dark:fill-neutral-700" />
+              </svg>
+            ),
+          },
+          {
+            id: 'osaka',
+            name: '大阪府',
+            subtitle: '投票率ランキング',
+            href: '/pref/osaka/turnout',
+            rank: 2,
+            icon: (
+              <svg viewBox="0 0 24 24" className="h-full w-full p-2">
+                <circle cx="12" cy="12" r="7" className="fill-neutral-300 dark:fill-neutral-700" />
+              </svg>
+            ),
+          },
+        ]}
+      />
     </div>
   )
 }
