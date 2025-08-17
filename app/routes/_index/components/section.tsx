@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
+import { motion } from 'motion/react'
 import { cn } from '~/lib/utils.ts'
 
 interface SectionContainerProps {
@@ -61,10 +62,12 @@ export function SelectionGrid({
 interface SelectionCardProps {
   title: string
   description?: string
-  href: string
+  href?: string
   icon?: ReactNode
   className?: string
   onClick?: () => void
+  isButton?: boolean
+  layoutId?: string
 }
 
 export function SelectionCard({
@@ -73,32 +76,57 @@ export function SelectionCard({
   href,
   icon,
   className,
+  onClick,
+  isButton = false,
+  layoutId,
 }: SelectionCardProps) {
+  const content = (
+    <>
+      <div
+        className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-md border"
+        aria-hidden="true"
+      >
+        {/* 例示のプレースホルダ（差し替えてください） */}
+        {icon ?? (
+          <div className="size-full" />
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <motion.div
+          layoutId={layoutId}
+          className="truncate text-sm font-medium underline-offset-2 group-hover:underline md:text-base"
+        >
+          {title}
+        </motion.div>
+        {description && (
+          <div className="truncate text-xs text-muted-foreground md:text-sm">
+            {description}
+          </div>
+        )}
+      </div>
+    </>
+  )
+
+  if (isButton) {
+    return (
+      <li>
+        <button
+          onClick={onClick}
+          className={cn('group flex w-full items-center gap-4 py-2 pr-4 text-left', className)}
+        >
+          {content}
+        </button>
+      </li>
+    )
+  }
+
   return (
     <li>
       <Link
-        to={href}
+        to={href!}
         className={cn('group flex items-center gap-4 py-2 pr-4', className)}
       >
-        <div
-          className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-md border"
-          aria-hidden="true"
-        >
-          {/* 例示のプレースホルダ（差し替えてください） */}
-          {icon ?? (
-            <div className="size-full" />
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-medium underline-offset-2 group-hover:underline md:text-base">
-            {title}
-          </div>
-          {description && (
-            <div className="truncate text-xs text-muted-foreground md:text-sm">
-              {description}
-            </div>
-          )}
-        </div>
+        {content}
       </Link>
     </li>
   )

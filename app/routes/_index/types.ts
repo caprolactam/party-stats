@@ -12,7 +12,15 @@ export interface Region {
   id: string
   name: string
   displayOrder: number
-  totalPrefectures: number // 地方内の都道府県数
+  prefectures: Array<Prefecture> // 地域に属する都道府県の配列
+}
+
+// 都道府県データ
+export interface Prefecture {
+  id: string
+  name: string
+  displayOrder: number
+  regionId: string // 所属する地方のID
 }
 
 // 政党データ
