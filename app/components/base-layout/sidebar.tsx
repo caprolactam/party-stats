@@ -1,208 +1,94 @@
-import type { ReactNode } from 'react'
-import { useState } from 'react'
+import type React from 'react'
+import { NavLink } from 'react-router'
 import { cn } from '~/lib/utils.ts'
+import { Icon } from '../ui/icon.tsx'
 
-const defaultItems: SidebarNavItem[] = [
+const sidebarLinks: SidebarItemProps[] = [
   {
-    label: 'ダッシュボード',
-    href: '/',
-    isActive: true,
-    icon: (
-      <svg
-        className="h-4 w-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M8 5a2 2 0 012-2h4a2 2 0 012 2v0a2 2 0 01-2 2H10a2 2 0 01-2-2z"
-        />
-      </svg>
-    ),
+    label: 'ホーム',
+    to: '/',
+    end: true,
+    icon: <Icon name="home" size={16} />,
+    prefetch: 'intent',
   },
   {
-    label: '選挙データ',
-    children: [
-      {
-        label: '衆議院選挙',
-        href: '/elections/house-representatives',
-      },
-      {
-        label: '参議院選挙',
-        href: '/elections/house-councillors',
-      },
-      {
-        label: '地方選挙',
-        href: '/elections/local',
-      },
-    ],
+    label: '選挙結果',
+    to: '/elections',
+    icon: <Icon name="how-to-vote" size={16} />,
+    prefetch: 'intent',
   },
   {
-    label: '政党情報',
-    children: [
-      {
-        label: '政党一覧',
-        href: '/parties',
-      },
-      {
-        label: '政党比較',
-        href: '/parties/comparison',
-      },
-    ],
+    label: '地域',
+    to: '/areas',
+    icon: <Icon name="location-on" size={16} />,
+    end: true,
+    prefetch: 'intent',
   },
   {
-    label: '統計分析',
-    href: '/analytics',
+    label: 'サイト情報',
+    to: '/about',
+    icon: <Icon name="info" size={16} />,
+    end: true,
+    prefetch: 'intent',
   },
 ]
 
 interface SidebarProps {
-  /**
-   * ナビゲーションアイテムのリスト
-   */
-  navigationItems?: SidebarNavItem[]
   className?: string
 }
 
-/**
- * サイドバーコンポーネント
- *
- * デスクトップ: 固定サイドバーとして表示（260px幅）
- * モバイル: ドロワーメニューとして表示（後で実装）
- */
-export function Sidebar({ navigationItems = [], className }: SidebarProps) {
-  // デフォルトのナビゲーションアイテム（開発用）
-
-  const items = navigationItems.length > 0 ? navigationItems : defaultItems
-
+export function Sidebar({ className }: SidebarProps) {
   return (
-    <nav aria-label="主要ナビゲーション" className={cn('grid gap-1', className)}>
-      {items.map((item, index) => (
-        <SidebarNavItem
-          key={`${item.label}-${index}`}
-          item={item}
-        />
-      ))}
+    <nav aria-label="主要ナビゲーション" className={className}>
+      <ul className="grid gap-0.5">
+        {sidebarLinks.map((linkProps, index) => (
+          <li
+            key={`${linkProps.label}-${index}`}
+          >
+            <SidebarItem
+              {...linkProps}
+            />
+          </li>
+        ))}
+      </ul>
     </nav>
   )
 }
 
-interface SidebarNavItem {
+interface SidebarItemProps extends React.ComponentPropsWithRef<typeof NavLink> {
   /**
    * ナビゲーションアイテムのテキスト
    */
   label: string
-  /**
-   * リンク先のURL
-   */
-  href?: string
-  /**
-   * アイテムがアクティブかどうか
-   */
-  isActive?: boolean
-  /**
-   * 子要素（入れ子ナビゲーション用）
-   */
-  children?: SidebarNavItem[]
-  /**
-   * アイコン要素
-   */
-  icon?: ReactNode
+  icon: React.ReactNode
 }
 
-/**
- * 個別のナビゲーションアイテムコンポーネント
- */
-function SidebarNavItem({ item, level = 0 }: { item: SidebarNavItem, level?: number }) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const hasChildren = item.children && item.children.length > 0
-
-  const paddingLeft = `${(level + 1) * 16}px`
-
+function SidebarItem({ to, className, icon, label, ...props }: SidebarItemProps) {
   return (
-    <div>
-      <div
-        className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors hover:bg-hovered hover:text-sidebar-accent-foreground ${
-          item.isActive ? 'bg-selected text-sidebar-accent-foreground' : ''
-        }`}
-        style={{ paddingLeft }}
-      >
-        {/* アイコン */}
-        {item.icon && (
-          <span className="flex h-4 w-4 shrink-0 items-center justify-center">
-            {item.icon}
-          </span>
-        )}
-
-        {/* ラベル */}
-        {item.href
-          ? (
-              <a
-                href={item.href}
-                className="flex-1 truncate"
-                title={item.label}
-              >
-                {item.label}
-              </a>
-            )
-          : (
-              <span className="flex-1 truncate" title={item.label}>
-                {item.label}
-              </span>
+    <NavLink
+      to={to}
+      className={({ isActive }) => cn([
+        'relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium hover:bg-hovered active:bg-selected',
+        isActive ? 'bg-selected' : '',
+        className,
+      ])}
+      {...props}
+    >
+      {({ isActive }) => (
+        <>
+          <span
+            className={cn(
+              'absolute inset-y-1/2 left-0 h-4 w-[3px] -translate-y-1/2 rounded-full bg-red-500',
+              isActive ? 'opacity-100' : 'opacity-0',
             )}
-
-        {/* 展開/折りたたみボタン */}
-        {hasChildren && (
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="flex h-4 w-4 shrink-0 items-center justify-center rounded hover:bg-sidebar-accent-foreground/10"
-            aria-label={isExpanded ? 'サブメニューを閉じる' : 'サブメニューを開く'}
-            aria-expanded={isExpanded}
-          >
-            <svg
-              className={`h-3 w-3 transition-transform duration-200 ${
-                isExpanded ? 'rotate-90' : 'rotate-0'
-              }`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-              aria-hidden="true"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-        )}
-      </div>
-
-      {/* 子要素 */}
-      {hasChildren && isExpanded && (
-        <div className="mt-1">
-          {item.children!.map((child, index) => (
-            <SidebarNavItem
-              key={`${child.label}-${index}`}
-              item={child}
-              level={level + 1}
-            />
-          ))}
-        </div>
+            aria-hidden="true"
+          />
+          {icon}
+          <span className="flex-1 truncate font-medium">
+            {label}
+          </span>
+        </>
       )}
-    </div>
+    </NavLink>
   )
 }
