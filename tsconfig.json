@@ -5,6 +5,7 @@
     "app/**/*",
     "workers/**/*",
     "tests/**/*",
+    "scripts/**/*",
     "./*.config.ts"
   ],
   "compilerOptions": {

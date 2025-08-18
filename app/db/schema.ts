@@ -51,6 +51,7 @@ export const areas = sqliteTable(
       enum: ['NATIONAL', 'REGION', 'PREFECTURE', 'CITY'],
     }).notNull(),
     // 地域コード（総務省コード等）
+    // UNIQUE制約あり - RENAME同コードケースは継承レコード作成をスキップするため重複なし
     code: text('code').unique()
       .notNull(),
     /**
