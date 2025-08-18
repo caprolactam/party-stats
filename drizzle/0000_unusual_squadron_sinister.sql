@@ -107,4 +107,23 @@ CREATE TABLE `party_name_histories` (
 );
 --> statement-breakpoint
 CREATE INDEX `idx_party_names_lookup` ON `party_name_histories` (`party_id`);--> statement-breakpoint
-CREATE UNIQUE INDEX `uk_party_name_period` ON `party_name_histories` (`party_id`,`effective_from`,`effective_to`);
+CREATE UNIQUE INDEX `uk_party_name_period` ON `party_name_histories` (`party_id`,`effective_from`,`effective_to`);--> statement-breakpoint
+CREATE TABLE `regions` (
+	`id` text PRIMARY KEY NOT NULL,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL,
+	`name` text NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `regions_name_unique` ON `regions` (`name`);--> statement-breakpoint
+CREATE TABLE `regions_on_prefectures` (
+	`id` text PRIMARY KEY NOT NULL,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL,
+	`region_id` text NOT NULL,
+	`prefecture_id` text NOT NULL,
+	FOREIGN KEY (`region_id`) REFERENCES `regions`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`prefecture_id`) REFERENCES `areas`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `uk_regions_on_prefectures` ON `regions_on_prefectures` (`region_id`,`prefecture_id`);

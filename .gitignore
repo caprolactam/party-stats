@@ -21,6 +21,10 @@ worker-configuration.d.ts
 # App
 .react-router/
 
+# scripts
+
+scripts/**/temp/
+
 # Misc
 .DS_Store
-temp
+
