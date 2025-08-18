@@ -48,7 +48,7 @@ export const areas = sqliteTable(
     name: text('name').notNull(),
     // 地域レベル
     level: text('level', {
-      enum: ['NATIONAL', 'REGION', 'PREFECTURE', 'CITY'],
+      enum: ['NATIONAL', 'PREFECTURE', 'CITY'],
     }).notNull(),
     // 地域コード（総務省コード等）
     // UNIQUE制約あり - RENAME同コードケースは継承レコード作成をスキップするため重複なし
@@ -120,6 +120,43 @@ export const areaSuccessions = sqliteTable(
       'chk_no_self_successions',
       sql`${table.predecessorId} != ${table.successorId}`,
     ),
+  ],
+)
+
+/**
+ * regions - 地方区分テーブル
+ * UI上での検索・選択補助を目的とし、地域階層には含まれない独立したエンティティ
+ */
+export const regions = sqliteTable('regions', {
+  id,
+  createdAt,
+  updatedAt,
+  // 独自の属性
+  name: text('name').notNull()
+    .unique(), // 地方名（北海道・東北・関東など）
+})
+
+/**
+ * regions_on_prefectures - 地方・都道府県関連テーブル
+ * 地方区分と都道府県の多対多関係を管理する中間テーブル
+ */
+export const regionsOnPrefectures = sqliteTable(
+  'regions_on_prefectures',
+  {
+    id,
+    createdAt,
+    updatedAt,
+    // 独自の属性
+    regionId: text('region_id')
+      .notNull()
+      .references(() => regions.id), // 地方ID
+    prefectureId: text('prefecture_id')
+      .notNull()
+      .references(() => areas.id), // 都道府県ID（areas.level = 'PREFECTURE'）
+  },
+  (table) => [
+    // 地方と都道府県の組み合わせは一意
+    unique('uk_regions_on_prefectures').on(table.regionId, table.prefectureId),
   ],
 )
 
@@ -468,3 +505,9 @@ export type InsertElectionResult = typeof electionResults.$inferInsert
 
 export type SelectElectionAreaMeta = typeof electionAreaMetas.$inferSelect
 export type InsertElectionAreaMeta = typeof electionAreaMetas.$inferInsert
+
+export type SelectRegion = typeof regions.$inferSelect
+export type InsertRegion = typeof regions.$inferInsert
+
+export type SelectRegionsOnPrefectures = typeof regionsOnPrefectures.$inferSelect
+export type InsertRegionsOnPrefectures = typeof regionsOnPrefectures.$inferInsert

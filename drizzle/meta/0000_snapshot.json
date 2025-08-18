@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "da03d02a-bdd7-4044-a370-b3ea7eb6b472",
+  "id": "376a50a9-6ca5-41a7-b0a5-30c917c519e7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "area_successions": {
@@ -741,6 +741,133 @@
           "value": "\"party_name_histories\".\"effective_to\" IS NULL OR \"party_name_histories\".\"effective_from\" <= \"party_name_histories\".\"effective_to\""
         }
       }
+    },
+    "regions": {
+      "name": "regions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "regions_name_unique": {
+          "name": "regions_name_unique",
+          "columns": [
+            "name"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "regions_on_prefectures": {
+      "name": "regions_on_prefectures",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "region_id": {
+          "name": "region_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "prefecture_id": {
+          "name": "prefecture_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "uk_regions_on_prefectures": {
+          "name": "uk_regions_on_prefectures",
+          "columns": [
+            "region_id",
+            "prefecture_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "regions_on_prefectures_region_id_regions_id_fk": {
+          "name": "regions_on_prefectures_region_id_regions_id_fk",
+          "tableFrom": "regions_on_prefectures",
+          "tableTo": "regions",
+          "columnsFrom": [
+            "region_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "regions_on_prefectures_prefecture_id_areas_id_fk": {
+          "name": "regions_on_prefectures_prefecture_id_areas_id_fk",
+          "tableFrom": "regions_on_prefectures",
+          "tableTo": "areas",
+          "columnsFrom": [
+            "prefecture_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
     }
   },
   "views": {},

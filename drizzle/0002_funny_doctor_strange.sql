@@ -1,1 +1,0 @@
-CREATE UNIQUE INDEX `areas_code_unique` ON `areas` (`code`);
