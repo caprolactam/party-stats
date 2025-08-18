@@ -1,0 +1,1 @@
+DROP INDEX `areas_code_unique`;

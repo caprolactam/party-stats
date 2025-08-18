@@ -1,0 +1,173 @@
+{
+  "metadata": {
+    "generatedAt": "2025-08-17T11:57:03.562Z"
+  },
+  "schema": {
+    "areaCode": {
+      "type": "string",
+      "description": "地域コード"
+    },
+    "parentCode": {
+      "type": "string",
+      "description": "親地域コード"
+    },
+    "name": {
+      "type": "string",
+      "description": "地域名"
+    },
+    "kanaName": {
+      "type": "string",
+      "description": "地域名のカタカナ表記"
+    },
+    "successorCode": {
+      "type": "string",
+      "description": "後の地域コード"
+    },
+    "successionType": {
+      "type": "string",
+      "description": "継承の種類",
+      "enum": ["MERGE", "SPLIT", "RENAME"]
+    },
+    "effectiveDate": {
+      "type": "string",
+      "format": "date",
+      "description": "有効日"
+    },
+    "note": {
+      "type": "string",
+      "description": "備考"
+    }
+  },
+  "data": [
+    {
+      "areaCode": "221317",
+      "parentCode": "220001",
+      "name": "浜松市中区",
+      "kanaName": "はままつしなかく",
+      "successorCode": "221384",
+      "successionType": "MERGE",
+      "effectiveDate": "2024-01-01",
+      "note": "行政区再編"
+    },
+    {
+      "areaCode": "221325",
+      "parentCode": "220001",
+      "name": "浜松市東区",
+      "kanaName": "はままつしひがしく",
+      "successorCode": "221384",
+      "successionType": "MERGE",
+      "effectiveDate": "2024-01-01",
+      "note": "行政区再編"
+    },
+    {
+      "areaCode": "221333",
+      "parentCode": "220001",
+      "name": "浜松市西区",
+      "kanaName": "はままつしにしく",
+      "successorCode": "221384",
+      "successionType": "MERGE",
+      "effectiveDate": "2024-01-01",
+      "note": "行政区再編"
+    },
+    {
+      "areaCode": "221341",
+      "parentCode": "220001",
+      "name": "浜松市南区",
+      "kanaName": "はままつしみなみく",
+      "successorCode": "221384",
+      "successionType": "MERGE",
+      "effectiveDate": "2024-01-01",
+      "note": "行政区再編"
+    },
+    {
+      "areaCode": "221350",
+      "parentCode": "220001",
+      "name": "浜松市北区",
+      "kanaName": "はままつしきたく",
+      "successorCode": "221392",
+      "successionType": "MERGE",
+      "effectiveDate": "2024-01-01",
+      "note": "三方原地区の区域は中央区に、三方原地区以外は浜名区に行政区再編"
+    },
+    {
+      "areaCode": "221368",
+      "parentCode": "220001",
+      "name": "浜松市浜北区",
+      "kanaName": "はままつしはまきたく",
+      "successorCode": "221392",
+      "successionType": "MERGE",
+      "effectiveDate": "2024-01-01",
+      "note": "行政区再編"
+    },
+    {
+      "areaCode": "221376",
+      "parentCode": "220001",
+      "name": "浜松市天竜区",
+      "kanaName": "はままつしてんりゅうく",
+      "successorCode": "221406",
+      "successionType": "MERGE",
+      "effectiveDate": "2024-01-01",
+      "note": "行政区再編"
+    },
+    {
+      "areaCode": "282219",
+      "parentCode": "280003",
+      "name": "篠山市",
+      "kanaName": "ささやまし",
+      "successorCode": "282219",
+      "successionType": "RENAME",
+      "effectiveDate": "2019-05-01",
+      "note": "名称変更"
+    },
+    {
+      "areaCode": "403059",
+      "parentCode": "400009",
+      "name": "那珂川町",
+      "kanaName": "なかがわまち",
+      "successorCode": "402311",
+      "successionType": "MERGE",
+      "effectiveDate": "2018-10-01",
+      "note": "市制施行"
+    },
+    {
+      "areaCode": "044237",
+      "parentCode": "040002",
+      "name": "富谷町",
+      "kanaName": "とみやまち",
+      "successorCode": "042161",
+      "successionType": "MERGE",
+      "effectiveDate": "2016-10-10",
+      "note": "市制施行"
+    },
+    {
+      "areaCode": "093670",
+      "parentCode": "090000",
+      "name": "岩舟町",
+      "kanaName": "いわふねまち",
+      "successorCode": "092037",
+      "successionType": "MERGE",
+      "effectiveDate": "2014-04-05",
+      "note": "栃木市への編入合併"
+    },
+    {
+      "areaCode": "033057",
+      "parentCode": "030007",
+      "name": "滝沢村",
+      "kanaName": "たきざわむら",
+      "successorCode": "032166",
+      "successionType": "MERGE",
+      "effectiveDate": "2014-01-01",
+      "note": "市制施行"
+    },
+    {
+      "areaCode": "124028",
+      "parentCode": "120006",
+      "name": "大網白里町",
+      "kanaName": "おおあみしらさとまち",
+      "successorCode": "122394",
+      "successionType": "MERGE",
+      "effectiveDate": "2013-01-01",
+      "note": "市制施行"
+    }
+  ]
+}
