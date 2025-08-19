@@ -162,6 +162,7 @@ function generateAreasSql(
   prefectures: Array<{
     id: string
     name: string
+    kanaName: string
     level: 'PREFECTURE'
     code: string
     isActive: boolean
@@ -170,6 +171,7 @@ function generateAreasSql(
   cities: Array<{
     id: string
     name: string
+    kanaName: string
     level: 'CITY'
     code: string
     isActive: boolean
@@ -189,11 +191,11 @@ function generateAreasSql(
   return chunks.map((chunk) => {
     const values = chunk
       .map((area) =>
-        `(${escapeSqlString(area.id)}, ${now}, ${now}, ${escapeSqlString(area.name)}, ${escapeSqlString(area.level)}, ${escapeSqlString(area.code)}, ${area.isActive ? 1 : 0}, ${area.parentId ? escapeSqlString(area.parentId) : 'NULL'})`,
+        `(${escapeSqlString(area.id)}, ${now}, ${now}, ${escapeSqlString(area.name)}, ${escapeSqlString(area.kanaName)}, ${escapeSqlString(area.level)}, ${escapeSqlString(area.code)}, ${area.isActive ? 1 : 0}, ${area.parentId ? escapeSqlString(area.parentId) : 'NULL'})`,
       )
       .join(',\n  ')
 
-    return `INSERT INTO areas (id, created_at, updated_at, name, level, code, is_active, parent_id)
+    return `INSERT INTO areas (id, created_at, updated_at, name, kana_name, level, code, is_active, parent_id)
 VALUES
   ${values};`
   })
@@ -371,6 +373,7 @@ function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
   prefectures: Array<{
     id: string
     name: string
+    kanaName: string
     level: 'PREFECTURE'
     code: string
     isActive: boolean
@@ -379,6 +382,7 @@ function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
   cities: Array<{
     id: string
     name: string
+    kanaName: string
     level: 'CITY'
     code: string
     isActive: boolean
@@ -398,6 +402,7 @@ function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
       return {
         id,
         name: item.name,
+        kanaName: item.kanaName,
         level: 'PREFECTURE' as const,
         code: item.areaCode,
         isActive: true,
@@ -415,6 +420,7 @@ function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
       return {
         id,
         name: item.name,
+        kanaName: item.kanaName,
         level: 'CITY' as const,
         code: item.areaCode,
         isActive: true,
@@ -443,7 +449,7 @@ function transformSuccessionData(
   inactiveAreas: Array<{
     id: string
     name: string
-    kanaName?: string
+    kanaName: string
     level: 'CITY'
     code: string
     isActive: false
@@ -462,7 +468,7 @@ function transformSuccessionData(
   const inactiveAreas: Array<{
     id: string
     name: string
-    kanaName?: string
+    kanaName: string
     level: 'CITY'
     code: string
     isActive: false
