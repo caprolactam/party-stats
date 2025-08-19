@@ -46,6 +46,8 @@ export const areas = sqliteTable(
     updatedAt,
     // 独自の属性
     name: text('name').notNull(),
+    // 地域名カナ（検索・並び替え用）
+    kanaName: text('kana_name').notNull(),
     // 地域レベル
     level: text('level', {
       enum: ['NATIONAL', 'PREFECTURE', 'CITY'],
@@ -232,11 +234,11 @@ export const partyNameHistories = sqliteTable(
 )
 
 /**
- * election_results - 選挙結果テーブル
+ * party_results - 政党結果テーブル
  * 各選挙における政党別・地域別の得票数と議席数を記録
  */
-export const electionResults = sqliteTable(
-  'election_results',
+export const partyResults = sqliteTable(
+  'party_results',
   {
     id,
     createdAt,
@@ -315,11 +317,11 @@ export const electionResults = sqliteTable(
 )
 
 /**
- * election_area_meta - 選挙地域メタデータテーブル
+ * voting_statuses - 投票状況テーブル
  * 各選挙における地域別の有権者数、投票率などの統計情報を男女別に管理
  */
-export const electionAreaMetas = sqliteTable(
-  'election_area_metas',
+export const votingStatuses = sqliteTable(
+  'voting_statuses',
   {
     id,
     createdAt,
@@ -331,23 +333,6 @@ export const electionAreaMetas = sqliteTable(
     areaId: text('area_id')
       .notNull()
       .references(() => areas.id), // 地域ID
-    /**
-     * 有権者総数 - 非正規化フィールド
-     *
-     * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
-     * 例: 12345.67人 → 1234567として保存
-     *
-     * 設計意図:
-     * - 本来は registeredVotersMale + registeredVotersFemale で計算される値
-     * - アプリケーションサービスで頻繁に参照されるため、パフォーマンス向上を目的として非正規化
-     * - 有権者数による並び替えや統計計算などの一般的なクエリで高速化を実現
-     *
-     * データ整合性:
-     * - 男女別有権者数更新時に連動して更新する必要あり
-     * - JavaScript側では100で割って元の値に復元
-     */
-    registered: integer('registered').notNull()
-      .default(0),
     /**
      * 男性有権者数
      *
@@ -397,16 +382,16 @@ export const electionAreaMetas = sqliteTable(
     /**
      * 投票率（%） - 非正規化フィールド
      *
+     * 計算式: (turnout_voters_male + turnout_voters_female) / (registered_voters_male + registered_voters_female) * 100
      * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
      * 例: 67.89% → 6789として保存
      *
      * 設計意図:
-     * - 本来は (turnoutVotersMale + turnoutVotersFemale) / registered * 100 で計算される値
-     * - 投票率による並び替えや統計分析で頻繁に参照されるため、パフォーマンス向上を目的として非正規化
+     * - 地域レベル別での投票率による並び替えが頻繁に行われるため、パフォーマンス向上を目的として非正規化
      * - 投票率ランキング表示などの一般的なクエリで高速化を実現
      *
      * データ整合性:
-     * - 男女別投票者数または有権者数更新時に連動して再計算・更新する必要あり
+     * - 男女別有権者数・投票者数更新時に連動して再計算・更新する必要あり
      * - JavaScript側では100で割って元の値（%）に復元
      */
     turnoutRate: integer('turnout_rate').notNull()
@@ -436,8 +421,8 @@ export const electionAreaMetas = sqliteTable(
       .default(0),
   },
   (table) => [
-    // 選挙メタデータの一意性制約（選挙・地域の組み合わせは一意）
-    unique('uk_election_metas').on(table.electionId, table.areaId),
+    // 投票状況の一意性制約（選挙・地域の組み合わせは一意）
+    unique('uk_voting_statuses').on(table.electionId, table.areaId),
     // 投票率の範囲制約（100倍保存: 0〜10000 = 0%〜100%）
     check(
       'chk_turnout_rate',
@@ -468,18 +453,10 @@ export const electionAreaMetas = sqliteTable(
       'chk_vote_counts',
       sql`${table.validVotes} >= 0 AND ${table.invalidVotes} >= 0`,
     ),
-    // 有権者総数は0以上
-    check('chk_registered', sql`${table.registered} >= 0`),
-    // 男女別有権者数の合計と総数の整合性
-    check(
-      'chk_gender_registered_sum',
-      sql`${table.registeredVotersMale} + ${table.registeredVotersFemale} <= ${table.registered}`,
-    ),
-    // 男女別投票者数の合計は有権者総数以下
-    check(
-      'chk_gender_turnout_registered',
-      sql`${table.turnoutVotersMale} + ${table.turnoutVotersFemale} <= ${table.registered}`,
-    ),
+    // 投票率単体でのソート用インデックス
+    index('idx_voting_statuses_turnout_rate').on(table.turnoutRate),
+    // 選挙内での投票率ソート用複合インデックス（推奨）
+    index('idx_voting_statuses_election_turnout').on(table.electionId, table.turnoutRate),
   ],
 )
 
@@ -500,11 +477,11 @@ export type InsertParty = typeof parties.$inferInsert
 export type SelectPartyNameHistory = typeof partyNameHistories.$inferSelect
 export type InsertPartyNameHistory = typeof partyNameHistories.$inferInsert
 
-export type SelectElectionResult = typeof electionResults.$inferSelect
-export type InsertElectionResult = typeof electionResults.$inferInsert
+export type SelectPartyResult = typeof partyResults.$inferSelect
+export type InsertPartyResult = typeof partyResults.$inferInsert
 
-export type SelectElectionAreaMeta = typeof electionAreaMetas.$inferSelect
-export type InsertElectionAreaMeta = typeof electionAreaMetas.$inferInsert
+export type SelectVotingStatus = typeof votingStatuses.$inferSelect
+export type InsertVotingStatus = typeof votingStatuses.$inferInsert
 
 export type SelectRegion = typeof regions.$inferSelect
 export type InsertRegion = typeof regions.$inferInsert

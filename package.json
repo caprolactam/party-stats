@@ -22,7 +22,7 @@
     "typecheck": "npm run typegen && tsc",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply party-stats --local",
-    "seed:db": "tsx ./scripts/seed/index.ts",
+    "db:seed": "tsx ./scripts/seed/index.ts",
     "prepare": "husky"
   },
   "lint-staged": {

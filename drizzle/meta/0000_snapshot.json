@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "376a50a9-6ca5-41a7-b0a5-30c917c519e7",
+  "id": "33f00227-c8aa-42c0-9620-4031642b6d05",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "area_successions": {
@@ -143,6 +143,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "kana_name": {
+          "name": "kana_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "level": {
           "name": "level",
           "type": "text",
@@ -208,330 +215,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
-    },
-    "election_area_metas": {
-      "name": "election_area_metas",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "election_id": {
-          "name": "election_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "area_id": {
-          "name": "area_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "registered": {
-          "name": "registered",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "registered_voters_male": {
-          "name": "registered_voters_male",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "registered_voters_female": {
-          "name": "registered_voters_female",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "turnout_voters_male": {
-          "name": "turnout_voters_male",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "turnout_voters_female": {
-          "name": "turnout_voters_female",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "turnout_rate": {
-          "name": "turnout_rate",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "valid_votes": {
-          "name": "valid_votes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "invalid_votes": {
-          "name": "invalid_votes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        }
-      },
-      "indexes": {
-        "uk_election_metas": {
-          "name": "uk_election_metas",
-          "columns": [
-            "election_id",
-            "area_id"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "election_area_metas_election_id_elections_id_fk": {
-          "name": "election_area_metas_election_id_elections_id_fk",
-          "tableFrom": "election_area_metas",
-          "tableTo": "elections",
-          "columnsFrom": [
-            "election_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "election_area_metas_area_id_areas_id_fk": {
-          "name": "election_area_metas_area_id_areas_id_fk",
-          "tableFrom": "election_area_metas",
-          "tableTo": "areas",
-          "columnsFrom": [
-            "area_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {
-        "chk_turnout_rate": {
-          "name": "chk_turnout_rate",
-          "value": "\"election_area_metas\".\"turnout_rate\" >= 0 AND \"election_area_metas\".\"turnout_rate\" <= 10000"
-        },
-        "chk_male_voters": {
-          "name": "chk_male_voters",
-          "value": "\"election_area_metas\".\"registered_voters_male\" >= 0 AND \"election_area_metas\".\"turnout_voters_male\" >= 0"
-        },
-        "chk_female_voters": {
-          "name": "chk_female_voters",
-          "value": "\"election_area_metas\".\"registered_voters_female\" >= 0 AND \"election_area_metas\".\"turnout_voters_female\" >= 0"
-        },
-        "chk_male_turnout": {
-          "name": "chk_male_turnout",
-          "value": "\"election_area_metas\".\"turnout_voters_male\" <= \"election_area_metas\".\"registered_voters_male\""
-        },
-        "chk_female_turnout": {
-          "name": "chk_female_turnout",
-          "value": "\"election_area_metas\".\"turnout_voters_female\" <= \"election_area_metas\".\"registered_voters_female\""
-        },
-        "chk_vote_counts": {
-          "name": "chk_vote_counts",
-          "value": "\"election_area_metas\".\"valid_votes\" >= 0 AND \"election_area_metas\".\"invalid_votes\" >= 0"
-        },
-        "chk_registered": {
-          "name": "chk_registered",
-          "value": "\"election_area_metas\".\"registered\" >= 0"
-        },
-        "chk_gender_registered_sum": {
-          "name": "chk_gender_registered_sum",
-          "value": "\"election_area_metas\".\"registered_voters_male\" + \"election_area_metas\".\"registered_voters_female\" <= \"election_area_metas\".\"registered\""
-        },
-        "chk_gender_turnout_registered": {
-          "name": "chk_gender_turnout_registered",
-          "value": "\"election_area_metas\".\"turnout_voters_male\" + \"election_area_metas\".\"turnout_voters_female\" <= \"election_area_metas\".\"registered\""
-        }
-      }
-    },
-    "election_results": {
-      "name": "election_results",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "election_id": {
-          "name": "election_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "area_id": {
-          "name": "area_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "party_id": {
-          "name": "party_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "votes": {
-          "name": "votes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "vote_rate": {
-          "name": "vote_rate",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
-        },
-        "seats": {
-          "name": "seats",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "uk_election_result": {
-          "name": "uk_election_result",
-          "columns": [
-            "election_id",
-            "area_id",
-            "party_id"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "election_results_election_id_elections_id_fk": {
-          "name": "election_results_election_id_elections_id_fk",
-          "tableFrom": "election_results",
-          "tableTo": "elections",
-          "columnsFrom": [
-            "election_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "election_results_area_id_areas_id_fk": {
-          "name": "election_results_area_id_areas_id_fk",
-          "tableFrom": "election_results",
-          "tableTo": "areas",
-          "columnsFrom": [
-            "area_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "election_results_party_id_parties_id_fk": {
-          "name": "election_results_party_id_parties_id_fk",
-          "tableFrom": "election_results",
-          "tableTo": "parties",
-          "columnsFrom": [
-            "party_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {
-        "chk_votes": {
-          "name": "chk_votes",
-          "value": "\"election_results\".\"votes\" >= 0"
-        },
-        "chk_vote_rate": {
-          "name": "chk_vote_rate",
-          "value": "\"election_results\".\"vote_rate\" >= 0 AND \"election_results\".\"vote_rate\" <= 10000"
-        },
-        "chk_seats": {
-          "name": "chk_seats",
-          "value": "\"election_results\".\"seats\" IS NULL OR \"election_results\".\"seats\" >= 0"
-        },
-        "chk_seats_votes_relation": {
-          "name": "chk_seats_votes_relation",
-          "value": "\"election_results\".\"seats\" IS NULL OR \"election_results\".\"seats\" = 0 OR \"election_results\".\"votes\" > 0"
-        }
-      }
     },
     "elections": {
       "name": "elections",
@@ -742,6 +425,148 @@
         }
       }
     },
+    "party_results": {
+      "name": "party_results",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "election_id": {
+          "name": "election_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "area_id": {
+          "name": "area_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "party_id": {
+          "name": "party_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "votes": {
+          "name": "votes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "vote_rate": {
+          "name": "vote_rate",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "seats": {
+          "name": "seats",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "uk_election_result": {
+          "name": "uk_election_result",
+          "columns": [
+            "election_id",
+            "area_id",
+            "party_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "party_results_election_id_elections_id_fk": {
+          "name": "party_results_election_id_elections_id_fk",
+          "tableFrom": "party_results",
+          "tableTo": "elections",
+          "columnsFrom": [
+            "election_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "party_results_area_id_areas_id_fk": {
+          "name": "party_results_area_id_areas_id_fk",
+          "tableFrom": "party_results",
+          "tableTo": "areas",
+          "columnsFrom": [
+            "area_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "party_results_party_id_parties_id_fk": {
+          "name": "party_results_party_id_parties_id_fk",
+          "tableFrom": "party_results",
+          "tableTo": "parties",
+          "columnsFrom": [
+            "party_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "chk_votes": {
+          "name": "chk_votes",
+          "value": "\"party_results\".\"votes\" >= 0"
+        },
+        "chk_vote_rate": {
+          "name": "chk_vote_rate",
+          "value": "\"party_results\".\"vote_rate\" >= 0 AND \"party_results\".\"vote_rate\" <= 10000"
+        },
+        "chk_seats": {
+          "name": "chk_seats",
+          "value": "\"party_results\".\"seats\" IS NULL OR \"party_results\".\"seats\" >= 0"
+        },
+        "chk_seats_votes_relation": {
+          "name": "chk_seats_votes_relation",
+          "value": "\"party_results\".\"seats\" IS NULL OR \"party_results\".\"seats\" = 0 OR \"party_results\".\"votes\" > 0"
+        }
+      }
+    },
     "regions": {
       "name": "regions",
       "columns": {
@@ -868,6 +693,183 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
+    },
+    "voting_statuses": {
+      "name": "voting_statuses",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "election_id": {
+          "name": "election_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "area_id": {
+          "name": "area_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "registered_voters_male": {
+          "name": "registered_voters_male",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "registered_voters_female": {
+          "name": "registered_voters_female",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "turnout_voters_male": {
+          "name": "turnout_voters_male",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "turnout_voters_female": {
+          "name": "turnout_voters_female",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "turnout_rate": {
+          "name": "turnout_rate",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "valid_votes": {
+          "name": "valid_votes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "invalid_votes": {
+          "name": "invalid_votes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        }
+      },
+      "indexes": {
+        "idx_voting_statuses_turnout_rate": {
+          "name": "idx_voting_statuses_turnout_rate",
+          "columns": [
+            "turnout_rate"
+          ],
+          "isUnique": false
+        },
+        "idx_voting_statuses_election_turnout": {
+          "name": "idx_voting_statuses_election_turnout",
+          "columns": [
+            "election_id",
+            "turnout_rate"
+          ],
+          "isUnique": false
+        },
+        "uk_voting_statuses": {
+          "name": "uk_voting_statuses",
+          "columns": [
+            "election_id",
+            "area_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "voting_statuses_election_id_elections_id_fk": {
+          "name": "voting_statuses_election_id_elections_id_fk",
+          "tableFrom": "voting_statuses",
+          "tableTo": "elections",
+          "columnsFrom": [
+            "election_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "voting_statuses_area_id_areas_id_fk": {
+          "name": "voting_statuses_area_id_areas_id_fk",
+          "tableFrom": "voting_statuses",
+          "tableTo": "areas",
+          "columnsFrom": [
+            "area_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "chk_turnout_rate": {
+          "name": "chk_turnout_rate",
+          "value": "\"voting_statuses\".\"turnout_rate\" >= 0 AND \"voting_statuses\".\"turnout_rate\" <= 10000"
+        },
+        "chk_male_voters": {
+          "name": "chk_male_voters",
+          "value": "\"voting_statuses\".\"registered_voters_male\" >= 0 AND \"voting_statuses\".\"turnout_voters_male\" >= 0"
+        },
+        "chk_female_voters": {
+          "name": "chk_female_voters",
+          "value": "\"voting_statuses\".\"registered_voters_female\" >= 0 AND \"voting_statuses\".\"turnout_voters_female\" >= 0"
+        },
+        "chk_male_turnout": {
+          "name": "chk_male_turnout",
+          "value": "\"voting_statuses\".\"turnout_voters_male\" <= \"voting_statuses\".\"registered_voters_male\""
+        },
+        "chk_female_turnout": {
+          "name": "chk_female_turnout",
+          "value": "\"voting_statuses\".\"turnout_voters_female\" <= \"voting_statuses\".\"registered_voters_female\""
+        },
+        "chk_vote_counts": {
+          "name": "chk_vote_counts",
+          "value": "\"voting_statuses\".\"valid_votes\" >= 0 AND \"voting_statuses\".\"invalid_votes\" >= 0"
+        }
+      }
     }
   },
   "views": {},
