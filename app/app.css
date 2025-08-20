@@ -120,7 +120,7 @@
 @theme inline {
   --color-background: var(--sand-1);
   --color-foreground: var(--sand-12);
-  --color-card: var(--card);
+  --color-card: var(--sand-3);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
