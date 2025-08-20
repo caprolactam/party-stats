@@ -104,6 +104,7 @@ function style() {
       ...stylistic.configs['recommended'].rules,
       '@stylistic/arrow-parens': [ERROR, 'always'],
       '@stylistic/newline-per-chained-call': [ERROR, { ignoreChainWithDepth: 2 }],
+      '@stylistic/operator-linebreak': [ERROR, 'after', { overrides: { '|': 'before' } }],
     },
   }
 }

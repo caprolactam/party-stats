@@ -21,7 +21,6 @@ const sidebarLinks: SidebarItemProps[] = [
     label: '地域',
     to: '/areas',
     icon: <Icon name="location-on" size={16} />,
-    end: true,
     prefetch: 'intent',
   },
   {
@@ -68,7 +67,7 @@ function SidebarItem({ to, className, icon, label, ...props }: SidebarItemProps)
     <NavLink
       to={to}
       className={({ isActive }) => cn([
-        'relative flex h-9 items-center gap-3 rounded-md px-3 text-sm font-medium hover:bg-hovered active:bg-selected',
+        'relative flex h-10 items-center gap-3 rounded-md px-3 text-sm font-medium hover:bg-hovered active:bg-selected',
         isActive ? 'bg-selected' : '',
         className,
       ])}

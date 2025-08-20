@@ -29,7 +29,7 @@ const __dirname = dirname(__filename)
 // Zodスキーマ定義
 const AreaDataItemSchema = z.object({
   areaCode: z.string(),
-  parentCode: z.union([z.string(), z.literal('national')]),
+  parentCode: z.union([z.string(), z.literal('national'), z.null()]),
   name: z.string(),
   kanaName: z.string(),
 })
@@ -39,6 +39,7 @@ const AreaDataSchema = z.object({
     generatedAt: z.string(),
     totalCount: z.number(),
     breakdown: z.object({
+      national: z.number().optional(),
       prefectures: z.number(),
       cities: z.number(),
       wards: z.number(),
@@ -159,6 +160,15 @@ function chunkArray<T>(array: T[], chunkSize: number): T[][] {
  * 地域データをSQL INSERT文に変換
  */
 function generateAreasSql(
+  national: Array<{
+    id: string
+    name: string
+    kanaName: string
+    level: 'NATIONAL'
+    code: string
+    isActive: boolean
+    parentId: null
+  }>,
   prefectures: Array<{
     id: string
     name: string
@@ -166,7 +176,7 @@ function generateAreasSql(
     level: 'PREFECTURE'
     code: string
     isActive: boolean
-    parentId: null
+    parentId: string | null
   }>,
   cities: Array<{
     id: string
@@ -178,7 +188,7 @@ function generateAreasSql(
     parentId: string | null
   }>,
 ): string[] {
-  const allAreas = [...prefectures, ...cities]
+  const allAreas = [...national, ...prefectures, ...cities]
 
   if (allAreas.length === 0) {
     return ['-- No area data to insert']
@@ -370,6 +380,15 @@ async function executeWranglerCommand(command: string, isFile = false): Promise<
  * 地域データを変換する
  */
 function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
+  national: Array<{
+    id: string
+    name: string
+    kanaName: string
+    level: 'NATIONAL'
+    code: string
+    isActive: boolean
+    parentId: null
+  }>
   prefectures: Array<{
     id: string
     name: string
@@ -377,7 +396,7 @@ function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
     level: 'PREFECTURE'
     code: string
     isActive: boolean
-    parentId: null
+    parentId: string | null
   }>
   cities: Array<{
     id: string
@@ -392,9 +411,9 @@ function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
 } {
   const codeToIdMap = new Map<string, string>()
 
-  // 都道府県データを変換
-  const prefectures = areaData.data
-    .filter((item) => item.parentCode === 'national')
+  // 全国データを変換
+  const national = areaData.data
+    .filter((item) => item.parentCode === null)
     .map((item) => {
       const id = createId()
       codeToIdMap.set(item.areaCode, id)
@@ -403,16 +422,37 @@ function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
         id,
         name: item.name,
         kanaName: item.kanaName,
-        level: 'PREFECTURE' as const,
+        level: 'NATIONAL' as const,
         code: item.areaCode,
         isActive: true,
         parentId: null,
       }
     })
 
+  // 都道府県データを変換（parentIdは全国レコードのIDを参照）
+  const prefectures = areaData.data
+    .filter((item) => item.parentCode === 'national')
+    .map((item) => {
+      const id = createId()
+      codeToIdMap.set(item.areaCode, id)
+
+      // 全国レコードのIDを取得
+      const nationalId = national.length > 0 ? national[0]?.id || null : null
+
+      return {
+        id,
+        name: item.name,
+        kanaName: item.kanaName,
+        level: 'PREFECTURE' as const,
+        code: item.areaCode,
+        isActive: true,
+        parentId: nationalId,
+      }
+    })
+
   // 市区町村データを変換（parentIdは後でマッピング）
   const cities = areaData.data
-    .filter((item) => item.parentCode !== 'national')
+    .filter((item) => item.parentCode !== 'national' && item.parentCode !== null)
     .map((item) => {
       const id = createId()
       codeToIdMap.set(item.areaCode, id)
@@ -428,7 +468,7 @@ function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
       }
     })
 
-  return { prefectures, cities, codeToIdMap }
+  return { national, prefectures, cities, codeToIdMap }
 }
 
 /**
@@ -633,7 +673,7 @@ async function main() {
 
     // データ変換
     console.log('🔄 データ変換中...')
-    const { prefectures, cities, codeToIdMap } = transformAreaData(areaData)
+    const { national, prefectures, cities, codeToIdMap } = transformAreaData(areaData)
 
     // 市区町村のparentIdを正しいIDに変換
     const citiesWithCorrectParentId = cities.map((city) => ({
@@ -659,8 +699,8 @@ async function main() {
     await executeWranglerCommandViaFile('DELETE FROM areas;')
 
     console.log('🏛️ 地域データを投入中...')
-    // 1. 都道府県と市区町村を一括投入（バッチ処理）
-    const areasSqlBatches = generateAreasSql(prefectures, citiesWithCorrectParentId)
+    // 1. 全国・都道府県・市区町村を一括投入（バッチ処理）
+    const areasSqlBatches = generateAreasSql(national, prefectures, citiesWithCorrectParentId)
     console.log(`  📦 地域データをバッチ処理: ${areasSqlBatches.length} バッチ`)
 
     for (let i = 0; i < areasSqlBatches.length; i++) {
@@ -670,13 +710,14 @@ async function main() {
       await executeWranglerCommandViaFile(areasSqlBatch)
     }
 
+    console.log(`  🌏 全国データ投入: ${national.length} 件`)
     console.log(`  📍 都道府県データ投入: ${prefectures.length} 件`)
     console.log(`  🏘️ 市区町村データ投入: ${citiesWithCorrectParentId.length} 件`)
 
     // 2. 非アクティブ地域データを投入
     if (successionResult.inactiveAreas.length > 0) {
       console.log(`🔗 非アクティブ地域データ投入: ${successionResult.inactiveAreas.length} 件`)
-      const inactiveAreasSqlBatches = generateAreasSql([], successionResult.inactiveAreas)
+      const inactiveAreasSqlBatches = generateAreasSql([], [], successionResult.inactiveAreas)
       console.log(`  📦 非アクティブ地域データをバッチ処理: ${inactiveAreasSqlBatches.length} バッチ`)
 
       for (let i = 0; i < inactiveAreasSqlBatches.length; i++) {

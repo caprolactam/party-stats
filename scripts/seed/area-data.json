@@ -1,8 +1,9 @@
 {
   "metadata": {
-    "generatedAt": "2025-08-17T11:57:03.562Z",
-    "totalCount": 1945,
+    "generatedAt": "2025-08-20T00:33:59.539Z",
+    "totalCount": 1946,
     "breakdown": {
+      "national": 1,
       "prefectures": 47,
       "cities": 1704,
       "wards": 194
@@ -15,6 +16,12 @@
     }
   },
   "data": [
+    {
+      "areaCode": "national",
+      "parentCode": null,
+      "name": "全国",
+      "kanaName": "ぜんこく"
+    },
     {
       "areaCode": "010006",
       "parentCode": "national",
