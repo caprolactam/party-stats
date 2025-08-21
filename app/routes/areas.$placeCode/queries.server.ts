@@ -13,39 +13,41 @@ type ApiError =
 type GetPlaceType = {
   REGION: {
     id: string
+    code: string
     type: 'REGION'
   }
   AREA: {
     id: string
+    code: string
     type: 'AREA'
     areaLevel: 'NATIONAL' | 'PREFECTURE' | 'CITY'
   }
 }
 type PlaceType = GetPlaceType[keyof GetPlaceType]
 
-export async function getPlaceType(placeId: string): Promise<Result<PlaceType, ApiError>> {
+export async function getPlaceType(placeCode: string): Promise<Result<PlaceType, ApiError>> {
   try {
     const db = getDB()
 
     const region = await db
       .select()
       .from(regions)
-      .where(eq(regions.id, placeId))
+      .where(eq(regions.code, placeCode))
       .then(getFirstItem)
 
     if (region) {
-      return ok({ id: region.id, type: 'REGION' })
+      return ok({ id: region.id, code: region.code, type: 'REGION' })
     }
 
     // RegionでなければArea確認
     const area = await db
       .select()
       .from(areas)
-      .where(eq(areas.id, placeId))
+      .where(eq(areas.code, placeCode))
       .then(getFirstItem)
 
     if (area) {
-      return ok({ id: area.id, type: 'AREA', areaLevel: area.level })
+      return ok({ id: area.id, code: area.code, type: 'AREA', areaLevel: area.level })
     }
 
     return err({
@@ -179,22 +181,25 @@ export type GetPlaceAndChildren = {
 type PlaceAndChildren = GetPlaceAndChildren[keyof GetPlaceAndChildren]
 
 // TODO: 将来的に`react-router`の`href`を用いて型安全にする
-const getPlaceDetailsHref = ({ placeId, electionId }: { placeId: string, electionId: string }) => `/elections/${electionId}/areas/${placeId}`
-const getPlaceListHref = (placeId: string) => `/areas/${placeId}`
+const getPlaceDetailsHref = ({ placeCode, electionId }: { placeCode: string, electionId: string }) => `/elections/${electionId}/areas/${placeCode}`
+const getPlaceListHref = (placeCode: string) => `/areas/${placeCode}`
 
 // 地方の場合の処理を分離
-async function getRegionData(
-  placeId: string,
-  electionId: string,
-): Promise<Result<GetPlaceAndChildren['Region'], ApiError>> {
+async function getRegionData({
+  placeCode,
+  electionId,
+}: { placeCode: string
+  electionId: string
+}): Promise<Result<GetPlaceAndChildren['Region'], ApiError>> {
   const db = getDB()
 
   const [regionWithPrefectures, nationalArea] = await Promise.all([
     db
       .select({
         regionId: regions.id,
+        regionCode: regions.code,
         regionName: regions.name,
-        prefectureId: regionsOnPrefectures.prefectureId,
+        prefectureCode: areas.code,
         prefectureName: areas.name,
       })
       .from(regions)
@@ -203,7 +208,7 @@ async function getRegionData(
         eq(regions.id, regionsOnPrefectures.regionId),
       )
       .innerJoin(areas, eq(regionsOnPrefectures.prefectureId, areas.id))
-      .where(eq(regions.id, placeId))
+      .where(eq(regions.code, placeCode))
       .orderBy(areas.code),
     db
       .select()
@@ -229,7 +234,7 @@ async function getRegionData(
   const regionName = regionWithPrefectures[0]!.regionName
   const children = regionWithPrefectures.map((row) => ({
     name: row.prefectureName,
-    to: getPlaceListHref(row.prefectureId),
+    to: getPlaceListHref(row.prefectureCode),
   }))
 
   return ok({
@@ -240,7 +245,7 @@ async function getRegionData(
     },
     parent: {
       name: nationalArea.name,
-      to: getPlaceListHref(nationalArea.id),
+      to: getPlaceListHref(nationalArea.code),
     },
     children,
   })
@@ -257,7 +262,7 @@ async function getNationalData(
 
   const children = allRegions.map((region) => ({
     name: region.name,
-    to: getPlaceListHref(region.id),
+    to: getPlaceListHref(region.code),
   }))
 
   return ok({
@@ -265,7 +270,7 @@ async function getNationalData(
     areaLevel: 'NATIONAL',
     currentPlace: {
       name: currentArea.name,
-      to: getPlaceDetailsHref({ placeId: currentArea.id, electionId }),
+      to: getPlaceDetailsHref({ placeCode: currentArea.code, electionId }),
     },
     parent: null,
     children,
@@ -273,10 +278,13 @@ async function getNationalData(
 }
 
 // 都道府県の場合の処理を分離
-async function getPrefectureData(
-  currentArea: { id: string, name: string, kanaName: string, level: string, code: string, isActive: boolean, parentId: string | null, createdAt: Date, updatedAt: Date },
-  placeId: string,
-  electionId: string,
+async function getPrefectureData({
+  currentArea,
+  electionId,
+}: {
+  currentArea: { id: string, name: string, kanaName: string, level: string, code: string, isActive: boolean, parentId: string | null, createdAt: Date, updatedAt: Date }
+  electionId: string
+},
 ): Promise<Result<GetPlaceAndChildren['PREFECTURE'], ApiError>> {
   const db = getDB()
 
@@ -284,6 +292,7 @@ async function getPrefectureData(
     db
       .select({
         regionId: regions.id,
+        regionCode: regions.code,
         regionName: regions.name,
       })
       .from(regions)
@@ -291,12 +300,12 @@ async function getPrefectureData(
         regionsOnPrefectures,
         eq(regions.id, regionsOnPrefectures.regionId),
       )
-      .where(eq(regionsOnPrefectures.prefectureId, placeId))
+      .where(eq(regionsOnPrefectures.prefectureId, currentArea.id))
       .then(getFirstItem),
     db
       .select()
       .from(areas)
-      .where(eq(areas.parentId, placeId)),
+      .where(eq(areas.parentId, currentArea.id)),
   ])
 
   if (!parentRegion) {
@@ -308,7 +317,7 @@ async function getPrefectureData(
 
   const children = childCities.map((city) => ({
     name: city.name,
-    to: getPlaceDetailsHref({ placeId: city.id, electionId }),
+    to: getPlaceDetailsHref({ placeCode: city.code, electionId }),
     kana: city.kanaName,
   }))
 
@@ -317,11 +326,11 @@ async function getPrefectureData(
     areaLevel: 'PREFECTURE',
     currentPlace: {
       name: currentArea.name,
-      to: getPlaceDetailsHref({ placeId: currentArea.id, electionId }),
+      to: getPlaceDetailsHref({ placeCode: currentArea.code, electionId }),
     },
     parent: {
       name: parentRegion.regionName,
-      to: getPlaceListHref(parentRegion.regionId),
+      to: getPlaceListHref(parentRegion.regionCode),
     },
     children,
   })
@@ -352,11 +361,11 @@ async function getCityData(
     areaLevel: 'CITY',
     currentPlace: {
       name: currentArea.name,
-      to: getPlaceDetailsHref({ placeId: currentArea.id, electionId }),
+      to: getPlaceDetailsHref({ placeCode: currentArea.code, electionId }),
     },
     parent: {
       name: parentPrefecture.name,
-      to: getPlaceDetailsHref({ placeId: parentPrefecture.id, electionId }),
+      to: getPlaceDetailsHref({ placeCode: parentPrefecture.code, electionId }),
     },
     children: [],
   })
@@ -371,7 +380,7 @@ export async function getPlaceAndChildren({
 
     // 地方の場合
     if (placeType.type === 'REGION') {
-      return await getRegionData(placeType.id, electionId)
+      return await getRegionData({ placeCode: placeType.code, electionId })
     }
 
     // 地域の場合 - まず現在の地域情報を取得
@@ -394,7 +403,10 @@ export async function getPlaceAndChildren({
         case 'NATIONAL':
           return await getNationalData(currentArea, electionId)
         case 'PREFECTURE':
-          return await getPrefectureData(currentArea, placeType.id, electionId)
+          return await getPrefectureData({
+            currentArea,
+            electionId,
+          })
         case 'CITY':
           return await getCityData(currentArea, electionId)
         default:

@@ -1,9 +1,9 @@
 {
-  // 日本の地方区分データ（6区分）
+  // 日本の地方区分データ
   // 各地方に属する都道府県コードを含む
   "regions": [
     {
-      "regionCode": "01",
+      "code": "hokkaido_tohoku",
       "name": "北海道・東北",
       "prefectures": [
         "010006", // 北海道
@@ -16,7 +16,7 @@
       ]
     },
     {
-      "regionCode": "02",
+      "code": "kanto",
       "name": "関東",
       "prefectures": [
         "080004", // 茨城県
@@ -30,7 +30,7 @@
       ]
     },
     {
-      "regionCode": "03",
+      "code": "tokai_hokushinetsu",
       "name": "東海・北信越",
       "prefectures": [
         "150002", // 新潟県
@@ -44,7 +44,7 @@
       ]
     },
     {
-      "regionCode": "04",
+      "code": "kinki",
       "name": "近畿",
       "prefectures": [
         "240001", // 三重県
@@ -57,7 +57,7 @@
       ]
     },
     {
-      "regionCode": "05",
+      "code": "chugoku_shikoku",
       "name": "中国・四国",
       "prefectures": [
         "310000", // 鳥取県
@@ -72,7 +72,7 @@
       ]
     },
     {
-      "regionCode": "06",
+      "code": "kyushu_okinawa",
       "name": "九州・沖縄",
       "prefectures": [
         "400009", // 福岡県

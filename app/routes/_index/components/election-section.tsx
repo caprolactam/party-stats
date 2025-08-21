@@ -12,7 +12,7 @@ interface ElectionSectionProps {
 
 export function ElectionSection({ elections }: ElectionSectionProps) {
   return (
-    <SectionContainer title="選挙を選ぶ">
+    <SectionContainer title="選挙結果を選ぶ">
       <DesktopElectionGrid elections={elections} />
       <MobileElectionCarousel elections={elections} />
     </SectionContainer>
@@ -125,7 +125,7 @@ export function ElectionItem({
         className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-hovered"
         aria-hidden="true"
       >
-        開票結果
+        詳細
       </div>
     </Link>
   )

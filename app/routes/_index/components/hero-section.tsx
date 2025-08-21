@@ -3,8 +3,8 @@ import { Link } from 'react-router'
 export function HeroSection() {
   return (
     <section className="grid gap-(--space-base)">
-      <h2 className="sr-only text-3xl font-bold text-foreground md:not-sr-only md:text-4xl">
-        選挙結果を探してみましょう
+      <h2 className="sr-only text-3xl font-bold text-foreground md:not-sr-only md:text-3xl">
+        注目の選挙結果
       </h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* 最新の総選挙 */}

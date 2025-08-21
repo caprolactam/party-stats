@@ -15,8 +15,6 @@ export async function loader(_: Route.LoaderArgs) {
 }
 
 export function headers(_: Route.HeadersArgs) {
-  if (import.meta.env.DEV) return
-
   return {
     'Cache-Control': 'private, max-age=3600',
   }

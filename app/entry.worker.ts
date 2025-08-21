@@ -14,6 +14,13 @@ export default {
       ctx,
     })
 
-    return await requestHandler(request, context)
+    const response = await requestHandler(request, context)
+
+    if (response.headers.get('Cache-Control') && import.meta.env.DEV) {
+      // In development, disable cache headers to ensure fresh data
+      response.headers.delete('Cache-Control')
+    }
+
+    return response
   },
 } satisfies ExportedHandler<Env>

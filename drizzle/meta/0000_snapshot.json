@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "33f00227-c8aa-42c0-9620-4031642b6d05",
+  "id": "c3c253a4-779c-41dc-9ba0-5d8494fdeb8d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "area_successions": {
@@ -597,6 +597,13 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -604,6 +611,13 @@
           "name": "regions_name_unique",
           "columns": [
             "name"
+          ],
+          "isUnique": true
+        },
+        "regions_code_unique": {
+          "name": "regions_code_unique",
+          "columns": [
+            "code"
           ],
           "isUnique": true
         }
