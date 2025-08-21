@@ -4,7 +4,7 @@ import type { Result } from 'neverthrow'
 import { areas, regions, regionsOnPrefectures, elections } from '~/db/schema'
 import type { SelectElection } from '~/db/schema'
 import { getFirstItem } from '~/db/utils.ts'
-import { getDB } from '~/middleware/drizzle'
+import { getDB } from '~/middleware/bindings.ts'
 
 type ApiError =
   | { type: 'notFound', message: string }
