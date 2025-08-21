@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "party-stats",
-  "main": "./workers/app.ts",
+  "main": "./app/entry.worker.ts",
   "compatibility_date": "2025-07-30",
   "compatibility_flags": ["nodejs_compat"],
   "observability": {

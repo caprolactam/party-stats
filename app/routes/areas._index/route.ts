@@ -4,6 +4,7 @@ import { getNationalArea } from './queries.ts'
 
 /**
  * インデックスルートへのアクセスは、全国内の地域選択ページにリダイレクトします。
+ * `/areas` => `/areas/${全国のarea_id}`
  */
 export async function loader(_: Route.LoaderArgs) {
   const result = await getNationalArea()

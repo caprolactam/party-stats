@@ -1,10 +1,10 @@
 import { eq, desc } from 'drizzle-orm'
 import { ok, err } from 'neverthrow'
 import type { Result } from 'neverthrow'
-import { database } from '~/db/index.ts'
 import { areas, regions, regionsOnPrefectures, elections } from '~/db/schema'
 import type { SelectElection } from '~/db/schema'
 import { getFirstItem } from '~/db/utils.ts'
+import { getDB } from '~/middleware/drizzle'
 
 type ApiError =
   | { type: 'notFound', message: string }
@@ -25,7 +25,7 @@ type PlaceType = GetPlaceType[keyof GetPlaceType]
 
 export async function getPlaceType(placeId: string): Promise<Result<PlaceType, ApiError>> {
   try {
-    const db = database()
+    const db = getDB()
 
     const region = await db
       .select()
@@ -75,7 +75,7 @@ export async function getLatestElection(): Promise<Result<SelectElection, ApiErr
   })
 
   try {
-    const db = database()
+    const db = getDB()
 
     const election = await db
       .select()
@@ -184,10 +184,11 @@ const getPlaceListHref = (placeId: string) => `/areas/${placeId}`
 
 // 地方の場合の処理を分離
 async function getRegionData(
-  db: ReturnType<typeof database>,
   placeId: string,
   electionId: string,
 ): Promise<Result<GetPlaceAndChildren['Region'], ApiError>> {
+  const db = getDB()
+
   const [regionWithPrefectures, nationalArea] = await Promise.all([
     db
       .select({
@@ -247,10 +248,11 @@ async function getRegionData(
 
 // 全国の場合の処理を分離
 async function getNationalData(
-  db: ReturnType<typeof database>,
   currentArea: { id: string, name: string, kanaName: string, level: string, code: string, isActive: boolean, parentId: string | null, createdAt: Date, updatedAt: Date },
   electionId: string,
 ): Promise<Result<GetPlaceAndChildren['NATIONAL'], ApiError>> {
+  const db = getDB()
+
   const allRegions = await db.select().from(regions)
 
   const children = allRegions.map((region) => ({
@@ -272,11 +274,12 @@ async function getNationalData(
 
 // 都道府県の場合の処理を分離
 async function getPrefectureData(
-  db: ReturnType<typeof database>,
   currentArea: { id: string, name: string, kanaName: string, level: string, code: string, isActive: boolean, parentId: string | null, createdAt: Date, updatedAt: Date },
   placeId: string,
   electionId: string,
 ): Promise<Result<GetPlaceAndChildren['PREFECTURE'], ApiError>> {
+  const db = getDB()
+
   const [parentRegion, childCities] = await Promise.all([
     db
       .select({
@@ -326,10 +329,11 @@ async function getPrefectureData(
 
 // 市区町村の場合の処理を分離
 async function getCityData(
-  db: ReturnType<typeof database>,
   currentArea: { id: string, name: string, kanaName: string, level: string, code: string, isActive: boolean, parentId: string | null, createdAt: Date, updatedAt: Date },
   electionId: string,
 ): Promise<Result<GetPlaceAndChildren['CITY'], ApiError>> {
+  const db = getDB()
+
   const parentPrefecture = await db
     .select()
     .from(areas)
@@ -363,11 +367,11 @@ export async function getPlaceAndChildren({
   electionId,
 }: { placeType: PlaceType, electionId: string }): Promise<Result<PlaceAndChildren, ApiError>> {
   try {
-    const db = database()
+    const db = getDB()
 
     // 地方の場合
     if (placeType.type === 'REGION') {
-      return await getRegionData(db, placeType.id, electionId)
+      return await getRegionData(placeType.id, electionId)
     }
 
     // 地域の場合 - まず現在の地域情報を取得
@@ -388,11 +392,11 @@ export async function getPlaceAndChildren({
       // レベルに応じて処理を分岐
       switch (placeType.areaLevel) {
         case 'NATIONAL':
-          return await getNationalData(db, currentArea, electionId)
+          return await getNationalData(currentArea, electionId)
         case 'PREFECTURE':
-          return await getPrefectureData(db, currentArea, placeType.id, electionId)
+          return await getPrefectureData(currentArea, placeType.id, electionId)
         case 'CITY':
-          return await getCityData(db, currentArea, electionId)
+          return await getCityData(currentArea, electionId)
         default:
           return err({
             type: 'notFound',
