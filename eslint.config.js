@@ -7,6 +7,7 @@ import globals from 'globals'
 
 const ERROR = 'error'
 const WARN = 'warn'
+const OFF = 'off'
 const REACT_FILES = '**/*.{jsx,tsx}'
 const JS_AND_TS = '**/*.{js,jsx,ts,tsx}'
 const TS_FILES = '**/*.{ts,tsx}'
@@ -104,7 +105,7 @@ function style() {
       ...stylistic.configs['recommended'].rules,
       '@stylistic/arrow-parens': [ERROR, 'always'],
       '@stylistic/newline-per-chained-call': [ERROR, { ignoreChainWithDepth: 2 }],
-      '@stylistic/operator-linebreak': [ERROR, 'after', { overrides: { '|': 'before' } }],
+      '@stylistic/operator-linebreak': [OFF],
     },
   }
 }
