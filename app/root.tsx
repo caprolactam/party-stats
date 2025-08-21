@@ -10,18 +10,11 @@ import type { Route } from './+types/root'
 import { BaseLayout } from './components/base-layout/base-layout.tsx'
 import { ThemeProvider } from './lib/theme.tsx'
 import { contextStorageMiddleware } from './middleware/context-storage.ts'
-import { drizzleMiddleware } from './middleware/drizzle.ts'
 
 import './app.css'
 
-/**
- * 一部middlewareは、手続き的凝集状態にあります。次の順序に従ってください。
- * 1. contextStorageMiddleware
- * 2. drizzleMiddleware
- */
 export const unstable_middleware: Route.unstable_MiddlewareFunction[] = [
   contextStorageMiddleware,
-  drizzleMiddleware,
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {

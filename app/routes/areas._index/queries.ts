@@ -3,7 +3,7 @@ import { Result, ok, err } from 'neverthrow'
 import { NATIONAL_AREA_CODE } from '~/db/helpers/aera.ts'
 import { areas } from '~/db/schema.ts'
 import { getFirstItem } from '~/db/utils.ts'
-import { getDB } from '~/middleware/drizzle.ts'
+import { getDB } from '~/middleware/bindings.ts'
 
 type ApiError =
   | { type: 'notFound', message: string }
