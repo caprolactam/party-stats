@@ -1,5 +1,5 @@
 import { Link, data } from 'react-router'
-import type { Route } from './+types/route'
+import type { Route } from './+types/route.ts'
 import { getElections } from './queries.server.ts'
 import type { Election } from './types.ts'
 

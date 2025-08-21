@@ -7,8 +7,3 @@ export interface Election {
    */
   datetime: string
 }
-
-export interface ElectionList {
-  representativesElections: Array<Election>
-  councillorsElections: Array<Election>
-}

@@ -40,6 +40,7 @@ export default function SiteHome({ loaderData }: Route.ComponentProps) {
   )
 }
 
+// TODO: メタデータを編集
 function SiteMetadata() {
   return (
     <>
@@ -49,23 +50,8 @@ function SiteMetadata() {
         content="日本の国政選挙結果を地域別・政党別で比較・分析。衆議院・参議院選挙の統計データを提供する公開サイトです。"
       />
       <meta name="keywords" content="選挙統計,選挙結果,政党,地域別,比較,分析,衆議院,参議院,日本" />
-
-      {/* Open Graph */}
-      <meta property="og:title" content="選挙統計 - 選挙結果を探してみましょう" />
-      <meta property="og:description" content="日本の国政選挙結果を地域別・政党別で比較・分析できる統計サイト" />
-      <meta property="og:type" content="website" />
-      <meta property="og:url" content="https://election-stats.com" />
-      <meta property="og:image" content="https://election-stats.com/og-image.jpg" />
-      <meta property="og:site_name" content="選挙統計" />
-
-      {/* Twitter Card */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="選挙統計 - 選挙結果を探してみましょう" />
-      <meta name="twitter:description" content="日本の国政選挙結果を地域別・政党別で比較・分析" />
-      <meta name="twitter:image" content="https://election-stats.com/twitter-card.jpg" />
-
       {/* Canonical */}
-      <link rel="canonical" href="https://election-stats.com" />
+      <link rel="canonical" href="https://partystats.net" />
 
       {/* 構造化データ（JSON-LD） */}
       <script
@@ -74,17 +60,12 @@ function SiteMetadata() {
           __html: JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'WebSite',
-            'name': '選挙統計',
+            'name': '政党スタッツ',
             'description': '日本の国政選挙結果を地域別・政党別で比較・分析',
-            'url': 'https://election-stats.com',
+            'url': 'https://partystats.net',
             'publisher': {
               '@type': 'Organization',
               'name': '選挙統計プロジェクト',
-            },
-            'potentialAction': {
-              '@type': 'SearchAction',
-              'target': 'https://election-stats.com/search?q={search_term_string}',
-              'query-input': 'required name=search_term_string',
             },
           }),
         }}
