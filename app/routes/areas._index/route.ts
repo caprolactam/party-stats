@@ -23,5 +23,5 @@ export async function loader(_: Route.LoaderArgs) {
     }
   }
 
-  throw redirect(`/areas/${result.value.id}`)
+  throw redirect(`/areas/${result.value.code}`)
 }

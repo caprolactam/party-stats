@@ -29,7 +29,7 @@ const __dirname = dirname(__filename)
 // Zodスキーマ定義
 const AreaDataItemSchema = z.object({
   areaCode: z.string(),
-  parentCode: z.union([z.string(), z.literal('national'), z.null()]),
+  parentCode: z.union([z.string(), z.literal('000001'), z.null()]),
   name: z.string(),
   kanaName: z.string(),
 })
@@ -67,7 +67,7 @@ const AreaSuccessionSchema = z.object({
 })
 
 const RegionDataItemSchema = z.object({
-  regionCode: z.string(),
+  code: z.string(),
   name: z.string(),
   prefectures: z.array(z.string()),
 })
@@ -77,7 +77,7 @@ const RegionsDataSchema = z.object({
 })
 
 const RegionPrefectureMappingItemSchema = z.object({
-  regionCode: z.string(),
+  code: z.string(),
   prefectureCode: z.string(),
   prefectureName: z.string(),
 })
@@ -252,6 +252,7 @@ function generateRegionsSql(
   regions: Array<{
     id: string
     name: string
+    code: string
   }>,
 ): string[] {
   if (regions.length === 0) {
@@ -261,11 +262,11 @@ function generateRegionsSql(
   const now = Date.now()
   const values = regions
     .map((region) =>
-      `(${escapeSqlString(region.id)}, ${now}, ${now}, ${escapeSqlString(region.name)})`,
+      `(${escapeSqlString(region.id)}, ${now}, ${now}, ${escapeSqlString(region.name)}, ${escapeSqlString(region.code)})`,
     )
     .join(',\n  ')
 
-  return [`INSERT INTO regions (id, created_at, updated_at, name)
+  return [`INSERT INTO regions (id, created_at, updated_at, name, code)
 VALUES
   ${values};`]
 }
@@ -431,7 +432,7 @@ function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
 
   // 都道府県データを変換（parentIdは全国レコードのIDを参照）
   const prefectures = areaData.data
-    .filter((item) => item.parentCode === 'national')
+    .filter((item) => item.parentCode === '000001')
     .map((item) => {
       const id = createId()
       codeToIdMap.set(item.areaCode, id)
@@ -452,7 +453,7 @@ function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
 
   // 市区町村データを変換（parentIdは後でマッピング）
   const cities = areaData.data
-    .filter((item) => item.parentCode !== 'national' && item.parentCode !== null)
+    .filter((item) => item.parentCode !== '000001' && item.parentCode !== null)
     .map((item) => {
       const id = createId()
       codeToIdMap.set(item.areaCode, id)
@@ -578,7 +579,7 @@ function generateRegionPrefectureMappingFromRegions(regionsData: z.infer<typeof 
   for (const region of regionsData.regions) {
     for (const prefectureCode of region.prefectures) {
       mappingData.push({
-        regionCode: region.regionCode,
+        regionCode: region.code,
         prefectureCode,
       })
     }
@@ -594,6 +595,7 @@ function transformRegionData(regionsData: z.infer<typeof RegionsDataSchema>): {
   regions: Array<{
     id: string
     name: string
+    code: string
   }>
   codeToIdMap: Map<string, string>
 } {
@@ -601,11 +603,12 @@ function transformRegionData(regionsData: z.infer<typeof RegionsDataSchema>): {
 
   const regions = regionsData.regions.map((item) => {
     const id = createId()
-    codeToIdMap.set(item.regionCode, id)
+    codeToIdMap.set(item.code, id)
 
     return {
       id,
       name: item.name,
+      code: item.code,
     }
   })
 

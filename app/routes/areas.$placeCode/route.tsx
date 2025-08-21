@@ -3,14 +3,14 @@ import { Link } from 'react-router'
 import { Button } from '~/components/ui/button.tsx'
 import { Icon } from '~/components/ui/icon.tsx'
 import { WithTouchTarget } from '~/components/ui/touch-target.tsx'
-import type { Route } from './+types/route'
+import type { Route } from './+types/route.ts'
 import { getPlaceType, getLatestElection, getPlaceAndChildren } from './queries.server.ts'
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const { placeId } = params
+  const { placeCode } = params
 
   const [placeType, latestElection] = await Promise.all([
-    getPlaceType(placeId),
+    getPlaceType(placeCode),
     getLatestElection(),
   ])
 
@@ -41,7 +41,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 
   // 市区町村レベルの場合は選挙結果ページにリダイレクト
   if (placeType.value.type === 'AREA' && placeType.value.areaLevel === 'CITY') {
-    throw redirect(`/elections/${latestElection.value.id}/areas/${placeId}`)
+    throw redirect(`/elections/${latestElection.value.id}/areas/${placeCode}`)
   }
 
   const placeAndChildren = await getPlaceAndChildren({
@@ -66,8 +66,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export function headers() {
-  if (import.meta.env.DEV) return
-
   return {
     'Cache-Control': 'private, max-age=3600',
   }
@@ -79,7 +77,7 @@ export default function AreaSelectionPage({
   const { areaLevel, currentPlace, parent, children } = loaderData
   return (
     <div className="grid max-w-3xl gap-(--space-base)">
-      <h1 className="sr-only">地域から探す</h1>
+      <h1 className="sr-only">地域</h1>
       {parent && (
         <div className="inline-flex">
           <WithTouchTarget stretch="horizontal">
@@ -93,12 +91,27 @@ export default function AreaSelectionPage({
       <h2 className="text-2xl leading-none font-bold tracking-tight text-foreground md:text-3xl">
         {currentPlace.name}
       </h2>
-      {currentPlace.to && (
-        <Link to={currentPlace.to} className="flex h-11 w-full items-center gap-4 rounded-md bg-card px-4 font-medium hover:bg-hovered active:bg-selected">
-          <Icon name="how-to-vote" size={20} />
-          最新の選挙結果
-        </Link>
-      )}
+      {currentPlace.to
+        ? (
+            <Link to={currentPlace.to} className="flex h-11 w-full items-center gap-4 rounded-md bg-card px-4 font-medium hover:bg-hovered active:bg-selected">
+              <Icon name="how-to-vote" size={20} />
+              最新の選挙結果
+            </Link>
+          )
+        : (
+            <div>
+              <div
+                aria-hidden={true}
+                className="flex h-11 w-full items-center gap-4 rounded-md bg-card px-4 font-medium text-muted-foreground"
+              >
+                <Icon name="how-to-vote" size={20} />
+                最新の選挙結果
+              </div>
+              <div className="mt-2 text-sm text-muted-foreground">
+                この地域の選挙結果データは存在しません。
+              </div>
+            </div>
+          )}
       <ul>
         {children.map((child) => (
           <li key={child.to} className="bg-card first-of-type:rounded-t-md last-of-type:rounded-b-md">

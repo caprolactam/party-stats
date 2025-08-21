@@ -9,7 +9,7 @@ type ApiError =
   | { type: 'notFound', message: string }
   | { type: 'network', message: string }
 
-export async function getNationalArea(): Promise<Result<{ id: string }, ApiError>> {
+export async function getNationalArea(): Promise<Result<{ id: string, code: string }, ApiError>> {
   try {
     const db = getDB()
 
@@ -28,6 +28,7 @@ export async function getNationalArea(): Promise<Result<{ id: string }, ApiError
 
     return ok({
       id: nationalArea.id,
+      code: nationalArea.code,
     })
   }
   catch (error) {

@@ -85,10 +85,12 @@ CREATE TABLE `regions` (
 	`id` text PRIMARY KEY NOT NULL,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
-	`name` text NOT NULL
+	`name` text NOT NULL,
+	`code` text NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `regions_name_unique` ON `regions` (`name`);--> statement-breakpoint
+CREATE UNIQUE INDEX `regions_code_unique` ON `regions` (`code`);--> statement-breakpoint
 CREATE TABLE `regions_on_prefectures` (
 	`id` text PRIMARY KEY NOT NULL,
 	`created_at` integer NOT NULL,

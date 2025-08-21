@@ -129,14 +129,30 @@ export const areaSuccessions = sqliteTable(
  * regions - 地方区分テーブル
  * UI上での検索・選択補助を目的とし、地域階層には含まれない独立したエンティティ
  */
-export const regions = sqliteTable('regions', {
-  id,
-  createdAt,
-  updatedAt,
-  // 独自の属性
-  name: text('name').notNull()
-    .unique(), // 地方名（北海道・東北・関東など）
-})
+export const regions = sqliteTable(
+  'regions',
+  {
+    id,
+    createdAt,
+    updatedAt,
+    // 独自の属性
+    name: text('name').notNull()
+      .unique(), // 地方名（北海道・東北・関東など）
+    /**
+     * 地方コード - place_code用識別子
+     *
+     * 設計意図:
+     * - URL設計でplace_codeパラメータとして使用
+     * - 独自定義の地方識別コード（例："hokkaido", "kanto", "kinki"など）
+     * - Area.codeとは異なる名前空間で管理
+     *
+     * 一意性:
+     * - Area.codeとの重複がないよう管理が必要（アプリケーションレベルで制御）
+     * - 地方コード間では一意性を保証
+     */
+    code: text('code').notNull()
+      .unique(), // 地方コード（place_code用）
+  })
 
 /**
  * regions_on_prefectures - 地方・都道府県関連テーブル
