@@ -1,25 +1,13 @@
-import {
-  defineWorkersProject,
-} from '@cloudflare/vitest-pool-workers/config'
-
 // cloudflare サービスをテスト環境で使用する設定
 // https://developers.cloudflare.com/workers/testing/vitest-integration/write-your-first-test/
+import { defineConfig } from 'vitest/config'
 
-export default defineWorkersProject(async () => {
-  return {
-    test: {
-      coverage: {
-        provider: 'istanbul',
-      },
-      poolOptions: {
-        workers: {
-          wrangler: {
-            configPath: './wrangler.jsonc',
-          },
-          singleWorker: true,
-        },
-      },
-      include: ['./app/**/*.test.ts'], // .tsxファイルを除外
+export default defineConfig({
+  test: {
+    coverage: {
+      provider: 'istanbul',
     },
-  }
-})
+    include: ['./app/**/*.test.ts'], // .tsxファイルを除外
+  },
+},
+)

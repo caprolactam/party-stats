@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm'
 import { Result, ok, err } from 'neverthrow'
 import { NATIONAL_AREA_CODE } from '~/db/helpers/aera.ts'
-import { database } from '~/db/index.ts'
 import { areas } from '~/db/schema.ts'
 import { getFirstItem } from '~/db/utils.ts'
+import { getDB } from '~/middleware/drizzle.ts'
 
 type ApiError =
   | { type: 'notFound', message: string }
@@ -11,7 +11,7 @@ type ApiError =
 
 export async function getNationalArea(): Promise<Result<{ id: string }, ApiError>> {
   try {
-    const db = database()
+    const db = getDB()
 
     const nationalArea = await db
       .select()
