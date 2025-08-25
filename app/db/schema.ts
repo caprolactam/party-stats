@@ -20,7 +20,6 @@ export const elections = sqliteTable(
     id,
     createdAt,
     updatedAt,
-    // 独自の属性
     // 選挙回次（第50回など）
     round: integer('round').notNull(),
     // 選挙実施日
@@ -44,9 +43,8 @@ export const areas = sqliteTable(
     id,
     createdAt,
     updatedAt,
-    // 独自の属性
     name: text('name').notNull(),
-    // 地域名カナ（検索・並び替え用）
+    // 地域名かな（検索・並び替え用）
     kanaName: text('kana_name').notNull(),
     // 地域レベル
     level: text('level', {
@@ -54,8 +52,7 @@ export const areas = sqliteTable(
     }).notNull(),
     // 地域コード（総務省コード等）
     // UNIQUE制約あり - RENAME同コードケースは継承レコード作成をスキップするため重複なし
-    code: text('code').unique()
-      .notNull(),
+    code: text('code').unique().notNull(),
     /**
      * 現在の地域が合併などにより存在しているかどうか（非正規化フィールド）
      *
@@ -67,8 +64,7 @@ export const areas = sqliteTable(
      * データ整合性:
      * - area_succession テーブル更新時に連動して更新する必要あり
      */
-    isActive: integer('is_active', { mode: 'boolean' }).notNull()
-      .default(true),
+    isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
     /**
      * 親地域ID（階層構造用）
      * - null許容: 国全体に親は存在しない
@@ -76,7 +72,14 @@ export const areas = sqliteTable(
     parentId: text('parent_id'),
   },
   (table) => [
-    // 親地域への外部キー制約（自己参照）
+    /**
+     * 親地域への外部キー制約（自己参照）
+     * https://orm.drizzle.team/docs/joins#aliases--selfjoins
+     * ```ts
+     * import { alias } from 'drizzle-orm/sqlite-core';
+     * const parent = alias(user, 'parent');
+     * ```
+     */
     foreignKey({
       columns: [table.parentId],
       foreignColumns: [table.id],
@@ -97,17 +100,14 @@ export const areaSuccessions = sqliteTable(
     id,
     createdAt,
     updatedAt,
-    // 独自の属性
     predecessorId: text('predecessor_id')
       .notNull()
       .references(() => areas.id), // 前身地域ID
     successorId: text('successor_id')
       .notNull()
       .references(() => areas.id), // 後継地域ID
-    successionType: text('succession_type', {
-      enum: ['MERGE', 'SPLIT', 'RENAME'],
-    }).notNull(), // 継承種別
-    effectiveDate: text('effective_date').notNull(), // 継承有効日
+    successionType: text('succession_type', { enum: ['MERGE', 'SPLIT', 'RENAME'] }).notNull(), // 継承種別
+    effectiveDate: integer('effective_date', { mode: 'timestamp_ms' }).notNull(), // 継承有効日
     note: text('note'), // 継承に関するメモ
   },
   (table) => [
@@ -135,9 +135,7 @@ export const regions = sqliteTable(
     id,
     createdAt,
     updatedAt,
-    // 独自の属性
-    name: text('name').notNull()
-      .unique(), // 地方名（北海道・東北・関東など）
+    name: text('name').notNull().unique(), // 地方名（北海道・東北・関東など）
     /**
      * 地方コード - place_code用識別子
      *
@@ -164,7 +162,6 @@ export const regionsOnPrefectures = sqliteTable(
     id,
     createdAt,
     updatedAt,
-    // 独自の属性
     regionId: text('region_id')
       .notNull()
       .references(() => regions.id), // 地方ID
@@ -186,7 +183,6 @@ export const parties = sqliteTable('parties', {
   id,
   createdAt,
   updatedAt,
-  // 独自の属性
   /**
    * 政党名（正式名称）- 非正規化フィールド
    *
@@ -198,11 +194,9 @@ export const parties = sqliteTable('parties', {
    * データ整合性:
    * - partyNameHistories テーブル更新時に連動して更新する必要あり
    * - 政党名変更は稀な操作のため、更新コストは許容範囲内
-   *
-   * 想定件数は少ないためインデックスは付けない
+   * - unique制約の削除 同じ名前で異なる政党がありうる
    */
-  name: text('name').notNull()
-    .unique(),
+  name: text('name').notNull(),
   // 表示色（ルールはドメインによって決定する => check制約を含めない）
   color: text('color').notNull(),
 })
@@ -217,7 +211,6 @@ export const partyNameHistories = sqliteTable(
     id,
     createdAt,
     updatedAt,
-    // 独自の属性
     // 政党ID
     partyId: text('party_id')
       .notNull()
@@ -225,9 +218,7 @@ export const partyNameHistories = sqliteTable(
     // 政党名
     name: text('name').notNull(),
     // 有効開始日
-    effectiveFrom: integer('effective_from', {
-      mode: 'timestamp_ms',
-    }).notNull(),
+    effectiveFrom: integer('effective_from', { mode: 'timestamp_ms' }).notNull(),
     // 有効終了日（nullの場合は現在まで有効）
     effectiveTo: integer('effective_to', { mode: 'timestamp_ms' }),
   },
@@ -243,7 +234,6 @@ export const partyNameHistories = sqliteTable(
       table.effectiveFrom,
       table.effectiveTo,
     ),
-    // インデックス定義
     // 政党IDによる履歴検索用（特定政党の名称履歴取得で使用）
     index('idx_party_names_lookup').on(table.partyId),
   ],
@@ -259,7 +249,6 @@ export const partyResults = sqliteTable(
     id,
     createdAt,
     updatedAt,
-    // 独自の属性
     electionId: text('election_id')
       .notNull()
       .references(() => elections.id),
@@ -278,8 +267,7 @@ export const partyResults = sqliteTable(
      * データ整合性:
      * - JavaScript側では100で割って元の値に復元
      */
-    votes: integer('votes').notNull()
-      .default(0),
+    votes: integer('votes').notNull().default(0),
     /**
      * 得票率（%） - 非正規化フィールド
      *
@@ -295,18 +283,7 @@ export const partyResults = sqliteTable(
      * - election_area_metas または votes 更新時に連動して再計算・更新する必要あり
      * - JavaScript側では100で割って元の値（%）に復元
      */
-    voteRate: integer('vote_rate').notNull()
-      .default(0),
-    /**
-     * 議席数
-     *
-     * null: この選挙・地域において議席という概念が存在しない
-     *       （例：参議院全国比例代表における東京都・A党の獲得議席）
-     * 0:    議席が割り当てられる可能性はあったが、結果として0議席
-     *       （例：衆議院選比例代表近畿ブロックにおいて届出したB党の獲得議席が0）
-     * 1以上: 実際に獲得した議席数
-     */
-    seats: integer('seats'),
+    voteRate: integer('vote_rate').notNull().default(0),
   },
   (table) => [
     // 得票数の範囲制約（0以上）
@@ -315,13 +292,6 @@ export const partyResults = sqliteTable(
     check(
       'chk_vote_rate',
       sql`${table.voteRate} >= 0 AND ${table.voteRate} <= 10000`,
-    ),
-    // 議席数の範囲制約（nullまたは0以上）
-    check('chk_seats', sql`${table.seats} IS NULL OR ${table.seats} >= 0`),
-    // 得票数と議席数の整合性制約（議席があるなら得票もあるべき）
-    check(
-      'chk_seats_votes_relation',
-      sql`${table.seats} IS NULL OR ${table.seats} = 0 OR ${table.votes} > 0`,
     ),
     // 選挙結果の一意性制約（選挙・地域・政党の組み合わせは一意）
     unique('uk_election_result').on(
@@ -342,7 +312,6 @@ export const votingStatuses = sqliteTable(
     id,
     createdAt,
     updatedAt,
-    // 独自の属性
     electionId: text('election_id')
       .notNull()
       .references(() => elections.id), // 選挙ID
@@ -350,55 +319,70 @@ export const votingStatuses = sqliteTable(
       .notNull()
       .references(() => areas.id), // 地域ID
     /**
-     * 男性有権者数
+     * 有権者数（総計） - 非正規化フィールド
      *
+     * 計算式: voted_male + voted_female + abstained_male + abstained_female
      * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
-     * 例: 6789.12人 → 678912として保存
+     * 例: 12345.67人 → 1234567として保存
+     *
+     * 設計意図:
+     * - 頻繁に参照される条件のため、パフォーマンス向上を目的として非正規化
+     * - 有権者総数による並び替えなどの一般的なクエリで高速化を実現
      *
      * データ整合性:
+     * - 男女別有権者数更新時に連動して再計算・更新する必要あり
      * - JavaScript側では100で割って元の値に復元
+     * - CITYレベルでは計算元データが存在しないためNULL
      */
-    registeredVotersMale: integer('registered_voters_male')
-      .notNull()
-      .default(0),
+    totalVoters: integer('total_voters'),
     /**
-     * 女性有権者数
-     *
-     * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
-     * 例: 5556.55人 → 555655として保存
-     *
-     * データ整合性:
-     * - JavaScript側では100で割って元の値に復元
-     */
-    registeredVotersFemale: integer('registered_voters_female')
-      .notNull()
-      .default(0),
-    /**
-     * 男性投票者数
+     * 投票した男性数
      *
      * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
      * 例: 4321.09人 → 432109として保存
      *
      * データ整合性:
      * - JavaScript側では100で割って元の値に復元
+     * - CITYレベルではデータが存在しないためNULL
      */
-    turnoutVotersMale: integer('turnout_voters_male').notNull()
-      .default(0),
+    votedMale: integer('voted_male'),
     /**
-     * 女性投票者数
+     * 投票した女性数
      *
      * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
      * 例: 3987.44人 → 398744として保存
      *
      * データ整合性:
      * - JavaScript側では100で割って元の値に復元
+     * - CITYレベルではデータが存在しないためNULL
      */
-    turnoutVotersFemale: integer('turnout_voters_female').notNull()
-      .default(0),
+    votedFemale: integer('voted_female'),
+    /**
+     * 棄権した男性数
+     *
+     * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
+     * 例: 2468.03人 → 246803として保存
+     *
+     * データ整合性:
+     * - JavaScript側では100で割って元の値に復元
+     * - CITYレベルではデータが存在しないためNULL
+     */
+    abstainedMale: integer('abstained_male'),
+    /**
+     * 棄権した女性数
+     *
+     * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
+     * 例: 1569.11人 → 156911として保存
+     *
+     * データ整合性:
+     * - JavaScript側では100で割って元の値に復元
+     * - CITYレベルではデータが存在しないためNULL
+     */
+    abstainedFemale: integer('abstained_female'),
     /**
      * 投票率（%） - 非正規化フィールド
      *
-     * 計算式: (turnout_voters_male + turnout_voters_female) / (registered_voters_male + registered_voters_female) * 100
+     * 計算式: (voted_male + voted_female) / (voted_male + voted_female + abstained_male + abstained_female) * 100
      * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
      * 例: 67.89% → 6789として保存
      *
@@ -407,22 +391,23 @@ export const votingStatuses = sqliteTable(
      * - 投票率ランキング表示などの一般的なクエリで高速化を実現
      *
      * データ整合性:
-     * - 男女別有権者数・投票者数更新時に連動して再計算・更新する必要あり
+     * - 男女別投票者数・棄権者数更新時に連動して再計算・更新する必要あり
      * - JavaScript側では100で割って元の値（%）に復元
+     * - CITYレベルでは計算元データが存在しないためNULL
      */
-    turnoutRate: integer('turnout_rate').notNull()
-      .default(0),
+    turnoutRate: integer('turnout_rate'),
     /**
      * 有効投票数
      *
      * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
      * 例: 8500.21票 → 850021として保存
      *
+     * すべての地域レベルで必須
+     *
      * データ整合性:
      * - JavaScript側では100で割って元の値に復元
      */
-    validVotes: integer('valid_votes').notNull()
-      .default(0),
+    validVotes: integer('valid_votes').notNull().default(0),
     /**
      * 無効投票数
      *
@@ -432,45 +417,64 @@ export const votingStatuses = sqliteTable(
      * データ整合性:
      * - JavaScript側では100で割って元の値に復元
      * - 投票総数は validVotes + invalidVotes で計算される
+     * - CITYレベルではデータが存在しないためNULL
      */
-    invalidVotes: integer('invalid_votes').notNull()
-      .default(0),
+    invalidVotes: integer('invalid_votes'),
+    /**
+     * 有効投票率（%） - 非正規化フィールド
+     *
+     * 計算式: valid_votes / (valid_votes + invalid_votes) * 100
+     * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
+     * 例: 98.25% → 9825として保存
+     *
+     * 設計意図:
+     * - 有効投票率による分析・比較が頻繁に行われるため、パフォーマンス向上を目的として非正規化
+     * - 有効投票率ランキング表示などの一般的なクエリで高速化を実現
+     *
+     * データ整合性:
+     * - 有効・無効投票数更新時に連動して再計算・更新する必要あり
+     * - JavaScript側では100で割って元の値（%）に復元
+     * - CITYレベルでは無効投票数が存在しないため計算不可でNULL
+     */
+    validVoteRate: integer('valid_vote_rate'),
   },
   (table) => [
     // 投票状況の一意性制約（選挙・地域の組み合わせは一意）
     unique('uk_voting_statuses').on(table.electionId, table.areaId),
-    // 投票率の範囲制約（100倍保存: 0〜10000 = 0%〜100%）
+    // 投票率の範囲制約（100倍保存: 0〜10000 = 0%〜100%、NULLも許可）
     check(
       'chk_turnout_rate',
-      sql`${table.turnoutRate} >= 0 AND ${table.turnoutRate} <= 10000`,
+      sql`${table.turnoutRate} IS NULL OR (${table.turnoutRate} >= 0 AND ${table.turnoutRate} <= 10000)`,
     ),
-    // 男性有権者数・投票者数は0以上
+    // 有効投票率の範囲制約（100倍保存: 0〜10000 = 0%〜100%、NULLも許可）
+    check(
+      'chk_valid_vote_rate',
+      sql`${table.validVoteRate} IS NULL OR (${table.validVoteRate} >= 0 AND ${table.validVoteRate} <= 10000)`,
+    ),
+    // 男性投票・棄権者数は NULLまたは0以上
     check(
       'chk_male_voters',
-      sql`${table.registeredVotersMale} >= 0 AND ${table.turnoutVotersMale} >= 0`,
+      sql`(${table.votedMale} IS NULL OR ${table.votedMale} >= 0) AND (${table.abstainedMale} IS NULL OR ${table.abstainedMale} >= 0)`,
     ),
-    // 女性有権者数・投票者数は0以上
+    // 女性投票・棄権者数は NULLまたは0以上
     check(
       'chk_female_voters',
-      sql`${table.registeredVotersFemale} >= 0 AND ${table.turnoutVotersFemale} >= 0`,
+      sql`(${table.votedFemale} IS NULL OR ${table.votedFemale} >= 0) AND (${table.abstainedFemale} IS NULL OR ${table.abstainedFemale} >= 0)`,
     ),
-    // 男性投票者数は男性有権者数以下
-    check(
-      'chk_male_turnout',
-      sql`${table.turnoutVotersMale} <= ${table.registeredVotersMale}`,
-    ),
-    // 女性投票者数は女性有権者数以下
-    check(
-      'chk_female_turnout',
-      sql`${table.turnoutVotersFemale} <= ${table.registeredVotersFemale}`,
-    ),
-    // 投票数は0以上
+    // 投票数は0以上（有効票数は必須、無効票数はNULL許可）
     check(
       'chk_vote_counts',
-      sql`${table.validVotes} >= 0 AND ${table.invalidVotes} >= 0`,
+      sql`${table.validVotes} >= 0 AND (${table.invalidVotes} IS NULL OR ${table.invalidVotes} >= 0)`,
+    ),
+    // 有権者数は NULLまたは0以上
+    check(
+      'chk_total_voters',
+      sql`${table.totalVoters} IS NULL OR ${table.totalVoters} >= 0`,
     ),
     // 投票率単体でのソート用インデックス
     index('idx_voting_statuses_turnout_rate').on(table.turnoutRate),
+    // 有効投票率単体でのソート用インデックス
+    index('idx_voting_statuses_valid_vote_rate').on(table.validVoteRate),
     // 選挙内での投票率ソート用複合インデックス（推奨）
     index('idx_voting_statuses_election_turnout').on(table.electionId, table.turnoutRate),
   ],
