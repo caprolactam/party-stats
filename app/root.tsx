@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from 'react-router'
+import { useMatches } from 'react-router'
 import type { Route } from './+types/root'
 import { BaseLayout } from './components/base-layout/base-layout.tsx'
 import { ThemeProvider } from './lib/theme.tsx'
@@ -18,10 +19,13 @@ export const unstable_middleware: Route.unstable_MiddlewareFunction[] = [
 ]
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const pageBackground = usePageBackgroudColor()
+
   return (
     <html
       lang="ja"
       suppressHydrationWarning
+      className={pageBackground === 'gray' ? 'page-gray' : ''}
     >
       <head>
         <meta charSet="utf-8" />
@@ -101,4 +105,20 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
       )}
     </main>
   )
+}
+
+/**
+ * pageに応じて背景色を変更する
+ */
+function usePageBackgroudColor(): 'white' | 'gray' {
+  const matches = useMatches()
+
+  const whitePages = [
+    'routes/_index',
+    'routes/about',
+  ]
+
+  const isWhitePage = matches.some((match) => whitePages.includes(match.id))
+
+  return isWhitePage ? 'white' : 'gray'
 }

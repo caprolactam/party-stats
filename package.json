@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "react-router dev",
+    "dev:host": "react-router dev --host 0.0.0.0",
     "build": "react-router build",
     "build:analysis": "react-router build --mode analysis",
     "preview": "npm run build && vite preview",
@@ -49,6 +50,7 @@
     "radix-ui": "^1.4.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-remove-scroll": "^2.7.1",
     "react-router": "^7.8.1",
     "recharts": "^3.1.2",
     "tailwind-merge": "^3.3.1",

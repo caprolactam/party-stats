@@ -114,10 +114,10 @@ export function ElectionItem({
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium underline-offset-2 group-hover:underline md:text-base">
+        <div className="truncate underline-offset-2 group-hover:underline">
           {title}
         </div>
-        <div className="truncate text-xs text-muted-foreground md:text-sm">
+        <div className="truncate text-sm text-muted-foreground">
           <time dateTime={datetime}>{`${date} 投開票`}</time>
         </div>
       </div>
