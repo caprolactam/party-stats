@@ -1,7 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@radix-ui/colors/mauve.css";
+@import "@radix-ui/colors/mauve-dark.css";
 @import "@radix-ui/colors/sand.css";
 @import "@radix-ui/colors/sand-dark.css";
+@import "@radix-ui/colors/blue.css";
+@import "@radix-ui/colors/blue-dark.css";
 
 @font-face {
   font-family: "Commit Mono";
@@ -18,9 +22,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
+  --background: var(--mauve-1);
+  --foreground: var(--mauve-12);
+  --card: var(--mauve-3);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
@@ -59,9 +63,6 @@
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.145 0 0);
   --popover-foreground: oklch(0.985 0 0);
@@ -93,6 +94,11 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+.page-gray:not(.dark) {
+  --background: var(--mauve-3);
+  --card: var(--mauve-1);
+}
+
 @theme {
   --font-mono: "Commit Mono", monospace;
   --color-transparent: transparent;
@@ -114,13 +120,16 @@
   --header-height: 56px;
   --sidebar-width: 288px;
   --max-screen-width: var(--breakpoint-xl);
-  --min-screen-width: 375px;
+  --min-screen-width: 375px;  
 }
 
 @theme inline {
-  --color-background: var(--sand-1);
-  --color-foreground: var(--sand-12);
-  --color-card: var(--sand-3);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  /* --color-background: var(--mauve-1);
+  --color-foreground: var(--mauve-12);
+  --color-card: var(--mauve-3); */
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
@@ -129,13 +138,13 @@
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
-  --color-muted-foreground: var(--sand-11);
+  --color-muted-foreground: var(--mauve-11);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--sand-6);
-  --color-muted-border: var(--sand-7);
+  --color-border: var(--mauve-6);
+  --color-muted-border: var(--mauve-7);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
@@ -147,7 +156,7 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-sidebar: var(--sand-2);
+  --color-sidebar: var(--mauve-3);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
@@ -157,27 +166,17 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* ここからカスタム設定 */
-  --color-brand-1: var(--sand-1);
-  --color-brand-2: var(--sand-2);
-  --color-brand-3: var(--sand-3);
-  --color-brand-4: var(--sand-4);
-  --color-brand-5: var(--sand-5);
-  --color-brand-6: var(--sand-6);
-  --color-brand-7: var(--sand-7);
-  --color-brand-8: var(--sand-8);
-  --color-brand-9: var(--sand-9);
-  --color-brand-10: var(--sand-10);
-  --color-brand-11: var(--sand-11);
-  --color-brand-12: var(--sand-12);
-
-  --color-hovered: var(--sand-4);
-  --color-selected: var(--sand-5);
+  --color-hovered: var(--mauve-4);
+  --color-selected: var(--mauve-5);
   --color-link-base: var(--color-blue-700);
+  --color-navigation: var(--blue-9);
+  --color-navigation-hovered: var(--blue-10);
+  --color-navigation-selected: var(--blue-11);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-muted-border outline-ring/50;
   }
 
   *,
@@ -185,7 +184,7 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    @apply border-brand-6;
+    @apply border-muted-border;
   }
 
   :where(
@@ -196,10 +195,10 @@
     textarea:not([disabled]),
     button:not([disabled])
   ) {
-    @apply focus-visible:outline-brand-12 focus-visible:ring-brand-1 focus-visible:ring focus-visible:outline-2 focus-visible:outline-offset-0;
+    @apply focus-visible:outline-navigation focus-visible:outline-2 focus-visible:outline-offset-0;
   }
 
   .reset-outline {
-    @apply focus-visible:ring-0 focus-visible:outline-none;
+    @apply focus-visible:outline-none;
   }
 }

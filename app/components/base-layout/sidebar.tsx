@@ -39,7 +39,7 @@ interface SidebarProps {
 export function Sidebar({ className }: SidebarProps) {
   return (
     <nav aria-label="主要ナビゲーション" className={className}>
-      <ul className="grid gap-0.5">
+      <ul className="grid">
         {sidebarLinks.map((linkProps, index) => (
           <li
             key={`${linkProps.label}-${index}`}
@@ -67,7 +67,7 @@ function SidebarItem({ to, className, icon, label, ...props }: SidebarItemProps)
     <NavLink
       to={to}
       className={({ isActive }) => cn([
-        'relative flex h-10 items-center gap-3 rounded-md px-3 text-sm font-medium hover:bg-hovered active:bg-selected',
+        'relative flex h-11 items-center gap-3 rounded-md px-3 text-sm hover:bg-hovered active:bg-selected',
         isActive ? 'bg-selected' : '',
         className,
       ])}
@@ -77,7 +77,7 @@ function SidebarItem({ to, className, icon, label, ...props }: SidebarItemProps)
         <>
           <span
             className={cn(
-              'absolute inset-y-1/2 left-0 h-4 w-[3px] -translate-y-1/2 rounded-full bg-red-500',
+              'absolute inset-y-1/2 left-0 h-4 w-[3px] -translate-y-1/2 rounded-full bg-navigation',
               isActive ? 'opacity-100' : 'opacity-0',
             )}
             aria-hidden="true"
