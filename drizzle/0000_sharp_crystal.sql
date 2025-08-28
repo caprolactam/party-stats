@@ -55,9 +55,9 @@ CREATE TABLE `party_name_histories` (
 	`party_id` text NOT NULL,
 	`name` text NOT NULL,
 	`effective_from` integer NOT NULL,
-	`effective_to` integer,
+	`effective_to` integer NOT NULL,
 	FOREIGN KEY (`party_id`) REFERENCES `parties`(`id`) ON UPDATE no action ON DELETE no action,
-	CONSTRAINT "chk_effective_period" CHECK("party_name_histories"."effective_to" IS NULL OR "party_name_histories"."effective_from" <= "party_name_histories"."effective_to")
+	CONSTRAINT "chk_effective_period" CHECK("party_name_histories"."effective_from" <= "party_name_histories"."effective_to")
 );
 --> statement-breakpoint
 CREATE INDEX `idx_party_names_lookup` ON `party_name_histories` (`party_id`);--> statement-breakpoint
