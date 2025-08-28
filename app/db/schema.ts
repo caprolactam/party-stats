@@ -86,7 +86,7 @@ export const areas = sqliteTable(
       name: 'fk_areas_parent',
     }),
     // 階層構造検索インデックス
-    index('idx_areas_hierarchy').on(table.parentId, table.level),
+    index('idx_areas_hierarchy').on(table.parentId),
   ],
 )
 
@@ -136,20 +136,7 @@ export const regions = sqliteTable(
     createdAt,
     updatedAt,
     name: text('name').notNull().unique(), // 地方名（北海道・東北・関東など）
-    /**
-     * 地方コード - place_code用識別子
-     *
-     * 設計意図:
-     * - URL設計でplace_codeパラメータとして使用
-     * - 独自定義の地方識別コード（例："hokkaido", "kanto", "kinki"など）
-     * - Area.codeとは異なる名前空間で管理
-     *
-     * 一意性:
-     * - Area.codeとの重複がないよう管理が必要（アプリケーションレベルで制御）
-     * - 地方コード間では一意性を保証
-     */
-    code: text('code').notNull()
-      .unique(), // 地方コード（place_code用）
+    code: text('code').notNull().unique(), // 地方コード（kanto, kinkiなど）
   })
 
 /**
@@ -183,6 +170,20 @@ export const parties = sqliteTable('parties', {
   id,
   createdAt,
   updatedAt,
+  /**
+   * 政党コード - URL用識別子
+   *
+   * 設計意図:
+   * - URLパラメータとして使用される識別子
+   * - 政党に詳しいユーザーにとって直感的で理解しやすい（例: "ldp", "cdp", "jcp"）
+   * - 一度設定したcodeは可能な限り変更しない運用とする
+   * - SEO・アクセシビリティ・ユーザビリティの向上
+   *
+   * データ整合性:
+   * - UNIQUE制約により政党間での重複を防ぐ
+   * - URLルーティングで使用されるため、安定性が重要
+   */
+  code: text('code').unique().notNull(),
   /**
    * 政党名（正式名称）- 非正規化フィールド
    *

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c3c253a4-779c-41dc-9ba0-5d8494fdeb8d",
+  "id": "9a4505f2-c308-48ee-88d2-f3c8040d5035",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "area_successions": {
@@ -51,7 +51,7 @@
         },
         "effective_date": {
           "name": "effective_date",
-          "type": "text",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -191,8 +191,7 @@
         "idx_areas_hierarchy": {
           "name": "idx_areas_hierarchy",
           "columns": [
-            "parent_id",
-            "level"
+            "parent_id"
           ],
           "isUnique": false
         }
@@ -301,6 +300,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "name": {
           "name": "name",
           "type": "text",
@@ -317,10 +323,10 @@
         }
       },
       "indexes": {
-        "parties_name_unique": {
-          "name": "parties_name_unique",
+        "parties_code_unique": {
+          "name": "parties_code_unique",
           "columns": [
-            "name"
+            "code"
           ],
           "isUnique": true
         }
@@ -485,13 +491,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": 0
-        },
-        "seats": {
-          "name": "seats",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         }
       },
       "indexes": {
@@ -556,14 +555,6 @@
         "chk_vote_rate": {
           "name": "chk_vote_rate",
           "value": "\"party_results\".\"vote_rate\" >= 0 AND \"party_results\".\"vote_rate\" <= 10000"
-        },
-        "chk_seats": {
-          "name": "chk_seats",
-          "value": "\"party_results\".\"seats\" IS NULL OR \"party_results\".\"seats\" >= 0"
-        },
-        "chk_seats_votes_relation": {
-          "name": "chk_seats_votes_relation",
-          "value": "\"party_results\".\"seats\" IS NULL OR \"party_results\".\"seats\" = 0 OR \"party_results\".\"votes\" > 0"
         }
       }
     },
@@ -746,45 +737,47 @@
           "notNull": true,
           "autoincrement": false
         },
-        "registered_voters_male": {
-          "name": "registered_voters_male",
+        "total_voters": {
+          "name": "total_voters",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "notNull": false,
+          "autoincrement": false
         },
-        "registered_voters_female": {
-          "name": "registered_voters_female",
+        "voted_male": {
+          "name": "voted_male",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "notNull": false,
+          "autoincrement": false
         },
-        "turnout_voters_male": {
-          "name": "turnout_voters_male",
+        "voted_female": {
+          "name": "voted_female",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "notNull": false,
+          "autoincrement": false
         },
-        "turnout_voters_female": {
-          "name": "turnout_voters_female",
+        "abstained_male": {
+          "name": "abstained_male",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "notNull": false,
+          "autoincrement": false
+        },
+        "abstained_female": {
+          "name": "abstained_female",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         },
         "turnout_rate": {
           "name": "turnout_rate",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "notNull": false,
+          "autoincrement": false
         },
         "valid_votes": {
           "name": "valid_votes",
@@ -798,9 +791,15 @@
           "name": "invalid_votes",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "notNull": false,
+          "autoincrement": false
+        },
+        "valid_vote_rate": {
+          "name": "valid_vote_rate",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -808,6 +807,13 @@
           "name": "idx_voting_statuses_turnout_rate",
           "columns": [
             "turnout_rate"
+          ],
+          "isUnique": false
+        },
+        "idx_voting_statuses_valid_vote_rate": {
+          "name": "idx_voting_statuses_valid_vote_rate",
+          "columns": [
+            "valid_vote_rate"
           ],
           "isUnique": false
         },
@@ -861,27 +867,27 @@
       "checkConstraints": {
         "chk_turnout_rate": {
           "name": "chk_turnout_rate",
-          "value": "\"voting_statuses\".\"turnout_rate\" >= 0 AND \"voting_statuses\".\"turnout_rate\" <= 10000"
+          "value": "\"voting_statuses\".\"turnout_rate\" IS NULL OR (\"voting_statuses\".\"turnout_rate\" >= 0 AND \"voting_statuses\".\"turnout_rate\" <= 10000)"
+        },
+        "chk_valid_vote_rate": {
+          "name": "chk_valid_vote_rate",
+          "value": "\"voting_statuses\".\"valid_vote_rate\" IS NULL OR (\"voting_statuses\".\"valid_vote_rate\" >= 0 AND \"voting_statuses\".\"valid_vote_rate\" <= 10000)"
         },
         "chk_male_voters": {
           "name": "chk_male_voters",
-          "value": "\"voting_statuses\".\"registered_voters_male\" >= 0 AND \"voting_statuses\".\"turnout_voters_male\" >= 0"
+          "value": "(\"voting_statuses\".\"voted_male\" IS NULL OR \"voting_statuses\".\"voted_male\" >= 0) AND (\"voting_statuses\".\"abstained_male\" IS NULL OR \"voting_statuses\".\"abstained_male\" >= 0)"
         },
         "chk_female_voters": {
           "name": "chk_female_voters",
-          "value": "\"voting_statuses\".\"registered_voters_female\" >= 0 AND \"voting_statuses\".\"turnout_voters_female\" >= 0"
-        },
-        "chk_male_turnout": {
-          "name": "chk_male_turnout",
-          "value": "\"voting_statuses\".\"turnout_voters_male\" <= \"voting_statuses\".\"registered_voters_male\""
-        },
-        "chk_female_turnout": {
-          "name": "chk_female_turnout",
-          "value": "\"voting_statuses\".\"turnout_voters_female\" <= \"voting_statuses\".\"registered_voters_female\""
+          "value": "(\"voting_statuses\".\"voted_female\" IS NULL OR \"voting_statuses\".\"voted_female\" >= 0) AND (\"voting_statuses\".\"abstained_female\" IS NULL OR \"voting_statuses\".\"abstained_female\" >= 0)"
         },
         "chk_vote_counts": {
           "name": "chk_vote_counts",
-          "value": "\"voting_statuses\".\"valid_votes\" >= 0 AND \"voting_statuses\".\"invalid_votes\" >= 0"
+          "value": "\"voting_statuses\".\"valid_votes\" >= 0 AND (\"voting_statuses\".\"invalid_votes\" IS NULL OR \"voting_statuses\".\"invalid_votes\" >= 0)"
+        },
+        "chk_total_voters": {
+          "name": "chk_total_voters",
+          "value": "\"voting_statuses\".\"total_voters\" IS NULL OR \"voting_statuses\".\"total_voters\" >= 0"
         }
       }
     }
