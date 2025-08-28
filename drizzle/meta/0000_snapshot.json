@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "9a4505f2-c308-48ee-88d2-f3c8040d5035",
+  "id": "a243ccf6-2a49-4e2f-859f-4020edb218f4",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "area_successions": {
@@ -385,7 +385,7 @@
           "name": "effective_to",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         }
       },
@@ -427,7 +427,7 @@
       "checkConstraints": {
         "chk_effective_period": {
           "name": "chk_effective_period",
-          "value": "\"party_name_histories\".\"effective_to\" IS NULL OR \"party_name_histories\".\"effective_from\" <= \"party_name_histories\".\"effective_to\""
+          "value": "\"party_name_histories\".\"effective_from\" <= \"party_name_histories\".\"effective_to\""
         }
       }
     },

@@ -185,15 +185,14 @@ export const parties = sqliteTable('parties', {
    */
   code: text('code').unique().notNull(),
   /**
-   * 政党名（正式名称）- 非正規化フィールド
+   * 政党名（正式名称）
    *
    * 設計意図:
-   * - 本来は partyNameHistories テーブルの effectiveTo IS NULL レコードから取得すべき値
-   * - 頻繁に参照される条件のため、パフォーマンス向上を目的として非正規化
-   * - 政党一覧表示やフィルタリングなどの一般的なクエリで高速化を実現
+   * - 政党の現在の正式名称を保持する正規化カラム
+   * - 政党一覧表示やフィルタリングなどの一般的なクエリで直接参照
    *
    * データ整合性:
-   * - partyNameHistories テーブル更新時に連動して更新する必要あり
+   * - 名称変更時は古い名称をpartyNameHistories に記録してから更新
    * - 政党名変更は稀な操作のため、更新コストは許容範囲内
    * - unique制約の削除 同じ名前で異なる政党がありうる
    */
@@ -204,7 +203,7 @@ export const parties = sqliteTable('parties', {
 
 /**
  * party_name_histories - 政党名称履歴テーブル
- * 政党の名称変更履歴を時系列で管理
+ * 政党の過去の名称変更履歴を時系列で管理。現在の名称は政党テーブルで管理し、こちらは過去履歴のみ。
  */
 export const partyNameHistories = sqliteTable(
   'party_name_histories',
@@ -220,14 +219,14 @@ export const partyNameHistories = sqliteTable(
     name: text('name').notNull(),
     // 有効開始日
     effectiveFrom: integer('effective_from', { mode: 'timestamp_ms' }).notNull(),
-    // 有効終了日（nullの場合は現在まで有効）
-    effectiveTo: integer('effective_to', { mode: 'timestamp_ms' }),
+    // 有効終了日（過去履歴のため必須）
+    effectiveTo: integer('effective_to', { mode: 'timestamp_ms' }).notNull(),
   },
   (table) => [
     // 政党名称履歴の有効期間制約
     check(
       'chk_effective_period',
-      sql`${table.effectiveTo} IS NULL OR ${table.effectiveFrom} <= ${table.effectiveTo}`,
+      sql`${table.effectiveFrom} <= ${table.effectiveTo}`,
     ),
     // 同一政党で同一期間の名称重複防止
     unique('uk_party_name_period').on(
