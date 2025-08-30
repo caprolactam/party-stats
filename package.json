@@ -15,6 +15,7 @@
     "test:browser": "vitest --run --project browser",
     "test:browser:headless": "vitest --run --project browser --browser.headless",
     "test:coverage": "vitest run --coverage --browser.headless",
+    "test:install-deps": "npx playwright install --with-deps webkit",
     "lint": "oxlint && eslint",
     "lint:fix": "oxlint --fix && eslint --fix",
     "typegen": "run-s typegen:*",

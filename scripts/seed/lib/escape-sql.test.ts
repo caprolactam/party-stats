@@ -1,5 +1,5 @@
 import { test, expect, describe } from 'vitest'
-import { escapeSql } from './escape-sql.ts'
+import { escapeSql } from './sql-utils.ts'
 
 describe('escapeSql', () => {
   describe('null and undefined values', () => {

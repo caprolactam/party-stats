@@ -12,9 +12,9 @@ export async function loader({ params }: Route.LoaderArgs) {
   // TODO: electionIdをdbでバリデーションする
 
   throw redirect(
-    href('/elections/:electionId/areas/:placeCode', {
+    href('/elections/:electionId/areas/:areaCode', {
       electionId,
-      placeCode: NATIONAL_AREA_CODE,
+      areaCode: NATIONAL_AREA_CODE,
     }),
   )
 }
