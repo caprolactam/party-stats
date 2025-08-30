@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a243ccf6-2a49-4e2f-859f-4020edb218f4",
+  "id": "8e21f57d-8751-4a21-9da2-3c4f305929b3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "area_successions": {
@@ -169,8 +169,7 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": true
+          "autoincrement": false
         },
         "parent_id": {
           "name": "parent_id",
@@ -481,16 +480,14 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "autoincrement": false
         },
         "vote_rate": {
           "name": "vote_rate",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -784,8 +781,7 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": 0
+          "autoincrement": false
         },
         "invalid_votes": {
           "name": "invalid_votes",
@@ -794,8 +790,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "valid_vote_rate": {
-          "name": "valid_vote_rate",
+        "invalid_vote_rate": {
+          "name": "invalid_vote_rate",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
@@ -810,10 +806,10 @@
           ],
           "isUnique": false
         },
-        "idx_voting_statuses_valid_vote_rate": {
-          "name": "idx_voting_statuses_valid_vote_rate",
+        "idx_voting_statuses_invalid_vote_rate": {
+          "name": "idx_voting_statuses_invalid_vote_rate",
           "columns": [
-            "valid_vote_rate"
+            "invalid_vote_rate"
           ],
           "isUnique": false
         },
@@ -869,9 +865,9 @@
           "name": "chk_turnout_rate",
           "value": "\"voting_statuses\".\"turnout_rate\" IS NULL OR (\"voting_statuses\".\"turnout_rate\" >= 0 AND \"voting_statuses\".\"turnout_rate\" <= 10000)"
         },
-        "chk_valid_vote_rate": {
-          "name": "chk_valid_vote_rate",
-          "value": "\"voting_statuses\".\"valid_vote_rate\" IS NULL OR (\"voting_statuses\".\"valid_vote_rate\" >= 0 AND \"voting_statuses\".\"valid_vote_rate\" <= 10000)"
+        "chk_invalid_vote_rate": {
+          "name": "chk_invalid_vote_rate",
+          "value": "\"voting_statuses\".\"invalid_vote_rate\" IS NULL OR (\"voting_statuses\".\"invalid_vote_rate\" >= 0 AND \"voting_statuses\".\"invalid_vote_rate\" <= 10000)"
         },
         "chk_male_voters": {
           "name": "chk_male_voters",

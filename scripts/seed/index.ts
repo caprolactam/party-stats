@@ -1,794 +1,126 @@
-#!/usr/bin/env tsx
+import { parseArgs } from 'node:util'
+import { transformSeedData } from './lib/data-processor.ts'
+import { clearAllTables, insertAllData } from './lib/database-operations.ts'
+import { loadSeedData, generateAllSqlFiles } from './lib/file-operations.ts'
 
-/**
- * データベースシードスクリプト（wrangler d1 execute 使用版）
- *
- * このスクリプトは地域データ（areas）と継承関係データ（area_successions）を
- * Cloudflare D1 データベースに投入します。
- *
- * 使用方法:
- * ```bash
- * npm run seed:db
- * ```
- */
-
-import { readFileSync, existsSync, mkdirSync } from 'node:fs'
-import { writeFile, unlink } from 'node:fs/promises'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { createId } from '@paralleldrive/cuid2'
-import { execa } from 'execa'
-import { parse } from 'jsonc-parser'
-import invariant from 'tiny-invariant'
-import { z } from 'zod'
-import { fromError } from 'zod-validation-error'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
-
-// Zodスキーマ定義
-const AreaDataItemSchema = z.object({
-  areaCode: z.string(),
-  parentCode: z.union([z.string(), z.literal('000001'), z.null()]),
-  name: z.string(),
-  kanaName: z.string(),
-})
-
-const AreaDataSchema = z.object({
-  metadata: z.object({
-    generatedAt: z.string(),
-    totalCount: z.number(),
-    breakdown: z.object({
-      national: z.number().optional(),
-      prefectures: z.number(),
-      cities: z.number(),
-      wards: z.number(),
-    }),
-  }),
-  data: z.array(AreaDataItemSchema),
-})
-
-const AreaSuccessionItemSchema = z.object({
-  areaCode: z.string(),
-  parentCode: z.string(),
-  name: z.string(),
-  kanaName: z.string(),
-  successorCode: z.string(),
-  successionType: z.enum(['MERGE', 'SPLIT', 'RENAME']),
-  effectiveDate: z.string(),
-  note: z.string().optional(),
-})
-
-const AreaSuccessionSchema = z.object({
-  metadata: z.object({
-    generatedAt: z.string(),
-  }),
-  data: z.array(AreaSuccessionItemSchema),
-})
-
-const RegionDataItemSchema = z.object({
-  code: z.string(),
-  name: z.string(),
-  prefectures: z.array(z.string()),
-})
-
-const RegionsDataSchema = z.object({
-  regions: z.array(RegionDataItemSchema),
-})
-
-const RegionPrefectureMappingItemSchema = z.object({
-  code: z.string(),
-  prefectureCode: z.string(),
-  prefectureName: z.string(),
-})
-
-const RegionPrefectureMappingSchema = z.object({
-  metadata: z.object({
-    generatedAt: z.string(),
-    totalCount: z.number(),
-    description: z.string(),
-  }),
-  data: z.array(RegionPrefectureMappingItemSchema),
-})
-
-/**
- * JSONファイルを安全に読み込んでバリデーションする
- */
-function loadAndValidateJson<T>(filename: string, schema: z.ZodSchema<T>): T {
-  const filePath = join(__dirname, filename)
-  const content = readFileSync(filePath, 'utf-8')
-
-  try {
-    const rawData = JSON.parse(content)
-    return schema.parse(rawData)
-  }
-  catch (error) {
-    if (error instanceof z.ZodError) {
-      const validationError = fromError(error)
-      console.error(`❌ ${filename} のバリデーションエラー:`, validationError.toString())
-    }
-    else {
-      console.error(`❌ ${filename} の読み込みエラー:`, error)
-    }
-    process.exit(1)
-  }
-}
-
-/**
- * JSONCファイルを安全に読み込んでバリデーションする
- */
-function loadAndValidateJsonc<T>(filename: string, schema: z.ZodSchema<T>): T {
-  const filePath = join(__dirname, filename)
-  const content = readFileSync(filePath, 'utf-8')
-
-  try {
-    // jsonc-parserを使ってコメント付きJSONをパース
-    const jsonData = parse(content)
-    return schema.parse(jsonData)
-  }
-  catch (error) {
-    if (error instanceof z.ZodError) {
-      const validationError = fromError(error)
-      console.error(`❌ ${filename} のバリデーションエラー:`, validationError.toString())
-    }
-    else {
-      console.error(`❌ ${filename} の読み込みエラー:`, error)
-    }
-    process.exit(1)
-  }
-}
-
-/**
- * SQLエスケープ処理
- */
-function escapeSqlString(str: string): string {
-  return `'${str.replace(/'/g, '\'\'')}'`
-}
-
-/**
- * データをチャンクに分割する
- */
-function chunkArray<T>(array: T[], chunkSize: number): T[][] {
-  const chunks: T[][] = []
-  for (let i = 0; i < array.length; i += chunkSize) {
-    chunks.push(array.slice(i, i + chunkSize))
-  }
-  return chunks
-}
-
-/**
- * 地域データをSQL INSERT文に変換
- */
-function generateAreasSql(
-  national: Array<{
-    id: string
-    name: string
-    kanaName: string
-    level: 'NATIONAL'
-    code: string
-    isActive: boolean
-    parentId: null
-  }>,
-  prefectures: Array<{
-    id: string
-    name: string
-    kanaName: string
-    level: 'PREFECTURE'
-    code: string
-    isActive: boolean
-    parentId: string | null
-  }>,
-  cities: Array<{
-    id: string
-    name: string
-    kanaName: string
-    level: 'CITY'
-    code: string
-    isActive: boolean
-    parentId: string | null
-  }>,
-): string[] {
-  const allAreas = [...national, ...prefectures, ...cities]
-
-  if (allAreas.length === 0) {
-    return ['-- No area data to insert']
-  }
-
-  const now = Date.now()
-  const CHUNK_SIZE = 100 // 1度に100件ずつ挿入
-  const chunks = chunkArray(allAreas, CHUNK_SIZE)
-
-  return chunks.map((chunk) => {
-    const values = chunk
-      .map((area) =>
-        `(${escapeSqlString(area.id)}, ${now}, ${now}, ${escapeSqlString(area.name)}, ${escapeSqlString(area.kanaName)}, ${escapeSqlString(area.level)}, ${escapeSqlString(area.code)}, ${area.isActive ? 1 : 0}, ${area.parentId ? escapeSqlString(area.parentId) : 'NULL'})`,
-      )
-      .join(',\n  ')
-
-    return `INSERT INTO areas (id, created_at, updated_at, name, kana_name, level, code, is_active, parent_id)
-VALUES
-  ${values};`
-  })
-}
-
-/**
- * 継承関係データをSQL INSERT文に変換
- */
-function generateSuccessionsSql(
-  successions: Array<{
-    id: string
-    predecessorId: string
-    successorId: string
-    successionType: 'MERGE' | 'SPLIT' | 'RENAME'
-    effectiveDate: string
-    note?: string
-  }>,
-): string[] {
-  if (successions.length === 0) {
-    return ['-- No succession data to insert']
-  }
-
-  const now = Date.now()
-  const CHUNK_SIZE = 50 // 継承関係は数が少ないので50件ずつ
-  const chunks = chunkArray(successions, CHUNK_SIZE)
-
-  return chunks.map((chunk) => {
-    const values = chunk
-      .map((succession) =>
-        `(${escapeSqlString(succession.id)}, ${now}, ${now}, ${escapeSqlString(succession.predecessorId)}, ${escapeSqlString(succession.successorId)}, ${escapeSqlString(succession.successionType)}, ${escapeSqlString(succession.effectiveDate)}, ${succession.note ? escapeSqlString(succession.note) : 'NULL'})`,
-      )
-      .join(',\n  ')
-
-    return `INSERT INTO area_successions (id, created_at, updated_at, predecessor_id, successor_id, succession_type, effective_date, note)
-VALUES
-  ${values};`
-  })
-}
-
-/**
- * 地方区分データをSQL INSERT文に変換
- */
-function generateRegionsSql(
-  regions: Array<{
-    id: string
-    name: string
-    code: string
-  }>,
-): string[] {
-  if (regions.length === 0) {
-    return ['-- No region data to insert']
-  }
-
-  const now = Date.now()
-  const values = regions
-    .map((region) =>
-      `(${escapeSqlString(region.id)}, ${now}, ${now}, ${escapeSqlString(region.name)}, ${escapeSqlString(region.code)})`,
-    )
-    .join(',\n  ')
-
-  return [`INSERT INTO regions (id, created_at, updated_at, name, code)
-VALUES
-  ${values};`]
-}
-
-/**
- * 地方・都道府県関連付けデータをSQL INSERT文に変換
- */
-function generateRegionsPrefecturesSql(
-  mappings: Array<{
-    id: string
-    regionId: string
-    prefectureId: string
-  }>,
-): string[] {
-  if (mappings.length === 0) {
-    return ['-- No region-prefecture mapping data to insert']
-  }
-
-  const now = Date.now()
-  const CHUNK_SIZE = 50
-  const chunks = chunkArray(mappings, CHUNK_SIZE)
-
-  return chunks.map((chunk) => {
-    const values = chunk
-      .map((mapping) =>
-        `(${escapeSqlString(mapping.id)}, ${now}, ${now}, ${escapeSqlString(mapping.regionId)}, ${escapeSqlString(mapping.prefectureId)})`,
-      )
-      .join(',\n  ')
-
-    return `INSERT INTO regions_on_prefectures (id, created_at, updated_at, region_id, prefecture_id)
-VALUES
-  ${values};`
-  })
-}
-async function executeWranglerCommandViaFile(sqlContent: string): Promise<void> {
-  const tempDir = join(__dirname, 'temp')
-  const tempFileName = `seed-${createId()}.sql`
-  const tempFilePath = join(tempDir, tempFileName)
-
-  try {
-    // 一時ディレクトリを作成（存在しない場合）
-    if (!existsSync(tempDir)) {
-      mkdirSync(tempDir, { recursive: true })
-    }
-
-    // SQLを一時ファイルに書き出し
-    await writeFile(tempFilePath, sqlContent, 'utf8')
-    console.log(`📝 SQLを一時ファイルに書き出しました: ${tempFilePath}`)
-
-    // wranglerで実行
-    const args = [
-      'd1',
-      'execute',
-      'party-stats',
-      '--local',
-      '--file',
-      tempFilePath,
-    ]
-
-    await execa('npx', ['wrangler', ...args], {
-      stdio: 'inherit',
-    })
-
-    console.log(`✅ SQLの実行が完了しました: ${tempFilePath}`)
-  }
-  catch (error) {
-    console.error('❌ wranglerコマンドの実行に失敗:', error)
-    throw error
-  }
-  finally {
-    // 一時ファイルを削除
-    try {
-      await unlink(tempFilePath)
-      console.log(`🗑️ 一時ファイルを削除しました: ${tempFilePath}`)
-    }
-    catch (unlinkError) {
-      console.warn(`⚠️ 一時ファイルの削除に失敗: ${unlinkError}`)
-    }
-  }
-}
-
-/**
- * wrangler d1 execute コマンドを実行
- */
-async function executeWranglerCommand(command: string, isFile = false): Promise<void> {
-  try {
-    const args = [
-      'd1',
-      'execute',
-      'party-stats',
-      '--local',
-    ]
-
-    if (isFile) {
-      args.push('--file', command)
-    }
-    else {
-      args.push('--command', command)
-    }
-
-    await execa('npx', ['wrangler', ...args], {
-      stdio: 'inherit',
-    })
-  }
-  catch (error) {
-    console.error('❌ wranglerコマンドの実行に失敗:', error)
-    throw error
-  }
-}
-
-/**
- * 地域データを変換する
- */
-function transformAreaData(areaData: z.infer<typeof AreaDataSchema>): {
-  national: Array<{
-    id: string
-    name: string
-    kanaName: string
-    level: 'NATIONAL'
-    code: string
-    isActive: boolean
-    parentId: null
-  }>
-  prefectures: Array<{
-    id: string
-    name: string
-    kanaName: string
-    level: 'PREFECTURE'
-    code: string
-    isActive: boolean
-    parentId: string | null
-  }>
-  cities: Array<{
-    id: string
-    name: string
-    kanaName: string
-    level: 'CITY'
-    code: string
-    isActive: boolean
-    parentId: string | null
-  }>
-  codeToIdMap: Map<string, string>
-} {
-  const codeToIdMap = new Map<string, string>()
-
-  // 全国データを変換
-  const national = areaData.data
-    .filter((item) => item.parentCode === null)
-    .map((item) => {
-      const id = createId()
-      codeToIdMap.set(item.areaCode, id)
-
-      return {
-        id,
-        name: item.name,
-        kanaName: item.kanaName,
-        level: 'NATIONAL' as const,
-        code: item.areaCode,
-        isActive: true,
-        parentId: null,
-      }
-    })
-
-  // 都道府県データを変換（parentIdは全国レコードのIDを参照）
-  const prefectures = areaData.data
-    .filter((item) => item.parentCode === '000001')
-    .map((item) => {
-      const id = createId()
-      codeToIdMap.set(item.areaCode, id)
-
-      // 全国レコードのIDを取得
-      const nationalId = national.length > 0 ? national[0]?.id || null : null
-
-      return {
-        id,
-        name: item.name,
-        kanaName: item.kanaName,
-        level: 'PREFECTURE' as const,
-        code: item.areaCode,
-        isActive: true,
-        parentId: nationalId,
-      }
-    })
-
-  // 市区町村データを変換（parentIdは後でマッピング）
-  const cities = areaData.data
-    .filter((item) => item.parentCode !== '000001' && item.parentCode !== null)
-    .map((item) => {
-      const id = createId()
-      codeToIdMap.set(item.areaCode, id)
-
-      return {
-        id,
-        name: item.name,
-        kanaName: item.kanaName,
-        level: 'CITY' as const,
-        code: item.areaCode,
-        isActive: true,
-        parentId: item.parentCode, // 一旦文字列のまま保持
-      }
-    })
-
-  return { national, prefectures, cities, codeToIdMap }
-}
-
-/**
- * 継承関係データを変換し、非アクティブ地域も作成
- */
-function transformSuccessionData(
-  successionData: z.infer<typeof AreaSuccessionSchema>,
-  codeToIdMap: Map<string, string>,
-): {
-  successions: Array<{
-    id: string
-    predecessorId: string
-    successorId: string
-    successionType: 'MERGE' | 'SPLIT' | 'RENAME'
-    effectiveDate: string
-    note?: string
-  }>
-  inactiveAreas: Array<{
-    id: string
-    name: string
-    kanaName: string
-    level: 'CITY'
-    code: string
-    isActive: false
-    parentId: string | null
-  }>
-} {
-  const transformedSuccessions: Array<{
-    id: string
-    predecessorId: string
-    successorId: string
-    successionType: 'MERGE' | 'SPLIT' | 'RENAME'
-    effectiveDate: string
-    note?: string
-  }> = []
-
-  const inactiveAreas: Array<{
-    id: string
-    name: string
-    kanaName: string
-    level: 'CITY'
-    code: string
-    isActive: false
-    parentId: string | null
-  }> = []
-
-  for (const succession of successionData.data) {
-    // RENAMEで同じコードの場合はスキップ（実際には同じ地域の改名）
-    if (succession.successionType === 'RENAME' && succession.areaCode === succession.successorCode) {
-      console.log(`🏷️  RENAME（同コード）をスキップ: ${succession.areaCode} (${succession.name})`)
-      continue
-    }
-
-    // 非アクティブ地域（前身地域）を作成
-    const predecessorId = createId()
-    codeToIdMap.set(succession.areaCode, predecessorId)
-
-    // parentCodeからparentIdを取得（存在すれば）
-    const parentId = succession.parentCode ? codeToIdMap.get(succession.parentCode) || null : null
-
-    inactiveAreas.push({
-      id: predecessorId,
-      name: succession.name,
-      kanaName: succession.kanaName,
-      level: 'CITY',
-      code: succession.areaCode,
-      isActive: false,
-      parentId: parentId,
-    })
-
-    // 後継地域IDを取得（アクティブな地域データに存在するはず）
-    const successorId = codeToIdMap.get(succession.successorCode)
-    if (!successorId) {
-      console.warn(`⚠️  後継地域コード ${succession.successorCode} がアクティブ地域データに見つかりません`)
-      continue
-    }
-
-    // 継承関係を追加
-    transformedSuccessions.push({
-      id: createId(),
-      predecessorId,
-      successorId,
-      successionType: succession.successionType,
-      effectiveDate: succession.effectiveDate,
-      note: succession.note,
-    })
-  }
-
-  console.log(`✅ 非アクティブ地域データ作成: ${inactiveAreas.length} 件`)
-  console.log(`✅ 継承関係データ処理完了: ${transformedSuccessions.length} 件`)
-
-  return { successions: transformedSuccessions, inactiveAreas }
-}
-
-/**
- * RegionsDataから地方・都道府県関連付けデータを生成
- */
-function generateRegionPrefectureMappingFromRegions(regionsData: z.infer<typeof RegionsDataSchema>): Array<{
-  regionCode: string
-  prefectureCode: string
-}> {
-  const mappingData: Array<{
-    regionCode: string
-    prefectureCode: string
-  }> = []
-
-  for (const region of regionsData.regions) {
-    for (const prefectureCode of region.prefectures) {
-      mappingData.push({
-        regionCode: region.code,
-        prefectureCode,
-      })
-    }
-  }
-
-  return mappingData
-}
-
-/**
- * 地方区分データを変換する
- */
-function transformRegionData(regionsData: z.infer<typeof RegionsDataSchema>): {
-  regions: Array<{
-    id: string
-    name: string
-    code: string
-  }>
-  codeToIdMap: Map<string, string>
-} {
-  const codeToIdMap = new Map<string, string>()
-
-  const regions = regionsData.regions.map((item) => {
-    const id = createId()
-    codeToIdMap.set(item.code, id)
-
-    return {
-      id,
-      name: item.name,
-      code: item.code,
-    }
-  })
-
-  return { regions, codeToIdMap }
-}
-
-/**
- * 地方・都道府県関連付けデータを変換する
- */
-function transformRegionPrefectureMapping(
-  mappingData: Array<{ regionCode: string, prefectureCode: string }>,
-  regionCodeToIdMap: Map<string, string>,
-  prefectureCodeToIdMap: Map<string, string>,
-): Array<{
-  id: string
-  regionId: string
-  prefectureId: string
-}> {
-  const mappings: Array<{
-    id: string
-    regionId: string
-    prefectureId: string
-  }> = []
-
-  for (const mapping of mappingData) {
-    const regionId = regionCodeToIdMap.get(mapping.regionCode)
-    const prefectureId = prefectureCodeToIdMap.get(mapping.prefectureCode)
-
-    if (!regionId) {
-      console.warn(`⚠️ 地方コード ${mapping.regionCode} に対応するIDが見つかりません`)
-      continue
-    }
-
-    if (!prefectureId) {
-      console.warn(`⚠️ 都道府県コード ${mapping.prefectureCode} に対応するIDが見つかりません`)
-      continue
-    }
-
-    mappings.push({
-      id: createId(),
-      regionId,
-      prefectureId,
-    })
-  }
-
-  return mappings
-}
 async function main() {
-  try {
-    console.log('🌱 データベースシード開始...')
+  const options = parseCommandLineArgs()
 
-    // JSONファイルの読み込みとバリデーション
-    console.log('📂 データファイルを読み込み中...')
-    const areaData = loadAndValidateJson('area-data.json', AreaDataSchema)
-    const successionData = loadAndValidateJson('area-succession.json', AreaSuccessionSchema)
-    const regionsData = loadAndValidateJsonc('regions.jsonc', RegionsDataSchema)
-
-    console.log(`✅ 地域データ: ${areaData.data.length} 件`)
-    console.log(`✅ 継承関係データ: ${successionData.data.length} 件`)
-    console.log(`✅ 地方区分データ: ${regionsData.regions.length} 件`)
-
-    // 地方・都道府県関連付けデータをregionsDataから生成
-    const regionMappingData = generateRegionPrefectureMappingFromRegions(regionsData)
-    console.log(`✅ 地方・都道府県関連付けデータ: ${regionMappingData.length} 件`)
-
-    // データ変換
-    console.log('🔄 データ変換中...')
-    const { national, prefectures, cities, codeToIdMap } = transformAreaData(areaData)
-
-    // 市区町村のparentIdを正しいIDに変換
-    const citiesWithCorrectParentId = cities.map((city) => ({
-      ...city,
-      parentId: codeToIdMap.get(city.parentId as string) || null,
-    }))
-
-    const successionResult = transformSuccessionData(successionData, codeToIdMap)
-
-    // 地方区分データを変換
-    const { regions, codeToIdMap: regionCodeToIdMap } = transformRegionData(regionsData)
-    const regionPrefectureMappings = transformRegionPrefectureMapping(
-      regionMappingData,
-      regionCodeToIdMap,
-      codeToIdMap,
-    )
-
-    // 既存データのクリア
-    console.log('🧹 既存データをクリア中...')
-    await executeWranglerCommandViaFile('DELETE FROM regions_on_prefectures;')
-    await executeWranglerCommandViaFile('DELETE FROM regions;')
-    await executeWranglerCommandViaFile('DELETE FROM area_successions;')
-    await executeWranglerCommandViaFile('DELETE FROM areas;')
-
-    console.log('🏛️ 地域データを投入中...')
-    // 1. 全国・都道府県・市区町村を一括投入（バッチ処理）
-    const areasSqlBatches = generateAreasSql(national, prefectures, citiesWithCorrectParentId)
-    console.log(`  📦 地域データをバッチ処理: ${areasSqlBatches.length} バッチ`)
-
-    for (let i = 0; i < areasSqlBatches.length; i++) {
-      console.log(`  🏛️ バッチ ${i + 1}/${areasSqlBatches.length} を実行中...`)
-      const areasSqlBatch = areasSqlBatches[i]
-      invariant(areasSqlBatch, 'SQLバッチが空です。')
-      await executeWranglerCommandViaFile(areasSqlBatch)
-    }
-
-    console.log(`  🌏 全国データ投入: ${national.length} 件`)
-    console.log(`  📍 都道府県データ投入: ${prefectures.length} 件`)
-    console.log(`  🏘️ 市区町村データ投入: ${citiesWithCorrectParentId.length} 件`)
-
-    // 2. 非アクティブ地域データを投入
-    if (successionResult.inactiveAreas.length > 0) {
-      console.log(`🔗 非アクティブ地域データ投入: ${successionResult.inactiveAreas.length} 件`)
-      const inactiveAreasSqlBatches = generateAreasSql([], [], successionResult.inactiveAreas)
-      console.log(`  📦 非アクティブ地域データをバッチ処理: ${inactiveAreasSqlBatches.length} バッチ`)
-
-      for (let i = 0; i < inactiveAreasSqlBatches.length; i++) {
-        console.log(`  🏛️ バッチ ${i + 1}/${inactiveAreasSqlBatches.length} を実行中...`)
-        const inactiveAreasSqlBatch = inactiveAreasSqlBatches[i]
-        invariant(inactiveAreasSqlBatch, 'SQLバッチが空です。')
-        await executeWranglerCommandViaFile(inactiveAreasSqlBatch)
-      }
-    }
-
-    // 3. 継承関係データを投入（バッチ処理）
-    if (successionResult.successions.length > 0) {
-      console.log(`🔗 継承関係データ投入: ${successionResult.successions.length} 件`)
-      const successionsSqlBatches = generateSuccessionsSql(successionResult.successions)
-      console.log(`  📦 継承関係データをバッチ処理: ${successionsSqlBatches.length} バッチ`)
-
-      for (let i = 0; i < successionsSqlBatches.length; i++) {
-        console.log(`  🔗 バッチ ${i + 1}/${successionsSqlBatches.length} を実行中...`)
-        const successionsSqlBatch = successionsSqlBatches[i]
-        invariant(successionsSqlBatch, 'SQLバッチが空です。')
-        await executeWranglerCommandViaFile(successionsSqlBatch)
-      }
-    }
-    else {
-      console.log('🔗 継承関係データ: 投入対象なし')
-    }
-
-    // 4. 地方区分データを投入
-    console.log(`🗾 地方区分データ投入: ${regions.length} 件`)
-    const regionsSqlBatches = generateRegionsSql(regions)
-    for (const regionsSqlBatch of regionsSqlBatches) {
-      await executeWranglerCommandViaFile(regionsSqlBatch)
-    }
-
-    // 5. 地方・都道府県関連付けデータを投入
-    if (regionPrefectureMappings.length > 0) {
-      console.log(`🔗 地方・都道府県関連付けデータ投入: ${regionPrefectureMappings.length} 件`)
-      const regionPrefectureSqlBatches = generateRegionsPrefecturesSql(regionPrefectureMappings)
-      console.log(`  📦 関連付けデータをバッチ処理: ${regionPrefectureSqlBatches.length} バッチ`)
-
-      for (let i = 0; i < regionPrefectureSqlBatches.length; i++) {
-        console.log(`  🔗 バッチ ${i + 1}/${regionPrefectureSqlBatches.length} を実行中...`)
-        const regionPrefectureSqlBatch = regionPrefectureSqlBatches[i]
-        invariant(regionPrefectureSqlBatch, 'SQLバッチが空です。')
-        await executeWranglerCommandViaFile(regionPrefectureSqlBatch)
-      }
-    }
-    else {
-      console.log('🔗 地方・都道府県関連付けデータ: 投入対象なし')
-    }
-
-    console.log('🎉 シード処理が完了しました！')
-
-    // 投入結果の確認
-    await executeWranglerCommand('SELECT COUNT(*) as areas_count FROM areas;')
-    await executeWranglerCommand('SELECT COUNT(*) as successions_count FROM area_successions;')
-    await executeWranglerCommand('SELECT COUNT(*) as regions_count FROM regions;')
-    await executeWranglerCommand('SELECT COUNT(*) as region_prefectures_count FROM regions_on_prefectures;')
+  if (options.mode === 'sql') {
+    await runSqlGeneration()
+    return
   }
-  catch (error) {
-    console.error('❌ シード処理中にエラーが発生しました:', error)
-    process.exit(1)
+
+  await runDatabaseSeed()
+}
+
+main().catch((error) => {
+  console.error('シードスクリプトの実行に失敗しました:', error)
+  process.exit(1)
+})
+
+interface CliOptions {
+  mode: 'database' | 'sql'
+  help: boolean
+}
+
+function parseCommandLineArgs(): CliOptions {
+  const { values } = parseArgs({
+    options: {
+      mode: {
+        type: 'string',
+        short: 'm',
+      },
+      help: {
+        type: 'boolean',
+        short: 'h',
+      },
+    },
+    allowPositionals: false,
+  })
+
+  if (values.help) {
+    console.log(`
+使用方法:
+  npm run db:seed                    # データベースに直接挿入（デフォルト）
+  npm run db:seed -- --mode=sql      # 本番用SQLファイルを生成
+  npm run db:seed -- --mode=database # データベースに直接挿入
+  npm run db:seed -- --help          # このヘルプを表示
+
+SQLファイル生成時の出力:
+  - scripts/seed/output/areas.sql                        # Area関連データ
+  - scripts/seed/output/common.sql                       # 共通データ（選挙・政党）
+  - scripts/seed/output/election-{election}.sql   # 選挙別投票データ
+`)
+    process.exit(0)
+  }
+
+  const mode = values.mode === 'sql' ? 'sql' : 'database'
+
+  return {
+    mode,
+    help: false,
   }
 }
 
-// スクリプトが直接実行された場合のみmain()を呼び出し
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main()
+async function runSqlGeneration() {
+  console.log('📄 本番用SQLファイル生成を開始...')
+  console.time('📄 SQLファイル生成が完了しました')
+
+  console.log('📚 JSONファイルを読み込み中...')
+  console.time('📚 JSONファイルを読み込みました')
+
+  const seedData = await loadSeedData()
+
+  console.timeEnd('📚 JSONファイルを読み込みました')
+
+  console.log('🔄 データを加工しています...')
+  console.time('🔄 データの加工しました')
+
+  const insertData = transformSeedData(seedData)
+
+  console.timeEnd('🔄 データの加工しました')
+
+  console.log('📝 SQLファイルを生成しています...')
+  console.time('📝 SQLファイルを生成しました')
+
+  await generateAllSqlFiles(insertData)
+
+  console.timeEnd('📝 SQLファイルを生成しました')
+  console.timeEnd('📄 SQLファイル生成が完了しました')
 }
 
-export { main }
+async function runDatabaseSeed() {
+  console.log('🌱 シードスクリプトの実行中...')
+  console.time('🌱 シードスクリプトが完了しました。')
+
+  console.log('📚 JSONファイルを読み込み中...')
+  console.time('📚 JSONファイルを読み込みました')
+
+  const seedData = await loadSeedData()
+
+  console.timeEnd('📚 JSONファイルを読み込みました')
+
+  console.log('🔄 データを加工しています...')
+  console.time('🔄 データの加工しました')
+
+  const insertData = transformSeedData(seedData)
+
+  console.timeEnd('🔄 データの加工しました')
+
+  console.log('🗑️ 既存のテーブルデータを消去しています...')
+  console.time('🗑️ テーブルデータを消去しました')
+
+  await clearAllTables()
+
+  console.timeEnd('🗑️ テーブルデータを消去しました')
+
+  console.log('📥 データを挿入しています...')
+  console.time('📥 データを挿入しました')
+
+  await insertAllData(insertData)
+
+  console.timeEnd('📥 データを挿入しました')
+
+  console.timeEnd('🌱 シードスクリプトが完了しました。')
+}

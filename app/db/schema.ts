@@ -64,7 +64,7 @@ export const areas = sqliteTable(
      * データ整合性:
      * - area_succession テーブル更新時に連動して更新する必要あり
      */
-    isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+    isActive: integer('is_active', { mode: 'boolean' }).notNull(),
     /**
      * 親地域ID（階層構造用）
      * - null許容: 国全体に親は存在しない
@@ -267,7 +267,7 @@ export const partyResults = sqliteTable(
      * データ整合性:
      * - JavaScript側では100で割って元の値に復元
      */
-    votes: integer('votes').notNull().default(0),
+    votes: integer('votes').notNull(),
     /**
      * 得票率（%） - 非正規化フィールド
      *
@@ -283,7 +283,7 @@ export const partyResults = sqliteTable(
      * - election_area_metas または votes 更新時に連動して再計算・更新する必要あり
      * - JavaScript側では100で割って元の値（%）に復元
      */
-    voteRate: integer('vote_rate').notNull().default(0),
+    voteRate: integer('vote_rate').notNull(),
   },
   (table) => [
     // 得票数の範囲制約（0以上）
@@ -407,7 +407,7 @@ export const votingStatuses = sqliteTable(
      * データ整合性:
      * - JavaScript側では100で割って元の値に復元
      */
-    validVotes: integer('valid_votes').notNull().default(0),
+    validVotes: integer('valid_votes').notNull(),
     /**
      * 無効投票数
      *
@@ -421,22 +421,22 @@ export const votingStatuses = sqliteTable(
      */
     invalidVotes: integer('invalid_votes'),
     /**
-     * 有効投票率（%） - 非正規化フィールド
+     * 無効投票率（%） - 非正規化フィールド
      *
-     * 計算式: valid_votes / (valid_votes + invalid_votes) * 100
+     * 計算式: invalid_votes / (valid_votes + invalid_votes) * 100
      * データ形式: 小数点2桁まで管理、100倍してINTEGERで保存
-     * 例: 98.25% → 9825として保存
+     * 例: 1.75% → 175として保存
      *
      * 設計意図:
-     * - 有効投票率による分析・比較が頻繁に行われるため、パフォーマンス向上を目的として非正規化
-     * - 有効投票率ランキング表示などの一般的なクエリで高速化を実現
+     * - 無効投票率による分析・比較が頻繁に行われるため、パフォーマンス向上を目的として非正規化
+     * - 無効投票率ランキング表示などの一般的なクエリで高速化を実現
      *
      * データ整合性:
      * - 有効・無効投票数更新時に連動して再計算・更新する必要あり
      * - JavaScript側では100で割って元の値（%）に復元
      * - CITYレベルでは無効投票数が存在しないため計算不可でNULL
      */
-    validVoteRate: integer('valid_vote_rate'),
+    invalidVoteRate: integer('invalid_vote_rate'),
   },
   (table) => [
     // 投票状況の一意性制約（選挙・地域の組み合わせは一意）
@@ -446,10 +446,10 @@ export const votingStatuses = sqliteTable(
       'chk_turnout_rate',
       sql`${table.turnoutRate} IS NULL OR (${table.turnoutRate} >= 0 AND ${table.turnoutRate} <= 10000)`,
     ),
-    // 有効投票率の範囲制約（100倍保存: 0〜10000 = 0%〜100%、NULLも許可）
+    // 無効投票率の範囲制約（100倍保存: 0〜10000 = 0%〜100%、NULLも許可）
     check(
-      'chk_valid_vote_rate',
-      sql`${table.validVoteRate} IS NULL OR (${table.validVoteRate} >= 0 AND ${table.validVoteRate} <= 10000)`,
+      'chk_invalid_vote_rate',
+      sql`${table.invalidVoteRate} IS NULL OR (${table.invalidVoteRate} >= 0 AND ${table.invalidVoteRate} <= 10000)`,
     ),
     // 男性投票・棄権者数は NULLまたは0以上
     check(
@@ -473,8 +473,8 @@ export const votingStatuses = sqliteTable(
     ),
     // 投票率単体でのソート用インデックス
     index('idx_voting_statuses_turnout_rate').on(table.turnoutRate),
-    // 有効投票率単体でのソート用インデックス
-    index('idx_voting_statuses_valid_vote_rate').on(table.validVoteRate),
+    // 無効投票率単体でのソート用インデックス
+    index('idx_voting_statuses_invalid_vote_rate').on(table.invalidVoteRate),
     // 選挙内での投票率ソート用複合インデックス（推奨）
     index('idx_voting_statuses_election_turnout').on(table.electionId, table.turnoutRate),
   ],

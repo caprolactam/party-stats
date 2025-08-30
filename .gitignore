@@ -24,6 +24,7 @@ worker-configuration.d.ts
 # scripts
 
 scripts/**/temp/
+scripts/seed/output/
 
 # Misc
 .DS_Store
