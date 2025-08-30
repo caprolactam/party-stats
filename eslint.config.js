@@ -131,5 +131,5 @@ function tailwind() {
 }
 
 function ignoreFiles() {
-  return globalIgnores(['build', '**/*.d.ts'])
+  return globalIgnores(['build', '**/*.d.ts', '.react-router', 'coverage'])
 }

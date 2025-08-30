@@ -25,6 +25,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <html
       lang="ja"
       suppressHydrationWarning
+      // eslint-disable-next-line better-tailwindcss/no-unregistered-classes
       className={pageBackground === 'gray' ? 'page-gray' : ''}
     >
       <head>

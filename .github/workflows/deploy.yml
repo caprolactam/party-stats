@@ -92,5 +92,8 @@ jobs:
       - name: 🔨 Build app
         run: npm run build
 
+      - name: 🖼️ Install Playwright browsers
+        run: npm run test:install-deps
+
       - name: ⚡ Run vitest
         run: npm run test
