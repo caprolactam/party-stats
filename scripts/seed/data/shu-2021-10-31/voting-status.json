@@ -1,0 +1,1880 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "national": {
+        "type": "object",
+        "properties": {
+          "areaCode": {
+            "type": "string",
+            "minLength": 1
+          },
+          "areaName": {
+            "type": "string",
+            "minLength": 1
+          },
+          "voters": {
+            "type": "object",
+            "properties": {
+              "eligibles": {
+                "type": "object",
+                "properties": {
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "male": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "female": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "total",
+                  "male",
+                  "female"
+                ],
+                "additionalProperties": false
+              },
+              "voters": {
+                "type": "object",
+                "properties": {
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "male": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "female": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "total",
+                  "male",
+                  "female"
+                ],
+                "additionalProperties": false
+              },
+              "abstainers": {
+                "type": "object",
+                "properties": {
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "male": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "female": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "total",
+                  "male",
+                  "female"
+                ],
+                "additionalProperties": false
+              },
+              "turnoutRate": {
+                "type": "object",
+                "properties": {
+                  "total": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "male": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "female": {
+                    "type": "number",
+                    "minimum": 0
+                  }
+                },
+                "required": [
+                  "total",
+                  "male",
+                  "female"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "eligibles",
+              "voters",
+              "abstainers",
+              "turnoutRate"
+            ],
+            "additionalProperties": false
+          },
+          "votes": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "number",
+                "minimum": 0
+              },
+              "valid": {
+                "type": "number",
+                "minimum": 0
+              },
+              "invalid": {
+                "type": "number",
+                "minimum": 0
+              },
+              "invalidVoteRate": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "total",
+              "valid",
+              "invalid",
+              "invalidVoteRate"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "areaCode",
+          "areaName",
+          "voters",
+          "votes"
+        ],
+        "additionalProperties": false
+      },
+      "prefectures": {
+        "minItems": 47,
+        "maxItems": 47,
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "areaCode": {
+              "type": "string",
+              "minLength": 1
+            },
+            "areaName": {
+              "type": "string",
+              "minLength": 1
+            },
+            "voters": {
+              "type": "object",
+              "properties": {
+                "eligibles": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "male": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "female": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "total",
+                    "male",
+                    "female"
+                  ],
+                  "additionalProperties": false
+                },
+                "voters": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "male": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "female": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "total",
+                    "male",
+                    "female"
+                  ],
+                  "additionalProperties": false
+                },
+                "abstainers": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "male": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "female": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "total",
+                    "male",
+                    "female"
+                  ],
+                  "additionalProperties": false
+                },
+                "turnoutRate": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "male": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "female": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  },
+                  "required": [
+                    "total",
+                    "male",
+                    "female"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "eligibles",
+                "voters",
+                "abstainers",
+                "turnoutRate"
+              ],
+              "additionalProperties": false
+            },
+            "votes": {
+              "type": "object",
+              "properties": {
+                "total": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "valid": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "invalid": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "invalidVoteRate": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              },
+              "required": [
+                "total",
+                "valid",
+                "invalid",
+                "invalidVoteRate"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "areaCode",
+            "areaName",
+            "voters",
+            "votes"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "national",
+      "prefectures"
+    ],
+    "additionalProperties": false
+  },
+  "data": {
+    "national": {
+      "areaCode": "000001",
+      "areaName": "全国",
+      "voters": {
+        "eligibles": {
+          "total": 105320523,
+          "male": 50891954,
+          "female": 54428569
+        },
+        "voters": {
+          "total": 58893807,
+          "male": 28527928,
+          "female": 30365879
+        },
+        "abstainers": {
+          "total": 46426716,
+          "male": 22364026,
+          "female": 24062690
+        },
+        "turnoutRate": {
+          "total": 55.92,
+          "male": 56.06,
+          "female": 55.79
+        }
+      },
+      "votes": {
+        "total": 58891347,
+        "valid": 57465981,
+        "invalid": 1425366,
+        "invalidVoteRate": 2.42
+      }
+    },
+    "prefectures": [
+      {
+        "areaCode": "010006",
+        "areaName": "北海道",
+        "voters": {
+          "eligibles": {
+            "total": 4484166,
+            "male": 2092137,
+            "female": 2392029
+          },
+          "voters": {
+            "total": 2635835,
+            "male": 1242743,
+            "female": 1393092
+          },
+          "abstainers": {
+            "total": 1848331,
+            "male": 849394,
+            "female": 998937
+          },
+          "turnoutRate": {
+            "total": 58.78,
+            "male": 59.4,
+            "female": 58.24
+          }
+        },
+        "votes": {
+          "total": 2635733,
+          "valid": 2569130,
+          "invalid": 66603,
+          "invalidVoteRate": 2.53
+        }
+      },
+      {
+        "areaCode": "020001",
+        "areaName": "青森県",
+        "voters": {
+          "eligibles": {
+            "total": 1079309,
+            "male": 505635,
+            "female": 573674
+          },
+          "voters": {
+            "total": 571152,
+            "male": 271335,
+            "female": 299817
+          },
+          "abstainers": {
+            "total": 508157,
+            "male": 234300,
+            "female": 273857
+          },
+          "turnoutRate": {
+            "total": 52.92,
+            "male": 53.66,
+            "female": 52.26
+          }
+        },
+        "votes": {
+          "total": 571143,
+          "valid": 553264,
+          "invalid": 17879,
+          "invalidVoteRate": 3.13
+        }
+      },
+      {
+        "areaCode": "030007",
+        "areaName": "岩手県",
+        "voters": {
+          "eligibles": {
+            "total": 1040122,
+            "male": 497259,
+            "female": 542863
+          },
+          "voters": {
+            "total": 627949,
+            "male": 302845,
+            "female": 325104
+          },
+          "abstainers": {
+            "total": 412173,
+            "male": 194414,
+            "female": 217759
+          },
+          "turnoutRate": {
+            "total": 60.37,
+            "male": 60.9,
+            "female": 59.89
+          }
+        },
+        "votes": {
+          "total": 627926,
+          "valid": 604899,
+          "invalid": 23027,
+          "invalidVoteRate": 3.67
+        }
+      },
+      {
+        "areaCode": "040002",
+        "areaName": "宮城県",
+        "voters": {
+          "eligibles": {
+            "total": 1925623,
+            "male": 930742,
+            "female": 994881
+          },
+          "voters": {
+            "total": 1075743,
+            "male": 521633,
+            "female": 554110
+          },
+          "abstainers": {
+            "total": 849880,
+            "male": 409109,
+            "female": 440771
+          },
+          "turnoutRate": {
+            "total": 55.86,
+            "male": 56.04,
+            "female": 55.7
+          }
+        },
+        "votes": {
+          "total": 1075680,
+          "valid": 1045245,
+          "invalid": 30435,
+          "invalidVoteRate": 2.83
+        }
+      },
+      {
+        "areaCode": "050008",
+        "areaName": "秋田県",
+        "voters": {
+          "eligibles": {
+            "total": 840933,
+            "male": 393348,
+            "female": 447585
+          },
+          "voters": {
+            "total": 489753,
+            "male": 233325,
+            "female": 256428
+          },
+          "abstainers": {
+            "total": 351180,
+            "male": 160023,
+            "female": 191157
+          },
+          "turnoutRate": {
+            "total": 58.24,
+            "male": 59.32,
+            "female": 57.29
+          }
+        },
+        "votes": {
+          "total": 489744,
+          "valid": 473012,
+          "invalid": 16732,
+          "invalidVoteRate": 3.42
+        }
+      },
+      {
+        "areaCode": "060003",
+        "areaName": "山形県",
+        "voters": {
+          "eligibles": {
+            "total": 905591,
+            "male": 434754,
+            "female": 470837
+          },
+          "voters": {
+            "total": 582441,
+            "male": 284096,
+            "female": 298345
+          },
+          "abstainers": {
+            "total": 323150,
+            "male": 150658,
+            "female": 172492
+          },
+          "turnoutRate": {
+            "total": 64.32,
+            "male": 65.35,
+            "female": 63.36
+          }
+        },
+        "votes": {
+          "total": 582415,
+          "valid": 563345,
+          "invalid": 19070,
+          "invalidVoteRate": 3.27
+        }
+      },
+      {
+        "areaCode": "070009",
+        "areaName": "福島県",
+        "voters": {
+          "eligibles": {
+            "total": 1573402,
+            "male": 767988,
+            "female": 805414
+          },
+          "voters": {
+            "total": 912636,
+            "male": 446479,
+            "female": 466157
+          },
+          "abstainers": {
+            "total": 660766,
+            "male": 321509,
+            "female": 339257
+          },
+          "turnoutRate": {
+            "total": 58,
+            "male": 58.14,
+            "female": 57.88
+          }
+        },
+        "votes": {
+          "total": 912618,
+          "valid": 880905,
+          "invalid": 31713,
+          "invalidVoteRate": 3.47
+        }
+      },
+      {
+        "areaCode": "080004",
+        "areaName": "茨城県",
+        "voters": {
+          "eligibles": {
+            "total": 2414968,
+            "male": 1203732,
+            "female": 1211236
+          },
+          "voters": {
+            "total": 1268840,
+            "male": 638966,
+            "female": 629874
+          },
+          "abstainers": {
+            "total": 1146128,
+            "male": 564766,
+            "female": 581362
+          },
+          "turnoutRate": {
+            "total": 52.54,
+            "male": 53.08,
+            "female": 52
+          }
+        },
+        "votes": {
+          "total": 1268817,
+          "valid": 1237601,
+          "invalid": 31216,
+          "invalidVoteRate": 2.46
+        }
+      },
+      {
+        "areaCode": "090000",
+        "areaName": "栃木県",
+        "voters": {
+          "eligibles": {
+            "total": 1625288,
+            "male": 808269,
+            "female": 817019
+          },
+          "voters": {
+            "total": 862258,
+            "male": 434584,
+            "female": 427674
+          },
+          "abstainers": {
+            "total": 763030,
+            "male": 373685,
+            "female": 389345
+          },
+          "turnoutRate": {
+            "total": 53.05,
+            "male": 53.77,
+            "female": 52.35
+          }
+        },
+        "votes": {
+          "total": 862240,
+          "valid": 833942,
+          "invalid": 28298,
+          "invalidVoteRate": 3.28
+        }
+      },
+      {
+        "areaCode": "100005",
+        "areaName": "群馬県",
+        "voters": {
+          "eligibles": {
+            "total": 1614124,
+            "male": 794407,
+            "female": 819717
+          },
+          "voters": {
+            "total": 869758,
+            "male": 431196,
+            "female": 438562
+          },
+          "abstainers": {
+            "total": 744366,
+            "male": 363211,
+            "female": 381155
+          },
+          "turnoutRate": {
+            "total": 53.88,
+            "male": 54.28,
+            "female": 53.5
+          }
+        },
+        "votes": {
+          "total": 869742,
+          "valid": 847285,
+          "invalid": 22457,
+          "invalidVoteRate": 2.58
+        }
+      },
+      {
+        "areaCode": "110001",
+        "areaName": "埼玉県",
+        "voters": {
+          "eligibles": {
+            "total": 6148485,
+            "male": 3056240,
+            "female": 3092245
+          },
+          "voters": {
+            "total": 3317535,
+            "male": 1655703,
+            "female": 1661832
+          },
+          "abstainers": {
+            "total": 2830950,
+            "male": 1400537,
+            "female": 1430413
+          },
+          "turnoutRate": {
+            "total": 53.96,
+            "male": 54.17,
+            "female": 53.74
+          }
+        },
+        "votes": {
+          "total": 3317273,
+          "valid": 3253275,
+          "invalid": 63998,
+          "invalidVoteRate": 1.93
+        }
+      },
+      {
+        "areaCode": "120006",
+        "areaName": "千葉県",
+        "voters": {
+          "eligibles": {
+            "total": 5265989,
+            "male": 2611597,
+            "female": 2654392
+          },
+          "voters": {
+            "total": 2824522,
+            "male": 1398373,
+            "female": 1426149
+          },
+          "abstainers": {
+            "total": 2441467,
+            "male": 1213224,
+            "female": 1228243
+          },
+          "turnoutRate": {
+            "total": 53.64,
+            "male": 53.54,
+            "female": 53.73
+          }
+        },
+        "votes": {
+          "total": 2824424,
+          "valid": 2764556,
+          "invalid": 59868,
+          "invalidVoteRate": 2.12
+        }
+      },
+      {
+        "areaCode": "130001",
+        "areaName": "東京都",
+        "voters": {
+          "eligibles": {
+            "total": 11486835,
+            "male": 5603824,
+            "female": 5883011
+          },
+          "voters": {
+            "total": 6570730,
+            "male": 3189779,
+            "female": 3380951
+          },
+          "abstainers": {
+            "total": 4916105,
+            "male": 2414045,
+            "female": 2502060
+          },
+          "turnoutRate": {
+            "total": 57.2,
+            "male": 56.92,
+            "female": 57.47
+          }
+        },
+        "votes": {
+          "total": 6570323,
+          "valid": 6446898,
+          "invalid": 123425,
+          "invalidVoteRate": 1.88
+        }
+      },
+      {
+        "areaCode": "140007",
+        "areaName": "神奈川県",
+        "voters": {
+          "eligibles": {
+            "total": 7703187,
+            "male": 3819206,
+            "female": 3883981
+          },
+          "voters": {
+            "total": 4335721,
+            "male": 2145144,
+            "female": 2190577
+          },
+          "abstainers": {
+            "total": 3367466,
+            "male": 1674062,
+            "female": 1693404
+          },
+          "turnoutRate": {
+            "total": 56.28,
+            "male": 56.17,
+            "female": 56.4
+          }
+        },
+        "votes": {
+          "total": 4335521,
+          "valid": 4247015,
+          "invalid": 88506,
+          "invalidVoteRate": 2.04
+        }
+      },
+      {
+        "areaCode": "150002",
+        "areaName": "新潟県",
+        "voters": {
+          "eligibles": {
+            "total": 1876073,
+            "male": 904647,
+            "female": 971426
+          },
+          "voters": {
+            "total": 1184648,
+            "male": 581293,
+            "female": 603355
+          },
+          "abstainers": {
+            "total": 691425,
+            "male": 323354,
+            "female": 368071
+          },
+          "turnoutRate": {
+            "total": 63.15,
+            "male": 64.26,
+            "female": 62.11
+          }
+        },
+        "votes": {
+          "total": 1184620,
+          "valid": 1149923,
+          "invalid": 34697,
+          "invalidVoteRate": 2.93
+        }
+      },
+      {
+        "areaCode": "160008",
+        "areaName": "富山県",
+        "voters": {
+          "eligibles": {
+            "total": 880016,
+            "male": 423589,
+            "female": 456427
+          },
+          "voters": {
+            "total": 489911,
+            "male": 239661,
+            "female": 250250
+          },
+          "abstainers": {
+            "total": 390105,
+            "male": 183928,
+            "female": 206177
+          },
+          "turnoutRate": {
+            "total": 55.67,
+            "male": 56.58,
+            "female": 54.83
+          }
+        },
+        "votes": {
+          "total": 489899,
+          "valid": 473651,
+          "invalid": 16248,
+          "invalidVoteRate": 3.32
+        }
+      },
+      {
+        "areaCode": "170003",
+        "areaName": "石川県",
+        "voters": {
+          "eligibles": {
+            "total": 945013,
+            "male": 453141,
+            "female": 491872
+          },
+          "voters": {
+            "total": 539919,
+            "male": 260385,
+            "female": 279534
+          },
+          "abstainers": {
+            "total": 405094,
+            "male": 192756,
+            "female": 212338
+          },
+          "turnoutRate": {
+            "total": 57.13,
+            "male": 57.46,
+            "female": 56.83
+          }
+        },
+        "votes": {
+          "total": 539916,
+          "valid": 524207,
+          "invalid": 15709,
+          "invalidVoteRate": 2.91
+        }
+      },
+      {
+        "areaCode": "180009",
+        "areaName": "福井県",
+        "voters": {
+          "eligibles": {
+            "total": 637822,
+            "male": 307782,
+            "female": 330040
+          },
+          "voters": {
+            "total": 368430,
+            "male": 179524,
+            "female": 188906
+          },
+          "abstainers": {
+            "total": 269392,
+            "male": 128258,
+            "female": 141134
+          },
+          "turnoutRate": {
+            "total": 57.76,
+            "male": 58.33,
+            "female": 57.24
+          }
+        },
+        "votes": {
+          "total": 368420,
+          "valid": 359251,
+          "invalid": 9169,
+          "invalidVoteRate": 2.49
+        }
+      },
+      {
+        "areaCode": "190004",
+        "areaName": "山梨県",
+        "voters": {
+          "eligibles": {
+            "total": 686700,
+            "male": 335066,
+            "female": 351634
+          },
+          "voters": {
+            "total": 415892,
+            "male": 203151,
+            "female": 212741
+          },
+          "abstainers": {
+            "total": 270808,
+            "male": 131915,
+            "female": 138893
+          },
+          "turnoutRate": {
+            "total": 60.56,
+            "male": 60.63,
+            "female": 60.5
+          }
+        },
+        "votes": {
+          "total": 415889,
+          "valid": 402737,
+          "invalid": 13152,
+          "invalidVoteRate": 3.16
+        }
+      },
+      {
+        "areaCode": "200000",
+        "areaName": "長野県",
+        "voters": {
+          "eligibles": {
+            "total": 1727255,
+            "male": 839299,
+            "female": 887956
+          },
+          "voters": {
+            "total": 1032220,
+            "male": 508892,
+            "female": 523328
+          },
+          "abstainers": {
+            "total": 695035,
+            "male": 330407,
+            "female": 364628
+          },
+          "turnoutRate": {
+            "total": 59.76,
+            "male": 60.63,
+            "female": 58.94
+          }
+        },
+        "votes": {
+          "total": 1032173,
+          "valid": 1003581,
+          "invalid": 28592,
+          "invalidVoteRate": 2.77
+        }
+      },
+      {
+        "areaCode": "210005",
+        "areaName": "岐阜県",
+        "voters": {
+          "eligibles": {
+            "total": 1653967,
+            "male": 798957,
+            "female": 855010
+          },
+          "voters": {
+            "total": 960940,
+            "male": 468329,
+            "female": 492611
+          },
+          "abstainers": {
+            "total": 693027,
+            "male": 330628,
+            "female": 362399
+          },
+          "turnoutRate": {
+            "total": 58.1,
+            "male": 58.62,
+            "female": 57.61
+          }
+        },
+        "votes": {
+          "total": 960915,
+          "valid": 934434,
+          "invalid": 26481,
+          "invalidVoteRate": 2.76
+        }
+      },
+      {
+        "areaCode": "220001",
+        "areaName": "静岡県",
+        "voters": {
+          "eligibles": {
+            "total": 3047463,
+            "male": 1496806,
+            "female": 1550657
+          },
+          "voters": {
+            "total": 1670154,
+            "male": 825884,
+            "female": 844270
+          },
+          "abstainers": {
+            "total": 1377309,
+            "male": 670922,
+            "female": 706387
+          },
+          "turnoutRate": {
+            "total": 54.8,
+            "male": 55.18,
+            "female": 54.45
+          }
+        },
+        "votes": {
+          "total": 1670106,
+          "valid": 1626921,
+          "invalid": 43185,
+          "invalidVoteRate": 2.59
+        }
+      },
+      {
+        "areaCode": "230006",
+        "areaName": "愛知県",
+        "voters": {
+          "eligibles": {
+            "total": 6121964,
+            "male": 3051359,
+            "female": 3070605
+          },
+          "voters": {
+            "total": 3426224,
+            "male": 1725185,
+            "female": 1701039
+          },
+          "abstainers": {
+            "total": 2695740,
+            "male": 1326174,
+            "female": 1369566
+          },
+          "turnoutRate": {
+            "total": 55.97,
+            "male": 56.54,
+            "female": 55.4
+          }
+        },
+        "votes": {
+          "total": 3426073,
+          "valid": 3355654,
+          "invalid": 70419,
+          "invalidVoteRate": 2.06
+        }
+      },
+      {
+        "areaCode": "240001",
+        "areaName": "三重県",
+        "voters": {
+          "eligibles": {
+            "total": 1479020,
+            "male": 717460,
+            "female": 761560
+          },
+          "voters": {
+            "total": 830769,
+            "male": 403171,
+            "female": 427598
+          },
+          "abstainers": {
+            "total": 648251,
+            "male": 314289,
+            "female": 333962
+          },
+          "turnoutRate": {
+            "total": 56.17,
+            "male": 56.19,
+            "female": 56.15
+          }
+        },
+        "votes": {
+          "total": 830739,
+          "valid": 811391,
+          "invalid": 19348,
+          "invalidVoteRate": 2.33
+        }
+      },
+      {
+        "areaCode": "250007",
+        "areaName": "滋賀県",
+        "voters": {
+          "eligibles": {
+            "total": 1153087,
+            "male": 563312,
+            "female": 589775
+          },
+          "voters": {
+            "total": 660996,
+            "male": 325128,
+            "female": 335868
+          },
+          "abstainers": {
+            "total": 492091,
+            "male": 238184,
+            "female": 253907
+          },
+          "turnoutRate": {
+            "total": 57.32,
+            "male": 57.72,
+            "female": 56.95
+          }
+        },
+        "votes": {
+          "total": 660990,
+          "valid": 647814,
+          "invalid": 13176,
+          "invalidVoteRate": 1.99
+        }
+      },
+      {
+        "areaCode": "260002",
+        "areaName": "京都府",
+        "voters": {
+          "eligibles": {
+            "total": 2104958,
+            "male": 994328,
+            "female": 1110630
+          },
+          "voters": {
+            "total": 1185350,
+            "male": 564778,
+            "female": 620572
+          },
+          "abstainers": {
+            "total": 919608,
+            "male": 429550,
+            "female": 490058
+          },
+          "turnoutRate": {
+            "total": 56.31,
+            "male": 56.8,
+            "female": 55.88
+          }
+        },
+        "votes": {
+          "total": 1185325,
+          "valid": 1159553,
+          "invalid": 25772,
+          "invalidVoteRate": 2.17
+        }
+      },
+      {
+        "areaCode": "270008",
+        "areaName": "大阪府",
+        "voters": {
+          "eligibles": {
+            "total": 7316366,
+            "male": 3480497,
+            "female": 3835869
+          },
+          "voters": {
+            "total": 4111206,
+            "male": 1929167,
+            "female": 2182039
+          },
+          "abstainers": {
+            "total": 3205160,
+            "male": 1551330,
+            "female": 1653830
+          },
+          "turnoutRate": {
+            "total": 56.19,
+            "male": 55.43,
+            "female": 56.89
+          }
+        },
+        "votes": {
+          "total": 4110907,
+          "valid": 4036648,
+          "invalid": 74259,
+          "invalidVoteRate": 1.81
+        }
+      },
+      {
+        "areaCode": "280003",
+        "areaName": "兵庫県",
+        "voters": {
+          "eligibles": {
+            "total": 4572143,
+            "male": 2159364,
+            "female": 2412779
+          },
+          "voters": {
+            "total": 2482019,
+            "male": 1172233,
+            "female": 1309786
+          },
+          "abstainers": {
+            "total": 2090124,
+            "male": 987131,
+            "female": 1102993
+          },
+          "turnoutRate": {
+            "total": 54.29,
+            "male": 54.29,
+            "female": 54.29
+          }
+        },
+        "votes": {
+          "total": 2481916,
+          "valid": 2430926,
+          "invalid": 50990,
+          "invalidVoteRate": 2.05
+        }
+      },
+      {
+        "areaCode": "290009",
+        "areaName": "奈良県",
+        "voters": {
+          "eligibles": {
+            "total": 1134187,
+            "male": 530618,
+            "female": 603569
+          },
+          "voters": {
+            "total": 670655,
+            "male": 316343,
+            "female": 354312
+          },
+          "abstainers": {
+            "total": 463532,
+            "male": 214275,
+            "female": 249257
+          },
+          "turnoutRate": {
+            "total": 59.13,
+            "male": 59.62,
+            "female": 58.7
+          }
+        },
+        "votes": {
+          "total": 670654,
+          "valid": 653320,
+          "invalid": 17334,
+          "invalidVoteRate": 2.58
+        }
+      },
+      {
+        "areaCode": "300004",
+        "areaName": "和歌山県",
+        "voters": {
+          "eligibles": {
+            "total": 800936,
+            "male": 374579,
+            "female": 426357
+          },
+          "voters": {
+            "total": 466403,
+            "male": 218931,
+            "female": 247472
+          },
+          "abstainers": {
+            "total": 334533,
+            "male": 155648,
+            "female": 178885
+          },
+          "turnoutRate": {
+            "total": 58.23,
+            "male": 58.45,
+            "female": 58.04
+          }
+        },
+        "votes": {
+          "total": 466398,
+          "valid": 450644,
+          "invalid": 15754,
+          "invalidVoteRate": 3.38
+        }
+      },
+      {
+        "areaCode": "310000",
+        "areaName": "鳥取県",
+        "voters": {
+          "eligibles": {
+            "total": 465379,
+            "male": 220496,
+            "female": 244883
+          },
+          "voters": {
+            "total": 270616,
+            "male": 128277,
+            "female": 142339
+          },
+          "abstainers": {
+            "total": 194763,
+            "male": 92219,
+            "female": 102544
+          },
+          "turnoutRate": {
+            "total": 58.15,
+            "male": 58.18,
+            "female": 58.13
+          }
+        },
+        "votes": {
+          "total": 270609,
+          "valid": 262049,
+          "invalid": 8560,
+          "invalidVoteRate": 3.16
+        }
+      },
+      {
+        "areaCode": "320005",
+        "areaName": "島根県",
+        "voters": {
+          "eligibles": {
+            "total": 559986,
+            "male": 266353,
+            "female": 293633
+          },
+          "voters": {
+            "total": 344645,
+            "male": 165828,
+            "female": 178817
+          },
+          "abstainers": {
+            "total": 215341,
+            "male": 100525,
+            "female": 114816
+          },
+          "turnoutRate": {
+            "total": 61.55,
+            "male": 62.26,
+            "female": 60.9
+          }
+        },
+        "votes": {
+          "total": 344644,
+          "valid": 336712,
+          "invalid": 7932,
+          "invalidVoteRate": 2.3
+        }
+      },
+      {
+        "areaCode": "330001",
+        "areaName": "岡山県",
+        "voters": {
+          "eligibles": {
+            "total": 1568565,
+            "male": 748483,
+            "female": 820082
+          },
+          "voters": {
+            "total": 798950,
+            "male": 382377,
+            "female": 416573
+          },
+          "abstainers": {
+            "total": 769615,
+            "male": 366106,
+            "female": 403509
+          },
+          "turnoutRate": {
+            "total": 50.94,
+            "male": 51.09,
+            "female": 50.8
+          }
+        },
+        "votes": {
+          "total": 798911,
+          "valid": 781601,
+          "invalid": 17310,
+          "invalidVoteRate": 2.17
+        }
+      },
+      {
+        "areaCode": "340006",
+        "areaName": "広島県",
+        "voters": {
+          "eligibles": {
+            "total": 2324312,
+            "male": 1116672,
+            "female": 1207640
+          },
+          "voters": {
+            "total": 1211544,
+            "male": 583282,
+            "female": 628262
+          },
+          "abstainers": {
+            "total": 1112768,
+            "male": 533390,
+            "female": 579378
+          },
+          "turnoutRate": {
+            "total": 52.12,
+            "male": 52.23,
+            "female": 52.02
+          }
+        },
+        "votes": {
+          "total": 1211511,
+          "valid": 1186453,
+          "invalid": 25058,
+          "invalidVoteRate": 2.07
+        }
+      },
+      {
+        "areaCode": "350001",
+        "areaName": "山口県",
+        "voters": {
+          "eligibles": {
+            "total": 1140658,
+            "male": 535736,
+            "female": 604922
+          },
+          "voters": {
+            "total": 566512,
+            "male": 266024,
+            "female": 300488
+          },
+          "abstainers": {
+            "total": 574146,
+            "male": 269712,
+            "female": 304434
+          },
+          "turnoutRate": {
+            "total": 49.67,
+            "male": 49.66,
+            "female": 49.67
+          }
+        },
+        "votes": {
+          "total": 566502,
+          "valid": 552612,
+          "invalid": 13890,
+          "invalidVoteRate": 2.45
+        }
+      },
+      {
+        "areaCode": "360007",
+        "areaName": "徳島県",
+        "voters": {
+          "eligibles": {
+            "total": 622785,
+            "male": 294914,
+            "female": 327871
+          },
+          "voters": {
+            "total": 335309,
+            "male": 159740,
+            "female": 175569
+          },
+          "abstainers": {
+            "total": 287476,
+            "male": 135174,
+            "female": 152302
+          },
+          "turnoutRate": {
+            "total": 53.84,
+            "male": 54.16,
+            "female": 53.55
+          }
+        },
+        "votes": {
+          "total": 335303,
+          "valid": 321600,
+          "invalid": 13703,
+          "invalidVoteRate": 4.09
+        }
+      },
+      {
+        "areaCode": "370002",
+        "areaName": "香川県",
+        "voters": {
+          "eligibles": {
+            "total": 812059,
+            "male": 388371,
+            "female": 423688
+          },
+          "voters": {
+            "total": 455453,
+            "male": 218169,
+            "female": 237284
+          },
+          "abstainers": {
+            "total": 356606,
+            "male": 170202,
+            "female": 186404
+          },
+          "turnoutRate": {
+            "total": 56.09,
+            "male": 56.18,
+            "female": 56
+          }
+        },
+        "votes": {
+          "total": 455443,
+          "valid": 443079,
+          "invalid": 12364,
+          "invalidVoteRate": 2.71
+        }
+      },
+      {
+        "areaCode": "380008",
+        "areaName": "愛媛県",
+        "voters": {
+          "eligibles": {
+            "total": 1141394,
+            "male": 534548,
+            "female": 606846
+          },
+          "voters": {
+            "total": 627377,
+            "male": 294538,
+            "female": 332839
+          },
+          "abstainers": {
+            "total": 514017,
+            "male": 240010,
+            "female": 274007
+          },
+          "turnoutRate": {
+            "total": 54.97,
+            "male": 55.1,
+            "female": 54.85
+          }
+        },
+        "votes": {
+          "total": 627359,
+          "valid": 605747,
+          "invalid": 21612,
+          "invalidVoteRate": 3.44
+        }
+      },
+      {
+        "areaCode": "390003",
+        "areaName": "高知県",
+        "voters": {
+          "eligibles": {
+            "total": 598020,
+            "male": 278881,
+            "female": 319139
+          },
+          "voters": {
+            "total": 342828,
+            "male": 156012,
+            "female": 186816
+          },
+          "abstainers": {
+            "total": 255192,
+            "male": 122869,
+            "female": 132323
+          },
+          "turnoutRate": {
+            "total": 57.33,
+            "male": 55.94,
+            "female": 58.54
+          }
+        },
+        "votes": {
+          "total": 342824,
+          "valid": 328061,
+          "invalid": 14763,
+          "invalidVoteRate": 4.31
+        }
+      },
+      {
+        "areaCode": "400009",
+        "areaName": "福岡県",
+        "voters": {
+          "eligibles": {
+            "total": 4227512,
+            "male": 1977462,
+            "female": 2250050
+          },
+          "voters": {
+            "total": 2203273,
+            "male": 1028330,
+            "female": 1174943
+          },
+          "abstainers": {
+            "total": 2024239,
+            "male": 949132,
+            "female": 1075107
+          },
+          "turnoutRate": {
+            "total": 52.12,
+            "male": 52,
+            "female": 52.22
+          }
+        },
+        "votes": {
+          "total": 2203176,
+          "valid": 2143861,
+          "invalid": 59315,
+          "invalidVoteRate": 2.69
+        }
+      },
+      {
+        "areaCode": "410004",
+        "areaName": "佐賀県",
+        "voters": {
+          "eligibles": {
+            "total": 674722,
+            "male": 316242,
+            "female": 358480
+          },
+          "voters": {
+            "total": 394643,
+            "male": 185850,
+            "female": 208793
+          },
+          "abstainers": {
+            "total": 280079,
+            "male": 130392,
+            "female": 149687
+          },
+          "turnoutRate": {
+            "total": 58.49,
+            "male": 58.77,
+            "female": 58.24
+          }
+        },
+        "votes": {
+          "total": 394638,
+          "valid": 383934,
+          "invalid": 10704,
+          "invalidVoteRate": 2.71
+        }
+      },
+      {
+        "areaCode": "420000",
+        "areaName": "長崎県",
+        "voters": {
+          "eligibles": {
+            "total": 1113966,
+            "male": 516986,
+            "female": 596980
+          },
+          "voters": {
+            "total": 633601,
+            "male": 294971,
+            "female": 338630
+          },
+          "abstainers": {
+            "total": 480365,
+            "male": 222015,
+            "female": 258350
+          },
+          "turnoutRate": {
+            "total": 56.88,
+            "male": 57.06,
+            "female": 56.72
+          }
+        },
+        "votes": {
+          "total": 633578,
+          "valid": 613979,
+          "invalid": 19599,
+          "invalidVoteRate": 3.09
+        }
+      },
+      {
+        "areaCode": "430005",
+        "areaName": "熊本県",
+        "voters": {
+          "eligibles": {
+            "total": 1454804,
+            "male": 680551,
+            "female": 774253
+          },
+          "voters": {
+            "total": 820387,
+            "male": 385605,
+            "female": 434782
+          },
+          "abstainers": {
+            "total": 634417,
+            "male": 294946,
+            "female": 339471
+          },
+          "turnoutRate": {
+            "total": 56.39,
+            "male": 56.66,
+            "female": 56.16
+          }
+        },
+        "votes": {
+          "total": 820373,
+          "valid": 792924,
+          "invalid": 27449,
+          "invalidVoteRate": 3.35
+        }
+      },
+      {
+        "areaCode": "440001",
+        "areaName": "大分県",
+        "voters": {
+          "eligibles": {
+            "total": 954948,
+            "male": 448615,
+            "female": 506333
+          },
+          "voters": {
+            "total": 546746,
+            "male": 257384,
+            "female": 289362
+          },
+          "abstainers": {
+            "total": 408202,
+            "male": 191231,
+            "female": 216971
+          },
+          "turnoutRate": {
+            "total": 57.25,
+            "male": 57.37,
+            "female": 57.15
+          }
+        },
+        "votes": {
+          "total": 546707,
+          "valid": 527304,
+          "invalid": 19403,
+          "invalidVoteRate": 3.55
+        }
+      },
+      {
+        "areaCode": "450006",
+        "areaName": "宮崎県",
+        "voters": {
+          "eligibles": {
+            "total": 901815,
+            "male": 421268,
+            "female": 480547
+          },
+          "voters": {
+            "total": 483830,
+            "male": 226689,
+            "female": 257141
+          },
+          "abstainers": {
+            "total": 417985,
+            "male": 194579,
+            "female": 223406
+          },
+          "turnoutRate": {
+            "total": 53.65,
+            "male": 53.81,
+            "female": 53.51
+          }
+        },
+        "votes": {
+          "total": 483824,
+          "valid": 472244,
+          "invalid": 11580,
+          "invalidVoteRate": 2.39
+        }
+      },
+      {
+        "areaCode": "460001",
+        "areaName": "鹿児島県",
+        "voters": {
+          "eligibles": {
+            "total": 1339456,
+            "male": 623802,
+            "female": 715654
+          },
+          "voters": {
+            "total": 772921,
+            "male": 364027,
+            "female": 408894
+          },
+          "abstainers": {
+            "total": 566535,
+            "male": 259775,
+            "female": 306760
+          },
+          "turnoutRate": {
+            "total": 57.7,
+            "male": 58.36,
+            "female": 57.14
+          }
+        },
+        "votes": {
+          "total": 772881,
+          "valid": 752125,
+          "invalid": 20756,
+          "invalidVoteRate": 2.69
+        }
+      },
+      {
+        "areaCode": "470007",
+        "areaName": "沖縄県",
+        "voters": {
+          "eligibles": {
+            "total": 1175150,
+            "male": 572632,
+            "female": 602518
+          },
+          "voters": {
+            "total": 644563,
+            "male": 312569,
+            "female": 331994
+          },
+          "abstainers": {
+            "total": 530587,
+            "male": 260063,
+            "female": 270524
+          },
+          "turnoutRate": {
+            "total": 54.85,
+            "male": 54.58,
+            "female": 55.1
+          }
+        },
+        "votes": {
+          "total": 644525,
+          "valid": 620669,
+          "invalid": 23856,
+          "invalidVoteRate": 3.7
+        }
+      }
+    ]
+  }
+}
