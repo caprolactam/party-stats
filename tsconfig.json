@@ -5,6 +5,7 @@
     "app/**/*",
     "workers/**/*",
     "tests/**/*",
+    "e2e/**/*",
     "scripts/**/*",
     "./*.config.ts"
   ],
