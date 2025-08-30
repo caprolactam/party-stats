@@ -1,0 +1,207 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "color": {
+          "type": "string"
+        },
+        "nameHistories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "effectiveFrom": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              "effectiveTo": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              }
+            },
+            "required": [
+              "name",
+              "effectiveFrom",
+              "effectiveTo"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "code",
+        "name",
+        "color"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "data": [
+    {
+      "name": "自由民主党",
+      "code": "ldp",
+      "color": "red"
+    },
+    {
+      "name": "立憲民主党",
+      "code": "cdp",
+      "color": "blue"
+    },
+    {
+      "name": "日本維新の会",
+      "code": "jip",
+      "color": "limegreen"
+    },
+    {
+      "name": "公明党",
+      "code": "kmg",
+      "color": "pink"
+    },
+    {
+      "name": "日本共産党",
+      "code": "jcp",
+      "color": "purple"
+    },
+    {
+      "name": "国民民主党",
+      "code": "dpfp",
+      "color": "gold"
+    },
+    {
+      "name": "れいわ新選組",
+      "code": "reiwa",
+      "color": "deeppink"
+    },
+    {
+      "name": "社会民主党",
+      "code": "sdp",
+      "color": "royalblue"
+    },
+    {
+      "name": "参政党",
+      "code": "sansei",
+      "color": "orange"
+    },
+    {
+      "name": "みんなでつくる党",
+      "code": "mintsusku",
+      "color": "darkcyan"
+    },
+    {
+      "name": "安楽死制度を考える会",
+      "code": "euthanasia",
+      "color": "gray"
+    },
+    {
+      "name": "日本保守党",
+      "code": "hoshu",
+      "color": "navy"
+    },
+    {
+      "name": "ＮＨＫ党",
+      "code": "nhk-party",
+      "color": "yellow",
+      "nameHistories": [
+        {
+          "name": "ＮＨＫから国民を守る党",
+          "effectiveFrom": "2013-07-23",
+          "effectiveTo": "2021-07-21"
+        },
+        {
+          "name": "ＮＨＫと裁判してる党弁護士法７２条違反で",
+          "effectiveFrom": "2021-07-21",
+          "effectiveTo": "2022-04-25"
+        }
+      ]
+    },
+    {
+      "name": "ごぼうの党",
+      "code": "gobo-party",
+      "color": "brown"
+    },
+    {
+      "name": "新党くにもり",
+      "code": "kunimori",
+      "color": "darkgreen"
+    },
+    {
+      "name": "維新政党・新風",
+      "code": "ishin-party-shimpu",
+      "color": "teal"
+    },
+    {
+      "name": "支持政党なし",
+      "code": "no-party-to-support",
+      "color": "lightgray"
+    },
+    {
+      "name": "日本第一党",
+      "code": "japan-first",
+      "color": "darkred"
+    },
+    {
+      "name": "新党やまと",
+      "code": "yamato-party",
+      "color": "saddlebrown"
+    },
+    {
+      "name": "政権交代によるコロナ対策強化新党",
+      "code": "seiken-corona",
+      "color": "lightblue"
+    },
+    {
+      "name": "オリーブの木",
+      "code": "tsubasa-party",
+      "color": "olive"
+    },
+    {
+      "name": "労働の解放をめざす労働者党",
+      "code": "lib-labor",
+      "color": "dimgray"
+    },
+    {
+      "name": "国民民主党",
+      "code": "dpfp-2018",
+      "color": "gold"
+    },
+    {
+      "name": "立憲民主党",
+      "code": "cdp-2017",
+      "color": "blue"
+    },
+    {
+      "name": "希望の党",
+      "code": "kibo",
+      "color": "green"
+    },
+    {
+      "name": "日本のこころ",
+      "code": "kokoro",
+      "color": "crimson"
+    },
+    {
+      "name": "幸福実現党",
+      "code": "happiness",
+      "color": "skyblue"
+    },
+    {
+      "name": "新党大地",
+      "code": "daichi",
+      "color": "forestgreen"
+    }
+  ]
+}
