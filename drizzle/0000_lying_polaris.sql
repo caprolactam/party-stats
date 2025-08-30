@@ -21,7 +21,7 @@ CREATE TABLE `areas` (
 	`kana_name` text NOT NULL,
 	`level` text NOT NULL,
 	`code` text NOT NULL,
-	`is_active` integer DEFAULT true NOT NULL,
+	`is_active` integer NOT NULL,
 	`parent_id` text,
 	FOREIGN KEY (`parent_id`) REFERENCES `areas`(`id`) ON UPDATE no action ON DELETE no action
 );
@@ -69,8 +69,8 @@ CREATE TABLE `party_results` (
 	`election_id` text NOT NULL,
 	`area_id` text NOT NULL,
 	`party_id` text NOT NULL,
-	`votes` integer DEFAULT 0 NOT NULL,
-	`vote_rate` integer DEFAULT 0 NOT NULL,
+	`votes` integer NOT NULL,
+	`vote_rate` integer NOT NULL,
 	FOREIGN KEY (`election_id`) REFERENCES `elections`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`area_id`) REFERENCES `areas`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`party_id`) REFERENCES `parties`(`id`) ON UPDATE no action ON DELETE no action,
@@ -112,13 +112,13 @@ CREATE TABLE `voting_statuses` (
 	`abstained_male` integer,
 	`abstained_female` integer,
 	`turnout_rate` integer,
-	`valid_votes` integer DEFAULT 0 NOT NULL,
+	`valid_votes` integer NOT NULL,
 	`invalid_votes` integer,
-	`valid_vote_rate` integer,
+	`invalid_vote_rate` integer,
 	FOREIGN KEY (`election_id`) REFERENCES `elections`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`area_id`) REFERENCES `areas`(`id`) ON UPDATE no action ON DELETE no action,
 	CONSTRAINT "chk_turnout_rate" CHECK("voting_statuses"."turnout_rate" IS NULL OR ("voting_statuses"."turnout_rate" >= 0 AND "voting_statuses"."turnout_rate" <= 10000)),
-	CONSTRAINT "chk_valid_vote_rate" CHECK("voting_statuses"."valid_vote_rate" IS NULL OR ("voting_statuses"."valid_vote_rate" >= 0 AND "voting_statuses"."valid_vote_rate" <= 10000)),
+	CONSTRAINT "chk_invalid_vote_rate" CHECK("voting_statuses"."invalid_vote_rate" IS NULL OR ("voting_statuses"."invalid_vote_rate" >= 0 AND "voting_statuses"."invalid_vote_rate" <= 10000)),
 	CONSTRAINT "chk_male_voters" CHECK(("voting_statuses"."voted_male" IS NULL OR "voting_statuses"."voted_male" >= 0) AND ("voting_statuses"."abstained_male" IS NULL OR "voting_statuses"."abstained_male" >= 0)),
 	CONSTRAINT "chk_female_voters" CHECK(("voting_statuses"."voted_female" IS NULL OR "voting_statuses"."voted_female" >= 0) AND ("voting_statuses"."abstained_female" IS NULL OR "voting_statuses"."abstained_female" >= 0)),
 	CONSTRAINT "chk_vote_counts" CHECK("voting_statuses"."valid_votes" >= 0 AND ("voting_statuses"."invalid_votes" IS NULL OR "voting_statuses"."invalid_votes" >= 0)),
@@ -126,6 +126,6 @@ CREATE TABLE `voting_statuses` (
 );
 --> statement-breakpoint
 CREATE INDEX `idx_voting_statuses_turnout_rate` ON `voting_statuses` (`turnout_rate`);--> statement-breakpoint
-CREATE INDEX `idx_voting_statuses_valid_vote_rate` ON `voting_statuses` (`valid_vote_rate`);--> statement-breakpoint
+CREATE INDEX `idx_voting_statuses_invalid_vote_rate` ON `voting_statuses` (`invalid_vote_rate`);--> statement-breakpoint
 CREATE INDEX `idx_voting_statuses_election_turnout` ON `voting_statuses` (`election_id`,`turnout_rate`);--> statement-breakpoint
 CREATE UNIQUE INDEX `uk_voting_statuses` ON `voting_statuses` (`election_id`,`area_id`);

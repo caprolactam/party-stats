@@ -13,7 +13,10 @@ export default defineConfig({
       {
         test: {
           name: 'unit',
-          include: ['./app/**/*.test.{ts,tsx}'],
+          include: [
+            './app/**/*.test.{ts,tsx}',
+            './scripts/**/*.test.ts',
+          ],
           exclude: ['./app/**/*.browser.test.{ts,tsx}'],
           environment: 'node',
         },

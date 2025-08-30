@@ -14,7 +14,7 @@
     "test:unit": "vitest --run --project unit",
     "test:browser": "vitest --run --project browser",
     "test:browser:headless": "vitest --run --project browser --browser.headless",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage --browser.headless",
     "lint": "oxlint && eslint",
     "lint:fix": "oxlint --fix && eslint --fix",
     "typegen": "run-s typegen:*",
@@ -24,6 +24,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply party-stats --local",
     "db:seed": "tsx ./scripts/seed/index.ts",
+    "db:seed:sql": "tsx ./scripts/seed/index.ts --mode=sql",
     "prepare": "husky"
   },
   "lint-staged": {
@@ -88,6 +89,7 @@
     "oxlint": "^1.13.0",
     "playwright": "^1.55.0",
     "rollup-plugin-visualizer": "^6.0.3",
+    "scule": "^1.3.0",
     "tailwindcss": "^4.1.12",
     "tsx": "^4.20.5",
     "tw-animate-css": "^1.3.7",
