@@ -12,7 +12,6 @@
   "compilerOptions": {
     "types": [
       "@total-typescript/ts-reset/dom",
-      "@cloudflare/vitest-pool-workers",
       "node",
       "vite/client",
       "@vitest/browser/providers/playwright",
