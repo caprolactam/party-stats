@@ -94,7 +94,7 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
-.page-gray:not(.dark) {
+:not(.dark) .page-gray {
   --background: var(--mauve-3);
   --card: var(--mauve-1);
 }
@@ -109,6 +109,7 @@
   --ease-ease: ease;
 
   --ratio: 1.6;
+  --space-xs: calc(var(--space-sm) / var(--ratio));
   --space-sm: calc(var(--space-base) / var(--ratio));
   --space-base: var(--space-base);
   --space-lg: calc(var(--space-base) * var(--ratio));
@@ -185,6 +186,10 @@
   ::backdrop,
   ::file-selector-button {
     @apply border-muted-border;
+  }
+
+  button {
+    @apply cursor-pointer;
   }
 
   :where(

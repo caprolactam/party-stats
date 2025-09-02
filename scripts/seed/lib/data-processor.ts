@@ -445,7 +445,8 @@ function createPartyResult({
   const partyResult = parties.map((party) => {
     const votes = toIntegerFormat(party.votes)
     const voteRate = toIntegerFormat(
-      roundToDecimalPlaces(party.votes / totalVotes, 2),
+      // %表記時の値で保存するので 100倍する
+      roundToDecimalPlaces(party.votes / totalVotes, 4) * 100,
     )
 
     return {
