@@ -7,8 +7,8 @@ import invariant from 'tiny-invariant'
 import { areas } from '~/db/schema'
 import type { SelectArea } from '~/db/schema'
 import { getFirstItem } from '~/db/utils.ts'
-import { getLatestElection } from '~/lib/election.server.ts'
 import { getDB } from '~/middleware/bindings.ts'
+import { getLatestElection } from '~/services/election.server'
 import type { ApiErrors } from '~/types/api-error.ts'
 
 type ApiError = ApiErrors['NotFound' | 'NetworkError']

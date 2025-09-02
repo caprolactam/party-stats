@@ -2,12 +2,12 @@ import type React from 'react'
 import { Link } from 'react-router'
 import { chunkArray } from '~/lib/chunk-array.ts'
 import { cn } from '~/lib/utils.ts'
-import type { Election } from '../types.ts'
+import type { ElectionInfo } from '../queries.server.ts'
 import { Carousel } from './carousel.tsx'
 import { SectionContainer } from './section.tsx'
 
 interface ElectionSectionProps {
-  elections: Election[]
+  elections: Array<ElectionInfo>
 }
 
 export function ElectionSection({ elections }: ElectionSectionProps) {
@@ -22,7 +22,7 @@ export function ElectionSection({ elections }: ElectionSectionProps) {
 /**
  * デスクトップ用選挙一覧グリッドレイアウト
  */
-function DesktopElectionGrid({ elections }: { elections: Election[] }) {
+function DesktopElectionGrid({ elections }: { elections: Array<ElectionInfo> }) {
   return (
     <ul className="hidden md:grid md:grid-cols-2 lg:grid-cols-3">
       {elections.map((election) => (
@@ -44,7 +44,7 @@ function DesktopElectionGrid({ elections }: { elections: Election[] }) {
 /**
  * モバイル用選挙一覧カルーセルレイアウト
  */
-function MobileElectionCarousel({ elections }: { elections: Election[] }) {
+function MobileElectionCarousel({ elections }: { elections: Array<ElectionInfo> }) {
   const chunkedElections = chunkArray(elections, 3)
 
   return (

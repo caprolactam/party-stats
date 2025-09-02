@@ -22,7 +22,7 @@ export function BaseLayout({
       <aside
         className="fixed inset-y-0 left-0 z-40 hidden flex-col overflow-x-hidden overflow-y-auto overscroll-contain bg-sidebar px-(--space-base) lg:flex lg:w-(--sidebar-width) xl:w-[calc((100%_-_(var(--max-screen-width)_-_var(--double-space)))_/_2_+_var(--sidebar-width)_-_var(--space-base))] xl:pl-[max(var(--space-base),_calc((100%_-_var(--max-screen-width))_/_2))]"
       >
-        <div className="sticky top-0 z-45 flex h-(--header-height) shrink-0 items-center border-b bg-sidebar">
+        <div className="sticky top-0 z-45 flex h-(--header-height) shrink-0 items-center bg-sidebar">
           <BrandLogo />
         </div>
         <Sidebar className="pt-(--space-base)" />

@@ -1,17 +1,37 @@
+import { data } from 'react-router'
 import { Separator } from '~/components/ui/separator.tsx'
 import type { Route } from './+types/route'
-import { ElectionSection } from './components/election-section'
-import { HeroSection } from './components/hero-section'
-import { PartySection } from './components/party-section'
-import { RegionSection } from './components/region-section'
-import { demoHomePageData } from './demo-data'
-import type { HomePageData } from './types'
+import { ElectionSection } from './components/election-section.tsx'
+import { HeroSection } from './components/hero-section.tsx'
+import { PartySection } from './components/party-section.tsx'
+import { RegionSection } from './components/region-section.tsx'
+import { demoHomePageData } from './demo-data.ts'
+import { getElections } from './queries.server.ts'
+import type { HomePageData } from './types.ts'
 
 export async function loader(_: Route.LoaderArgs) {
   // TODO: 開発段階では静的なデモデータを返す
-  const data: HomePageData = demoHomePageData
+  const electionsResult = await getElections()
 
-  return data
+  if (electionsResult.isErr()) {
+    const { message, type } = electionsResult.error
+    switch (type) {
+      case 'notFound':
+        throw data(message, { status: 404 })
+      case 'network':
+        throw data(message, { status: 500 })
+      default:
+        const _: never = type
+        throw new Error(`Unhandled error type: ${_}`)
+    }
+  }
+
+  const result = demoHomePageData
+
+  return {
+    ...result,
+    elections: electionsResult.value,
+  }
 }
 
 export function headers(_: Route.HeadersArgs) {

@@ -7,6 +7,7 @@ import {
   ScrollRestoration,
 } from 'react-router'
 import { useMatches } from 'react-router'
+import { clsx } from 'clsx'
 import type { Route } from './+types/root'
 import { BaseLayout } from './components/base-layout/base-layout.tsx'
 import { ThemeProvider } from './lib/theme.tsx'
@@ -25,8 +26,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <html
       lang="ja"
       suppressHydrationWarning
-      // eslint-disable-next-line better-tailwindcss/no-unregistered-classes
-      className={pageBackground === 'gray' ? 'page-gray' : ''}
     >
       <head>
         <meta charSet="utf-8" />
@@ -57,7 +56,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body
-        className="min-h-screen min-w-(--min-screen-width) bg-background text-base text-foreground antialiased"
+        className={clsx(
+          'min-h-screen min-w-(--min-screen-width) bg-background text-base text-foreground antialiased',
+          // htmlに設定すると next-themes と競合しダークモードを上書きするので body に設定
+          // eslint-disable-next-line better-tailwindcss/no-unregistered-classes
+          pageBackground === 'gray' && 'page-gray',
+        )}
       >
         <ThemeProvider>
           <BaseLayout>

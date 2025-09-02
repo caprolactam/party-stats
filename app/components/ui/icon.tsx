@@ -13,6 +13,7 @@ interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'name' | 'children'> {
    * `width` と `height` の両方を一括して設定します。`width` や `height` を指定するとそちらが優先されます。
    */
   size?: number | string
+  title?: string
 }
 
 export function Icon({
@@ -21,9 +22,12 @@ export function Icon({
   size = '1em',
   width,
   height,
-  'aria-hidden': ariaHidden = true,
+  title,
+  'aria-hidden': ariaHiddenProps = true,
   ...props
 }: IconProps) {
+  const ariaHidden = title == null ? ariaHiddenProps : undefined
+
   return (
     <svg
       {...props}
@@ -35,6 +39,7 @@ export function Icon({
       height={height ?? size}
       aria-hidden={ariaHidden}
     >
+      {title && <title>{title}</title>}
       <use href={`${href}#${name}`} />
     </svg>
   )
