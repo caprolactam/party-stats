@@ -8,7 +8,6 @@ import globals from 'globals'
 const ERROR = 'error'
 const WARN = 'warn'
 const OFF = 'off'
-const REACT_FILES = '**/*.{jsx,tsx}'
 const JS_AND_TS = '**/*.{js,jsx,ts,tsx}'
 const TS_FILES = '**/*.{ts,tsx}'
 
@@ -113,7 +112,9 @@ function style() {
 // https://github.com/francoismassart/eslint-plugin-tailwindcss
 function tailwind() {
   return {
-    files: [REACT_FILES],
+    files: [
+      'app/**/*.tsx',
+    ],
     plugins: {
       'better-tailwindcss': tailwindPlugin,
     },
@@ -131,5 +132,5 @@ function tailwind() {
 }
 
 function ignoreFiles() {
-  return globalIgnores(['build', '**/*.d.ts', '.react-router', 'coverage'])
+  return globalIgnores(['build', '**/*.d.ts', '.react-router', 'coverage', 'playwright-report'])
 }
