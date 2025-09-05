@@ -3,7 +3,7 @@ import { Link } from 'react-router'
 import { GroupedList } from '~/components/grouped-list/index.tsx'
 import { Button } from '~/components/ui/button.tsx'
 import { Icon } from '~/components/ui/icon.tsx'
-import { WithTouchTarget } from '~/components/ui/touch-target.tsx'
+import { StickyTitleBar } from '~/components/ui/sticky-title-bar.tsx'
 import type { Route } from './+types/route.ts'
 import { getAreaFamily } from './queries.server.ts'
 
@@ -48,65 +48,65 @@ export default function AreaSelectionPage({
 
   return (
     <>
-      <div className="grid gap-(--space-base)">
+      <meta name="robots" content="noindex, follow" />
+      <StickyTitleBar
+        title={currentArea.name}
+        backLink={areaParent ? { to: areaParent.to, label: areaParent.name } : undefined}
+      >
         <h1 className="sr-only">地域</h1>
-        {areaParent && (
-          <div className="inline-flex">
-            <WithTouchTarget stretch="horizontal">
-              <Link to={areaParent.to} className="inline-flex gap-1 font-medium text-navigation hover:text-navigation-hovered active:text-navigation-selected">
-                <Icon name="chevron-left" size={22} />
-                {areaParent.name}
-              </Link>
-            </WithTouchTarget>
-          </div>
-        )}
-        <h2 className="text-4xl leading-none font-bold tracking-tight text-foreground">
-          {currentArea.name}
-        </h2>
-        <Link to={currentArea.to} className="inline-flex h-11 items-center gap-4 rounded-md bg-card px-4 font-medium text-navigation hover:bg-hovered active:bg-selected">
-          <Icon name="how-to-vote" size={20} />
-          最新の選挙結果
-        </Link>
-        <GroupedList asChild>
-          <ul className="isolate">
-            {areaChildren == null
-              ? (
-                  <li className="text-sm text-muted-foreground">子地域は存在しません</li>
-                )
-              : Array.from(areaChildren).map(([groupLabel, groupedAreas]) => (
-                  <GroupedList.Group
-                    key={groupLabel}
-                    asChild
-                    value={groupLabel}
-                    heading={(
+        <StickyTitleBar.Trigger>
+          <h2
+            className="text-4xl font-medium tracking-tight text-foreground"
+          >
+            {currentArea.name}
+          </h2>
+        </StickyTitleBar.Trigger>
+        <div className="mt-(--space-lg) grid gap-(--space-lg)">
+          <Link to={currentArea.to} className="inline-flex h-11 items-center gap-4 rounded-md bg-card px-4 font-medium text-navigation hover:bg-hovered active:bg-selected">
+            <Icon name="how-to-vote" size={20} />
+            最新の選挙結果
+          </Link>
+          <GroupedList asChild>
+            <ul className="isolate">
+              {areaChildren == null
+                ? (
+                    <li className="text-sm text-muted-foreground">子地域は存在しません</li>
+                  )
+                : Array.from(areaChildren).map(([groupLabel, groupedAreas]) => (
+                    <GroupedList.Group
+                      key={groupLabel}
+                      asChild
+                      value={groupLabel}
+                      heading={(
                       // <div className="sticky top-(--header-height) z-10 rounded-[inherit] bg-card">
-                      <span className="flex items-center bg-card px-4 py-1 text-base font-bold">
-                        {groupLabel}
-                      </span>
+                        <span className="flex items-center bg-card px-4 py-1 text-base font-bold">
+                          {groupLabel}
+                        </span>
                       // </div>
-                    )}
-                  >
-                    <li className="bg-card first-of-type:rounded-t-md last-of-type:rounded-b-md">
-                      <ul>
-                        {groupedAreas.map((area) => (
-                          <GroupedList.Item asChild key={area.to}>
-                            <li>
-                              <Link to={area.to} className="flex h-11 w-full items-center justify-between gap-4 rounded-[inherit] px-4 hover:bg-hovered active:bg-selected">
-                                {area.name}
-                                {currentArea.level !== 'PREFECTURE' && (
-                                  <Icon name="chevron-right" size={20} className="text-muted-foreground" />
-                                )}
-                              </Link>
-                            </li>
-                          </GroupedList.Item>
-                        ))}
-                      </ul>
-                    </li>
-                  </GroupedList.Group>
-                ))}
-          </ul>
-        </GroupedList>
-      </div>
+                      )}
+                    >
+                      <li className="bg-card first-of-type:rounded-t-md last-of-type:rounded-b-md">
+                        <ul>
+                          {groupedAreas.map((area) => (
+                            <GroupedList.Item asChild key={area.to}>
+                              <li>
+                                <Link to={area.to} className="flex h-11 w-full items-center justify-between gap-4 rounded-[inherit] px-4 hover:bg-hovered active:bg-selected">
+                                  {area.name}
+                                  {currentArea.level !== 'PREFECTURE' && (
+                                    <Icon name="chevron-right" size={20} className="text-muted-foreground" />
+                                  )}
+                                </Link>
+                              </li>
+                            </GroupedList.Item>
+                          ))}
+                        </ul>
+                      </li>
+                    </GroupedList.Group>
+                  ))}
+            </ul>
+          </GroupedList>
+        </div>
+      </StickyTitleBar>
     </>
   )
 }
