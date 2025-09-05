@@ -48,7 +48,7 @@ export default function AreaSelectionPage({
 
   return (
     <>
-      <div className="grid max-w-3xl gap-(--space-base)">
+      <div className="grid gap-(--space-base)">
         <h1 className="sr-only">地域</h1>
         {areaParent && (
           <div className="inline-flex">
