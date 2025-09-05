@@ -33,7 +33,7 @@ export default function ElectionsPage({ loaderData }: Route.ComponentProps) {
   const { representativesElections, councillorsElections } = loaderData
 
   return (
-    <section className="grid max-w-3xl gap-(--space-base)">
+    <section className="grid gap-(--space-base)">
       <h1 className="text-2xl leading-none font-bold tracking-tight text-foreground md:text-3xl">
         選挙結果
       </h1>
@@ -73,7 +73,7 @@ export default function ElectionsPage({ loaderData }: Route.ComponentProps) {
 
 export function ErrorBoundary() {
   return (
-    <div className="mx-auto grid max-w-3xl gap-6 px-4 py-6 text-center">
+    <div className="mx-auto grid gap-6 px-4 py-6 text-center">
       <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
         エラーが発生しました
       </h1>

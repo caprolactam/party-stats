@@ -117,10 +117,10 @@
   --breakpoint-sm: 375px;
   --breakpoint-md: 768px;
   --breakpoint-lg: 960px;
-  --breakpoint-xl: 1440px;
+  --breakpoint-xl: 1152px;
   --header-height: 56px;
   --sidebar-width: 288px;
-  --max-screen-width: var(--breakpoint-xl);
+  --max-screen-width: 1080px;
   --min-screen-width: 375px;  
 }
 

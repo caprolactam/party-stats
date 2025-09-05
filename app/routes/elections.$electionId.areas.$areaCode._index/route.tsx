@@ -82,7 +82,7 @@ export default function Route({ loaderData }: Route.ComponentProps) {
         name="keywords"
         content={keywords.join(',')}
       />
-      <div className="grid max-w-3xl gap-(--space-lg)">
+      <div className="grid gap-(--space-lg)">
         <h1 className="text-4xl leading-none tracking-tight">
           {`${areaName}の選挙結果概要`}
         </h1>
