@@ -16,8 +16,8 @@ export default {
 
     const response = await requestHandler(request, context)
 
-    if (response.headers.get('Cache-Control') && import.meta.env.DEV) {
-      // In development, disable cache headers to ensure fresh data
+    // 開発環境では、キャッシュヘッダーを無効にして最新のデータを取得する
+    if (import.meta.env.DEV) {
       response.headers.delete('Cache-Control')
     }
 
