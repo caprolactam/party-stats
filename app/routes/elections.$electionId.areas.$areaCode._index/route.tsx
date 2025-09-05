@@ -1,5 +1,6 @@
 import { href } from 'react-router'
 import type { To } from 'react-router'
+import { StickyTitleBar } from '~/components/ui/sticky-title-bar.tsx'
 import { handleApiError } from '~/lib/error-handling.server.ts'
 import { setSearchParamsString } from '~/lib/search-params.ts'
 import type { Route } from './+types/route.ts'
@@ -71,30 +72,40 @@ export default function Route({ loaderData }: Route.ComponentProps) {
   const electionName = loaderData.election.name
   const heldAt = loaderData.election.heldAt
 
+  const pageTitle = `${areaName}の選挙結果概要`
+
   const description = `${electionName}における${areaName}の投票率、無効投票率、政党別得票率などの詳細な選挙結果をご覧いただけます。${heldAt}に実施された選挙データです。`
   const keywords = [electionName, areaName, '選挙結果', '投票率', '政党別得票率', '無効投票率', '選挙統計']
 
   return (
     <>
-      <title>{`${areaName}の選挙結果概要 ${electionName.replaceAll(/\s/g, '')} | 政党スタッツ`}</title>
+      <title>{`${pageTitle} ${electionName.replaceAll(/\s/g, '')} | 政党スタッツ`}</title>
       <meta name="description" content={description} />
       <meta
         name="keywords"
         content={keywords.join(',')}
       />
-      <div className="grid gap-(--space-lg)">
-        <h1 className="text-4xl leading-none tracking-tight">
-          {`${areaName}の選挙結果概要`}
-        </h1>
-        <BasicInfoSection
-          area={loaderData.area}
-          election={loaderData.election}
-        />
-        <VotingStatusSection
-          {...loaderData.votingStatus}
-        />
-        <PartyResultsSection parties={loaderData.partyResults} />
-      </div>
+      <StickyTitleBar
+        title={pageTitle}
+      >
+        <StickyTitleBar.Trigger>
+          <h1
+            className="text-4xl font-medium tracking-tight text-foreground"
+          >
+            {pageTitle}
+          </h1>
+        </StickyTitleBar.Trigger>
+        <div className="mt-(--space-lg) grid gap-(--space-lg)">
+          <BasicInfoSection
+            area={loaderData.area}
+            election={loaderData.election}
+          />
+          <VotingStatusSection
+            {...loaderData.votingStatus}
+          />
+          <PartyResultsSection parties={loaderData.partyResults} />
+        </div>
+      </StickyTitleBar>
     </>
   )
 }

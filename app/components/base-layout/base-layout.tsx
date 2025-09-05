@@ -28,9 +28,9 @@ export function BaseLayout({
         <Sidebar className="pt-(--space-base)" />
       </aside>
       <div
-        className="flex min-h-screen flex-1 flex-col gap-(--space-base) px-(--space-base) lg:pl-[calc(var(--space-base)_+_var(--sidebar-width))] xl:pr-[max(var(--space-base),_calc((100%_-_var(--max-screen-width))_/_2))] xl:pl-[calc((100%_-_var(--max-screen-width))_/_2_+_var(--sidebar-width)_+_var(--space-base))]"
+        className="flex min-h-screen flex-1 flex-col px-(--space-base) lg:pl-[calc(var(--space-base)_+_var(--sidebar-width))] xl:pr-[max(var(--space-base),_calc((100%_-_var(--max-screen-width))_/_2))] xl:pl-[calc((100%_-_var(--max-screen-width))_/_2_+_var(--sidebar-width)_+_var(--space-base))]"
       >
-        <Header className="sticky inset-x-0 top-0 z-40 h-(--header-height) shrink-0 bg-background" />
+        <Header className="h-(--header-height) shrink-0 bg-background" />
         <main className="flex-1">
           {children}
         </main>
