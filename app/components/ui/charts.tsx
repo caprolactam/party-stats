@@ -1,5 +1,10 @@
 import React from 'react'
-import * as RechartsPrimitive from 'recharts'
+import type RechartsPrimitive from 'recharts'
+import {
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from 'recharts'
 import type { LegendPayload } from 'recharts/types/component/DefaultLegendContent'
 import type {
   NameType,
@@ -96,9 +101,9 @@ function ChartContainer({
         {...props}
       >
         <ChartStyle id={chartId} config={config} />
-        <RechartsPrimitive.ResponsiveContainer>
+        <ResponsiveContainer>
           {children}
-        </RechartsPrimitive.ResponsiveContainer>
+        </ResponsiveContainer>
       </div>
     </ChartContext.Provider>
   )
@@ -123,8 +128,8 @@ const ChartStyle = ({ id, config }: { id: string, config: ChartConfig }) => {
             ${colorConfig
       .map(([key, itemConfig]) => {
         const color =
-                  itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
-                  itemConfig.color
+          itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
+          itemConfig.color
         return color ? `  --color-${key}: ${color};` : null
       })
       .join('\n')}
@@ -137,7 +142,7 @@ const ChartStyle = ({ id, config }: { id: string, config: ChartConfig }) => {
   )
 }
 
-const ChartTooltip = RechartsPrimitive.Tooltip
+const ChartTooltip = Tooltip
 
 function ChartTooltipContent({
   active,
@@ -284,7 +289,7 @@ function ChartTooltipContent({
   )
 }
 
-const ChartLegend = RechartsPrimitive.Legend
+const ChartLegend = Legend
 
 function ChartLegendContent({
   className,
