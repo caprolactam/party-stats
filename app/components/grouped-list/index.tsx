@@ -1,6 +1,6 @@
 import type React from 'react'
 import { useState, useRef, useEffect, createContext, use, useId, useLayoutEffect, useMemo, useCallback } from 'react'
-import { Slot } from 'radix-ui'
+import * as Slot from '@radix-ui/react-slot'
 import { createPortal } from 'react-dom'
 import { RemoveScroll } from 'react-remove-scroll'
 import { useHydrated } from '~/lib/use-hydrated.ts'

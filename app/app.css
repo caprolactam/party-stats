@@ -194,6 +194,7 @@
 
   :where(
     *[tabindex="0"],
+    *[tabindex="-1"],
     a,
     input:not([disabled]),
     select:not([disabled]),

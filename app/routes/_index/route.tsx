@@ -1,5 +1,4 @@
 import { data } from 'react-router'
-import { Separator } from '~/components/ui/separator.tsx'
 import type { Route } from './+types/route'
 import { ElectionSection } from './components/election-section.tsx'
 import { HeroSection } from './components/hero-section.tsx'
@@ -49,11 +48,8 @@ export default function SiteHome({ loaderData }: Route.ComponentProps) {
       <div className="grid gap-(--space-base)">
         <h1 className="sr-only">サイトホーム</h1>
         <HeroSection />
-        <Separator />
         <ElectionSection elections={elections} />
-        <Separator />
         <RegionSection regions={regions} />
-        <Separator />
         <PartySection parties={parties} />
       </div>
     </>

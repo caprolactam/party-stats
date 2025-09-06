@@ -4,7 +4,6 @@
  * - MIT License: https://github.com/vuejs/vitepress/blob/main/LICENSE
  */
 import type { ReactNode } from 'react'
-import { Separator } from '../ui/separator.tsx'
 import { BrandLogo } from './brand-logo.tsx'
 import { Footer } from './footer.tsx'
 import { Header } from './header/header.tsx'
@@ -35,7 +34,6 @@ export function BaseLayout({
           {children}
         </main>
         <footer className="flex-0">
-          <Separator muted />
           <Footer />
         </footer>
       </div>

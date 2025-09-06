@@ -1,6 +1,6 @@
 import React from 'react'
+import * as Slot from '@radix-ui/react-slot'
 import mergeRefs from 'merge-refs'
-import { Slot } from 'radix-ui'
 import { cn } from '~/lib/utils.ts'
 import { CarouselContext, useCarouselState } from './context.ts'
 import { useCarousel } from './context.ts'

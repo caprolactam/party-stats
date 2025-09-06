@@ -1,4 +1,4 @@
-import { desc, eq } from 'drizzle-orm'
+import { asc, desc, eq } from 'drizzle-orm'
 import { ok, err } from 'neverthrow'
 import type { Result } from 'neverthrow'
 import type { SelectElection } from '~/db/schema.ts'
@@ -18,7 +18,7 @@ interface ElectionDetail {
   type: SelectElection['type']
 }
 
-export async function getLatestElection(): Promise<ElectionDetail | null> {
+export async function getLatestElection(): Promise<SelectElection | null> {
   const db = getDB()
 
   const election = await db
@@ -30,17 +30,10 @@ export async function getLatestElection(): Promise<ElectionDetail | null> {
 
   if (!election) return null
 
-  return {
-    id: election.id,
-    name: getName(election),
-    shortName: getShortName(election),
-    heldAt: formatToJapaneseDate(election.heldAt),
-    heldAtDatetime: formatToDatetime(election.heldAt),
-    type: election.type,
-  }
+  return election
 }
 
-export async function getElectionById(electionId: string): Promise<ElectionDetail | null> {
+export async function getElectionById(electionId: string): Promise<SelectElection | null> {
   const db = getDB()
 
   const election = await db
@@ -51,14 +44,7 @@ export async function getElectionById(electionId: string): Promise<ElectionDetai
 
   if (!election) return null
 
-  return {
-    id: election.id,
-    name: getName(election),
-    shortName: getShortName(election),
-    heldAt: formatToJapaneseDate(election.heldAt),
-    heldAtDatetime: formatToDatetime(election.heldAt),
-    type: election.type,
-  }
+  return election
 }
 
 export async function existElection(electionId: string): Promise<Result<boolean, ApiErrors['NetworkError']>> {
@@ -78,7 +64,45 @@ export async function getElection(electionId: string): Promise<Result<ElectionDe
 
     if (!election) return err({ type: 'notFound', message: '選挙が見つかりません' })
 
-    return ok(election)
+    return ok({
+      id: election.id,
+      name: getName(election),
+      shortName: getShortName(election),
+      heldAt: formatToJapaneseDate(election.heldAt),
+      heldAtDatetime: formatToDatetime(election.heldAt),
+      type: election.type,
+    })
+  }
+  catch (error) {
+    console.error(error)
+    return err({ type: 'network', message: 'サーバーエラーが発生しました' })
+  }
+}
+
+export async function listElections(sort: 'asc' | 'desc' = 'desc'): Promise<Result<{
+  elections: Array<ElectionDetail>
+  sort: 'asc' | 'desc'
+}, ApiErrors['NetworkError']>> {
+  try {
+    const db = getDB()
+
+    const electionsList = await db
+      .select()
+      .from(elections)
+      .orderBy(sort === 'desc' ? desc(elections.heldAt) : asc(elections.heldAt))
+      .then((rows) => rows.map((election) => ({
+        id: election.id,
+        name: getName(election),
+        shortName: getShortName(election),
+        heldAt: formatToJapaneseDate(election.heldAt),
+        heldAtDatetime: formatToDatetime(election.heldAt),
+        type: election.type,
+      })))
+
+    return ok({
+      elections: electionsList,
+      sort,
+    })
   }
   catch (error) {
     console.error(error)
