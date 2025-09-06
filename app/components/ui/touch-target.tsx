@@ -1,6 +1,6 @@
 import type React from 'react'
+import * as Slot from '@radix-ui/react-slot'
 import { cva } from 'class-variance-authority'
-import { Slot } from 'radix-ui'
 import { cn } from '~/lib/utils.ts'
 
 /**
