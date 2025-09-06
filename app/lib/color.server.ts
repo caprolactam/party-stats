@@ -9,7 +9,7 @@ const DARK_BACKGROUND_COLOR = '#121113'
  * WCAG AA基準のコントラスト比を満たし、かつ最も鮮やかな色を返します
  */
 export function getAccessibleColor(color: string): { light: string, dark: string } {
-  const [h, s, l, a] = parseToHsla(color)
+  const [h, _s, l, a] = parseToHsla(color)
 
   // 彩度を最大に設定して最も鮮やかな色を目指す
   const maxSaturation = 1
