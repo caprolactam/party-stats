@@ -1,13 +1,13 @@
 import type React from 'react'
 import { Link } from 'react-router'
 import type { To } from 'react-router'
-import { LineChart, Line, XAxis, YAxis } from 'recharts'
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '~/components/ui/charts.tsx'
-import type { ChartConfig } from '~/components/ui/charts.tsx'
+// import { LineChart, Line, XAxis, YAxis } from 'recharts'
+// import {
+//   ChartContainer,
+//   ChartTooltip,
+//   ChartTooltipContent,
+// } from '~/components/ui/charts.tsx'
+// import type { ChartConfig } from '~/components/ui/charts.tsx'
 import { Icon } from '~/components/ui/icon.tsx'
 
 type RateStats = {
@@ -71,12 +71,12 @@ function StatCard({
     ? 'no-change'
     : diffFromPrevious > 0 ? 'increase' : diffFromPrevious < 0 ? 'decrease' : 'no-change'
 
-  const chartConfig: ChartConfig = {
-    rate: {
-      label: title,
-      color: 'var(--chart-2)',
-    },
-  }
+  // const chartConfig: ChartConfig = {
+  //   rate: {
+  //     label: title,
+  //     color: 'var(--chart-2)',
+  //   },
+  // }
 
   // TODO: カラーのダークモード対応
   const diffs: Record<DiffType, React.ReactNode> = {
@@ -121,7 +121,7 @@ function StatCard({
                 </div>
               )}
         </div>
-        <ChartContainer
+        {/* <ChartContainer
           config={chartConfig}
           className="h-full w-full"
         >
@@ -154,7 +154,7 @@ function StatCard({
               activeDot={{ r: 6 }}
             />
           </LineChart>
-        </ChartContainer>
+        </ChartContainer> */}
       </div>
       <Link className="flex h-12 w-full min-w-0 items-center gap-4 rounded-b-md px-4 hover:bg-hovered active:bg-selected" to={stats.to}>
         <span className="flex-1 truncate">選挙の推移と地域の比較</span>

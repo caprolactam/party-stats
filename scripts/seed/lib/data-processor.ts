@@ -388,7 +388,7 @@ function createVotingStatus(data:
   | SeedData['elections'][number]['votingStatus']['prefectures'][number]
   | SeedData['elections'][number]['partyResults']['prefectures'][number]['cities'][number],
 ): Omit<
-InsertData['votingStatuses'][number],
+  InsertData['votingStatuses'][number],
 | 'id' | 'areaId' | 'electionId' | 'createdAt' | 'updatedAt'
 > {
   // CITYレベルでは有効票数のみが提供される
