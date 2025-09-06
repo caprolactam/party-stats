@@ -15,3 +15,23 @@ export function getName({
       throw new Error(`Unknown election type: ${type}`)
   }
 }
+
+export function getShortName({
+  heldAt,
+  type,
+}: {
+  heldAt: Date
+  type: 'REPRESENTATIVES' | 'COUNCILLORS'
+}): string {
+  // 実施年の下2桁を取得
+  const year = heldAt.getFullYear().toString().slice(-2)
+  switch (type) {
+    case 'REPRESENTATIVES':
+      return `衆${year}`
+    case 'COUNCILLORS':
+      return `参${year}`
+    default:
+      const _: never = type
+      throw new Error(`Unknown election type: ${type}`)
+  }
+}

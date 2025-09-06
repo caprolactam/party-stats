@@ -3,11 +3,12 @@ import type { To } from 'react-router'
 import { StickyTitleBar } from '~/components/ui/sticky-title-bar.tsx'
 import { handleApiError } from '~/lib/error-handling.server.ts'
 import { setSearchParamsString } from '~/lib/search-params.ts'
+import { getArea } from '~/services/area.server.ts'
 import type { Route } from './+types/route.ts'
 import { BasicInfoSection } from './components/basic-info-section.tsx'
 import { PartyResultsSection } from './components/party-results-section.tsx'
 import { VotingStatusSection } from './components/voting-status-section.tsx'
-import { getArea, getElection, getPartyResults, getVotingStatus } from './queries.server.ts'
+import { getElection, getPartyResults, getVotingStatus } from './queries.server.ts'
 
 export async function loader({ params, request }: Route.LoaderArgs) {
   const { searchParams } = new URL(request.url)
