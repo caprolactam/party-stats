@@ -22,7 +22,7 @@
     "lint": "oxlint && eslint",
     "lint:fix": "oxlint --fix && eslint --fix",
     "typegen": "run-p typegen:*",
-    "typegen:cloudflare": "wrangler types",
+    "typegen:cloudflare": "wrangler types -c ./wrangler.jsonc -c ./workers/search-area/wrangler.jsonc",
     "typegen:react-router": "react-router typegen",
     "typecheck": "npm run typegen && tsc",
     "db:generate": "drizzle-kit generate",

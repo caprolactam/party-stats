@@ -22,7 +22,13 @@ export default defineConfig(({ mode }) => {
       reactCompiler(),
       tailwindcss(),
       iconsSpritesheet(),
-      cloudflare({ viteEnvironment: { name: 'ssr' } }),
+      cloudflare({
+        viteEnvironment: { name: 'ssr' },
+        configPath: './wrangler.jsonc',
+        auxiliaryWorkers: [
+          { configPath: './workers/search-area/wrangler.jsonc' },
+        ],
+      }),
       IS_TEST ? null : reactRouter(),
       shouldAnalyze ? buildSizeAnalyzer() : null,
       tsconfigPaths(),

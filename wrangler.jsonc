@@ -21,4 +21,10 @@
       "id": "bf85cad338854e7993b9ea1b7820edb9",
     },
   ],
+  "services": [
+    {
+      "binding": "AreaSearchService",
+      "service": "party-stats-search-area"
+    }
+  ]
 }
