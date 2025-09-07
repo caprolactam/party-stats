@@ -109,7 +109,9 @@ function SheetContent({
         >
           <MotionModal
             className={cn(
-              'fixed z-50 bg-background will-change-transform',
+              // will-changeを解釈し最適化する時間がないので、`will-change-transform`は指定しない。
+              // https://developer.mozilla.org/ja/docs/Web/CSS/will-change
+              'fixed z-50 bg-background',
               {
                 'inset-x-0 bottom-0 max-h-[85vh] rounded-t-xl': slideDirection === 'bottom',
                 'inset-y-0 right-0 max-h-full w-3/4 sm:max-w-sm': slideDirection === 'right',
