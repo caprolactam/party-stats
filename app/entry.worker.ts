@@ -12,6 +12,7 @@ export default {
     context.set(CloudflareContext, {
       env,
       ctx,
+      AreaSearchService: env.AreaSearchService,
     })
 
     const response = await requestHandler(request, context)
