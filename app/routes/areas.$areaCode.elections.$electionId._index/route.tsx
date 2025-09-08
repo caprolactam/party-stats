@@ -39,7 +39,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
     election: electionResult.value,
     partyResults: partyResultsResult.value.map((party) => ({
       ...party,
-      to: href('/elections/:electionId/areas/:areaCode/:partyCode', {
+      to: href('/areas/:areaCode/elections/:electionId/:partyCode', {
         electionId,
         areaCode,
         partyCode: party.code,
@@ -51,7 +51,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
         ? {
             ...turnout,
             to: {
-              pathname: href('/elections/:electionId/areas/:areaCode/status', { electionId, areaCode }),
+              pathname: href('/areas/:areaCode/elections/:electionId/status', { electionId, areaCode }),
             } satisfies To,
           }
         : null,
@@ -59,7 +59,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
         ? {
             ...invalidVotes,
             to: {
-              pathname: href('/elections/:electionId/areas/:areaCode/status', { electionId, areaCode }),
+              pathname: href('/areas/:areaCode/elections/:electionId/status', { electionId, areaCode }),
               search: setSearchParamsString(searchParams, { tab: 'votes' }),
             } satisfies To,
           }
