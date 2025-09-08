@@ -25,14 +25,7 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
-      
-      # actions/setup-node@v5 自動キャッシュ対応で必要ない？
-      # https://github.com/actions/setup-node/releases/tag/v5.0.0
-      # - name: 💰 Cache node_modules
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ~/.npm
-      #     key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          cache: "npm"
 
       - name: 📥 Download deps
         run: npm ci
@@ -48,18 +41,13 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
-
-      - name: 💰 Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          cache: "npm"
 
       - name: 📥 Download deps
         run: npm ci
@@ -75,18 +63,13 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
-
-      - name: 💰 Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          cache: "npm"
 
       - name: 📥 Download deps
         run: npm ci
@@ -106,18 +89,13 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: ⎔ Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: ".nvmrc"
-
-      - name: 💰 Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/package-lock.json') }}
+          cache: "npm"
 
       - name: 📥 Download deps
         run: npm ci
