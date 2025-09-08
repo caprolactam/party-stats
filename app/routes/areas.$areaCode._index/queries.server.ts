@@ -26,7 +26,7 @@ interface ParentAreaInfo {
  */
 interface SelfAreaInfo {
   name: string
-  to: string
+  code: string
   level: SelectArea['level']
 }
 
@@ -72,7 +72,7 @@ export async function getAreaFamily(areaCode: string): Promise<Result<AreaFamily
       })
     }
 
-    const self = createSelfAreaInfo(areaAndParent, election.id)
+    const self = createSelfAreaInfo(areaAndParent)
     const parent = createParentAreaInfo(areaAndParent)
     const children = await createChildrenAreaInfo(areaAndParent)
 
@@ -94,10 +94,10 @@ export async function getAreaFamily(areaCode: string): Promise<Result<AreaFamily
 /**
  * 自地域の情報を作成する
  */
-function createSelfAreaInfo(areaAndParent: NonNullable<Awaited<ReturnType<typeof getAreaAndParent>>>, electionId: string): SelfAreaInfo {
+function createSelfAreaInfo(areaAndParent: NonNullable<Awaited<ReturnType<typeof getAreaAndParent>>>): SelfAreaInfo {
   return {
     name: areaAndParent.name,
-    to: getElectionResultHref({ areaCode: areaAndParent.code, electionId }),
+    code: areaAndParent.code,
     level: areaAndParent.level,
   }
 }
@@ -183,11 +183,6 @@ const DAKUTEN_MAP: Readonly<Record<string, readonly string[]>> = {
  * 五十音行の並び順
  */
 const GYO_ORDER = ['あ', 'か', 'さ', 'た', 'な', 'は', 'ま', 'や', 'ら', 'わ', 'その他'] as const
-
-/**
- * 選挙結果ページのhrefを生成する
- */
-const getElectionResultHref = ({ areaCode, electionId }: { areaCode: string, electionId: string }) => href('/elections/:electionId/areas/:areaCode', { electionId, areaCode })
 
 /**
  * 地域選択ページのhrefを生成する

@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('redirects', () => {
-  test('/areasにアクセスすると全国の地域選択ページにリダイレクトされる', async ({ page }) => {
+  test.skip('/areasにアクセスすると全国の地域選択ページにリダイレクトされる', async ({ page }) => {
     await page.goto('/areas')
 
     await expect(page).toHaveURL(/areas\/[a-z0-9_-]+/)

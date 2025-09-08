@@ -227,7 +227,7 @@ function ElectionList({
             className="first-of-type:rounded-t-md last-of-type:rounded-b-md"
           >
             <NavLink
-              to={href('/elections/:electionId/areas/:areaCode', {
+              to={href('/areas/:areaCode/elections/:electionId', {
                 electionId: election.id,
                 areaCode,
               })}
