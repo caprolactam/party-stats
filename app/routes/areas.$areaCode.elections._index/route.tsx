@@ -43,12 +43,12 @@ export default function AreaElectionList({ loaderData }: Route.ComponentProps) {
 
   return (
     <>
-      <meta name="robots" content="noindex, follow" />
+      <Meta />
       <StickyTitleBar
         title={title}
         backLink={{
           to: href('/areas/:areaCode', { areaCode: currentArea.code }),
-          label: currentArea.name,
+          label: '地域',
         }}
       >
         <StickyTitleBar.Trigger>
@@ -84,6 +84,12 @@ export default function AreaElectionList({ loaderData }: Route.ComponentProps) {
         </div>
       </StickyTitleBar>
     </>
+  )
+}
+
+function Meta() {
+  return (
+    <meta name="robots" content="noindex, follow" />
   )
 }
 

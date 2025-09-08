@@ -32,7 +32,7 @@ export async function loader({ params }: Route.LoaderArgs) {
 
   return {
     backLink: {
-      to: href('/elections/:electionId/areas/:areaCode', {
+      to: href('/areas/:areaCode/elections/:electionId', {
         electionId: election.id,
         areaCode: area.code,
       }),
