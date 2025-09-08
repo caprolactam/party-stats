@@ -3,6 +3,7 @@
   "license": "MIT",
   "private": true,
   "type": "module",
+  "packageManager": "npm@11.6.0",
   "scripts": {
     "dev": "react-router dev",
     "dev:host": "react-router dev --host 0.0.0.0",

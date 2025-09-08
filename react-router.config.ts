@@ -9,5 +9,7 @@ export default {
     unstable_subResourceIntegrity: true,
     unstable_viteEnvironmentApi: true,
   },
-  prerender: ['/'],
+  // プリレンダーをコメントアウト（プリレンダー時にCloudflare Bindingsが利用できないため）
+  // TODO: プリレンダー対応のためのスタティックデータモード実装が必要
+  // prerender: ['/'],
 } satisfies Config
