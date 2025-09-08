@@ -34,7 +34,7 @@ export async function loader({ params, request }: Route.LoaderArgs) {
   return {
     title: `${area.name}の${TAB_OPTIONS[tab].label}`,
     backLink: {
-      to: href('/elections/:electionId/areas/:areaCode', {
+      to: href('/areas/:areaCode/elections/:electionId', {
         electionId: election.id,
         areaCode: area.code,
       }),
